@@ -1,0 +1,18 @@
+<svg width="385" height="769" viewBox="0 0 385 769" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.35">
+<path d="M0 0.375H189V192.375H0" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M384.5 0.375H189V192.375H384.5" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M0 192.375H189V384.375H0" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M384.5 192.375H189V384.375H384.5" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M0 384.375H189V576.375H0" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M378 384.375H189V576.375H378" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M0 576.375H189V768.375H0" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+<path d="M384.5 576.375H189V768.375H384.5" stroke="#A5BFD2" stroke-width="0.75" stroke-miterlimit="10"/>
+</g>
+<path d="M189 185.875V198.875" stroke="#A5BFD2" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M195.5 192.375H182.5" stroke="#A5BFD2" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M189 569.875V582.875" stroke="#A5BFD2" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M195.5 576.375H182.5" stroke="#A5BFD2" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M378 377.875V390.875" stroke="#A5BFD2" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M384.5 384.375H371.5" stroke="#A5BFD2" stroke-width="2" stroke-miterlimit="10"/>
+</svg>

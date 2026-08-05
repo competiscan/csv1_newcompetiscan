@@ -1,0 +1,56 @@
+/* "Get In Touch" contact modal + branded styling for the existing CF7 form
+   (Competiscan – Contact Us). The modal shell is ported from the source; the
+   form fields use the site's branded rounded-input style (matching the
+   white-paper forms) since these CF7 fields have no source-HTML equivalent. */
+
+/* ---- Modal shell -------------------------------------------------------- */
+.cs-ctm-overlay { position: fixed; inset: 0; z-index: 120; display: none; align-items: flex-start; justify-content: center; padding: clamp(16px,4vw,40px); background: rgba(0,30,51,0.55); overflow-y: auto; -webkit-overflow-scrolling: touch; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: rgb(0,30,51); }
+.cs-ctm-overlay.is-open { display: flex; }
+.cs-ctm { position: relative; width: 100%; max-width: 640px; margin: auto; border-radius: 16px; background: rgb(255,255,255); padding: clamp(28px,5vw,52px) clamp(20px,4.5vw,48px) clamp(28px,4vw,40px); box-shadow: 0 24px 60px rgba(0,30,51,0.3); }
+.cs-ctm-close { position: absolute; top: 14px; right: 14px; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: none; cursor: pointer; color: rgb(0,30,51); transition: background 0.14s ease; }
+.cs-ctm-close:hover { background: rgb(226,242,248); }
+.cs-ctm-title { margin: 0 0 14px; text-align: center; font-size: clamp(26px,3.4vw,36px); font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: rgb(0,171,171); }
+.cs-ctm-sub { margin: 0 auto 22px; max-width: 520px; text-align: center; font-size: 15px; line-height: 1.65; color: rgb(0,30,51); }
+.cs-ctm-divider { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 0 auto 28px; max-width: 420px; color: rgb(200,208,214); }
+.cs-ctm-divider::before, .cs-ctm-divider::after { content: ""; flex: 1; height: 1px; background: rgb(222,228,232); }
+
+/* ---- Branded CF7 fields (works with the existing form's markup) --------- */
+.cs-ctm .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.cs-ctm .wpcf7-form-control-wrap { display: block; }
+.cs-ctm p { margin: 0; }
+
+.cs-ctm input.wpcf7-form-control:not([type="submit"]),
+.cs-ctm textarea.wpcf7-form-control,
+.cs-ctm select.wpcf7-form-control {
+  width: 100%; box-sizing: border-box; margin: 0 0 16px; padding: 13px 16px;
+  border: 1px solid rgb(214,226,234); border-radius: 10px; background: rgb(255,255,255);
+  font-family: inherit; font-size: 16px; color: rgb(0,30,51);
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.cs-ctm textarea.wpcf7-form-control { min-height: 120px; resize: vertical; }
+.cs-ctm .wpcf7-form-control:not([type="submit"]):focus {
+  border-color: rgb(0,171,171); box-shadow: 0 0 0 3px rgba(0,171,171,0.15); outline: none;
+}
+.cs-ctm ::placeholder { color: rgb(165,173,180); opacity: 1; }
+
+.cs-ctm .wpcf7-submit {
+  width: 100%; margin-top: 4px; padding: 15px 26px; border: none; border-radius: 10px;
+  background: rgb(0,75,129); color: rgb(255,255,255); font-family: inherit; font-size: 16px;
+  font-weight: 600; letter-spacing: 0.02em; cursor: pointer; transition: background 0.14s ease;
+}
+.cs-ctm .wpcf7-submit:hover { background: rgb(0,30,51); }
+.cs-ctm .wpcf7-spinner { margin: 12px auto 0; display: block; }
+
+/* ---- Validation + success/error messages ------------------------------- */
+.cs-ctm .wpcf7-not-valid-tip { display: block; margin: -10px 0 12px; font-size: 13px; color: rgb(196,54,54); }
+.cs-ctm input.wpcf7-not-valid, .cs-ctm textarea.wpcf7-not-valid { border-color: rgb(196,54,54); }
+.cs-ctm .wpcf7-response-output { margin: 16px 0 0 !important; padding: 12px 16px; border-radius: 8px; border: 1px solid transparent; font-size: 15px; line-height: 1.5; }
+.cs-ctm .wpcf7-form.invalid .wpcf7-response-output,
+.cs-ctm .wpcf7-form.unaccepted .wpcf7-response-output,
+.cs-ctm .wpcf7-form.spam .wpcf7-response-output { color: rgb(196,54,54); background: rgba(196,54,54,0.06); border-color: rgba(196,54,54,0.4); }
+.cs-ctm .wpcf7-form.sent .wpcf7-response-output { color: rgb(0,140,90); background: rgba(0,140,90,0.06); border-color: rgba(0,140,90,0.4); }
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 560px) {
+  .cs-ctm .form-row { grid-template-columns: minmax(0, 1fr); }
+}
