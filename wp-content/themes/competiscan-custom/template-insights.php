@@ -50,10 +50,10 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
         Filter
       </button>
       <div class="filter-pills">
-        <button class="pill active" data-filter="all">All</button>
-        <button class="pill" data-filter="articles">Articles</button>
-        <button class="pill" data-filter="webinars">Webinars</button>
-        <button class="pill" data-filter="conferences">Conferences</button>
+        <button class="pill active" type="button" data-filter="all">All</button>
+        <button class="pill" type="button" data-filter="articles">Articles</button>
+        <button class="pill" type="button" data-filter="webinars">Webinars</button>
+        <button class="pill" type="button" data-filter="conferences">Conferences</button>
     </div>
       <div class="filter-meta">
         <span class="results-count"><?php
@@ -65,6 +65,10 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
             )
           );
         ?></span>
+        <a class="filter-reset<?php echo '' !== $competiscan_search ? ' is-visible' : ''; ?>" href="<?php echo esc_url( $competiscan_page_url ); ?>">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg>
+          <?php esc_html_e( 'Reset', 'competiscan-custom' ); ?>
+        </a>
         <button class="search-toggle" type="button" aria-expanded="false">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#00ABAB" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="#00ABAB" stroke-width="1.8" stroke-linecap="round"/></svg>
           Search
@@ -73,6 +77,11 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
       <form class="search-box" method="get" action="<?php echo esc_url( $competiscan_page_url ); ?>" role="search">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#00ABAB" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="#00ABAB" stroke-width="1.8" stroke-linecap="round"/></svg>
         <input type="text" name="insight_s" value="<?php echo esc_attr( $competiscan_search ); ?>" placeholder="Enter your search term">
+        <?php if ( '' !== $competiscan_search ) : ?>
+        <a class="search-box-clear" href="<?php echo esc_url( $competiscan_page_url ); ?>" aria-label="<?php esc_attr_e( 'Clear search', 'competiscan-custom' ); ?>" title="<?php esc_attr_e( 'Clear search', 'competiscan-custom' ); ?>">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg>
+        </a>
+        <?php endif; ?>
       </form>
     </div>
   </div>
@@ -226,50 +235,7 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
     </div>
   </div>
 </section>
-<script>
-
-document.addEventListener("DOMContentLoaded",function(){
-
-const pills=document.querySelectorAll(".pill");
-const items=document.querySelectorAll(".filter-item");
-
-pills.forEach(function(btn){
-
-btn.addEventListener("click",function(){
-
-pills.forEach(function(b){
-b.classList.remove("active");
-});
-
-this.classList.add("active");
-
-const filter=this.dataset.filter;
-
-items.forEach(function(item){
-
-if(filter==="all"){
-
-item.style.display="block";
-
-}else{
-
-if(item.dataset.type===filter){
-item.style.display="block";
-}else{
-item.style.display="none";
-}
-
-}
-
-});
-
-});
-
-});
-
-});
-
-</script>
+<?php // Filter tabs, result-count visibility and Reset are handled in assets/js/main.js. ?>
 <?php
 get_template_part( 'template-parts/faq', null, array( 'variant' => 'insights' ) );
 

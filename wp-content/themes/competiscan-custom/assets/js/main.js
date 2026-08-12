@@ -54,23 +54,74 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  /* ---------- Insights: filter pills ---------- */
-  // var pills = document.querySelectorAll('.filter-pills .pill');
-  // var cards = document.querySelectorAll('.article-card');
-  // pills.forEach(function (pill) {
-  //   pill.addEventListener('click', function () {
-  //     pills.forEach(function (p) { p.classList.remove('active'); });
-  //     pill.classList.add('active');
-  //     var filter = pill.dataset.filter;
-  //     cards.forEach(function (card) {
-  //       if (filter === 'all' || card.dataset.type === filter) {
-  //         card.style.display = '';
-  //       } else {
-  //         card.style.display = 'none';
-  //       }
-  //     });
-  //   });
-  // });
+  /* ---------- Insights: filter tabs + result count + reset ---------- */
+  var insightsBar = document.querySelector('.filter-bar');
+  if (insightsBar && insightsBar.querySelector('.filter-pills .pill')) {
+    var tabPills = insightsBar.querySelectorAll('.filter-pills .pill');
+    var filterItems = document.querySelectorAll('.filter-item');
+    var countEl = insightsBar.querySelector('.results-count');
+    var resetEl = insightsBar.querySelector('.filter-reset');
+    var searchField = insightsBar.querySelector('.search-box input');
+    var searchParam = new URLSearchParams(window.location.search).get('insight_s');
+    var hasActiveSearch = !!(searchParam && searchParam.length);
+
+    var activeFilter = function () {
+      var a = insightsBar.querySelector('.filter-pills .pill.active');
+      return a ? (a.getAttribute('data-filter') || 'all') : 'all';
+    };
+    // The Reset button is tied to the SEARCH only — a submitted search term or text
+    // currently typed in the field. Selecting a tab/category must NOT show it.
+    var isActive = function () {
+      var typed = searchField ? searchField.value.trim() : '';
+      return hasActiveSearch || typed.length > 0;
+    };
+    // Reset is shown only when a search term is active, hidden otherwise.
+    var syncReset = function () {
+      if (resetEl) {
+        resetEl.classList.toggle('is-visible', isActive());
+      }
+    };
+    var applyTab = function (filter) {
+      tabPills.forEach(function (p) {
+        p.classList.toggle('active', p.getAttribute('data-filter') === filter);
+      });
+      filterItems.forEach(function (it) {
+        var show = (filter === 'all' || it.getAttribute('data-type') === filter);
+        it.style.display = show ? '' : 'none';
+      });
+      // "Showing X results" is only meaningful for All + Articles.
+      if (countEl) {
+        countEl.style.display = (filter === 'all' || filter === 'articles') ? '' : 'none';
+      }
+      syncReset();
+    };
+
+    tabPills.forEach(function (p) {
+      p.addEventListener('click', function () {
+        applyTab(this.getAttribute('data-filter') || 'all');
+      });
+    });
+
+    if (resetEl) {
+      resetEl.addEventListener('click', function (e) {
+        if (!hasActiveSearch) {
+          // No search in the URL — reset fully on the client, no reload needed.
+          e.preventDefault();
+          if (searchField) { searchField.value = ''; }
+          insightsBar.classList.remove('search-open');
+          applyTab('all'); // resets tab + count + hides the reset via syncReset()
+        }
+        // With an active search, follow the link to the base URL to restore all results.
+      });
+    }
+
+    // Keep the reset in sync while typing a term too.
+    if (searchField) {
+      searchField.addEventListener('input', syncReset);
+    }
+
+    syncReset();
+  }
 
   /* ---------- Search toggle (search.png two-state behavior) ---------- */
   var filterBar = document.querySelector('.filter-bar');
@@ -138,15 +189,57 @@ $('.tracking-slider').slick({
     ]
 });
 
-$(window).on("scroll", function () {
-    if ($(this).scrollTop() > 100) {
-        $("header").addClass("header-fixed");
-    } else {
-        $("header").removeClass("header-fixed");
+/* Header scrolled-state flag.
+   rAF-throttled + passive so the scroll listener never blocks or thrashes layout,
+   and the class only toggles when the state actually changes — this keeps the
+   sticky header perfectly smooth on Windows instead of glitching every scroll tick. */
+(function () {
+  var headerEl = document.querySelector('.site-header');
+  if (!headerEl) return;
+  var isScrolled = false;
+  var ticking = false;
+  function applyHeaderState() {
+    var scrolled = window.pageYOffset > 20;
+    if (scrolled !== isScrolled) {
+      headerEl.classList.toggle('header-fixed', scrolled);
+      isScrolled = scrolled;
     }
-});
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      window.requestAnimationFrame(applyHeaderState);
+      ticking = true;
+    }
+  }, { passive: true });
+  applyHeaderState();
+})();
+
+
+
 /* Duplicate the partner logos so the marquee loops seamlessly.
    Guarded: .marquee-row only exists on the home page. */
 const row = document.querySelector('.marquee-row');
 if (row) row.innerHTML += row.innerHTML;
 });
+
+
+// document.addEventListener('DOMContentLoaded', function () {
+//   const header = document.querySelector('.site-header');
+
+//   if (!header) return;
+
+//   function checkScroll() {
+//     if (window.scrollY > 20) {
+//       header.classList.add('header-fixed');
+//     } else {
+//       header.classList.remove('header-fixed');
+//     }
+//   }
+
+//   window.addEventListener('scroll', checkScroll, {
+//     passive: true
+//   });
+
+//   checkScroll();
+// });

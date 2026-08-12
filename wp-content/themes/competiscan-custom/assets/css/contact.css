@@ -4,16 +4,20 @@
    white-paper forms) since these CF7 fields have no source-HTML equivalent. */
 
 /* ---- Modal shell -------------------------------------------------------- */
-.cs-ctm-overlay { position: fixed; inset: 0; z-index: 120; display: none; align-items: flex-start; justify-content: center; padding: clamp(16px,4vw,40px); background: rgba(0,30,51,0.55); overflow-y: auto; -webkit-overflow-scrolling: touch; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: rgb(0,30,51); }
+/* z-index sits above the sticky site-header (z 999/1000) so the modal — and its
+   close button — are never covered/intercepted by the header. */
+.cs-ctm-overlay { position: fixed; inset: 0; z-index: 9999; display: none; align-items: flex-start; justify-content: center; padding: clamp(16px,4vw,40px); background: rgba(0,30,51,0.55); overflow-y: auto; -webkit-overflow-scrolling: touch; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: rgb(0,30,51); }
 .cs-ctm-overlay.is-open { display: flex; }
-.cs-ctm { position: relative; width: 100%; max-width: 640px; margin: auto; border-radius: 16px; background: rgb(255,255,255); padding: clamp(28px,5vw,52px) clamp(20px,4.5vw,48px) clamp(28px,4vw,40px); box-shadow: 0 24px 60px rgba(0,30,51,0.3); }
+/* margin:0 auto (not auto) — a flex child taller than the viewport keeps its top
+   reachable/scrollable on short Windows heights instead of being clipped. */
+.cs-ctm { position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 16px; background: rgb(255,255,255); padding: clamp(28px,5vw,52px) clamp(20px,4.5vw,48px) clamp(28px,4vw,40px); box-shadow: 0 24px 60px rgba(0,30,51,0.3); }
 .cs-ctm-close { position: absolute; top: 14px; right: 14px; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: none; cursor: pointer; color: rgb(0,30,51); transition: background 0.14s ease; }
 .cs-ctm-close:hover { background: rgb(226,242,248); }
 .cs-ctm-title { margin: 0 0 14px; text-align: center; font-size: clamp(26px,3.4vw,36px); font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: rgb(0,171,171); }
 .cs-ctm-sub { margin: 0 auto 22px; max-width: 520px; text-align: center; font-size: 15px; line-height: 1.65; color: rgb(0,30,51); }
 .cs-ctm-divider { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 0 auto 28px; max-width: 420px; color: rgb(200,208,214); }
 .cs-ctm-divider::before, .cs-ctm-divider::after { content: ""; flex: 1; height: 1px; background: rgb(222,228,232); }
-
+.cs-ctm form br{display: none;}
 /* ---- Branded CF7 fields (works with the existing form's markup) --------- */
 .cs-ctm .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 .cs-ctm .wpcf7-form-control-wrap { display: block; }
@@ -44,7 +48,7 @@
 /* ---- Validation + success/error messages ------------------------------- */
 .cs-ctm .wpcf7-not-valid-tip { display: block; margin: -10px 0 12px; font-size: 13px; color: rgb(196,54,54); }
 .cs-ctm input.wpcf7-not-valid, .cs-ctm textarea.wpcf7-not-valid { border-color: rgb(196,54,54); }
-.cs-ctm .wpcf7-response-output { margin: 16px 0 0 !important; padding: 12px 16px; border-radius: 8px; border: 1px solid transparent; font-size: 15px; line-height: 1.5; }
+.cs-ctm .wpcf7-response-output { margin: 16px 0 0 !important; padding: 12px 16px; border-radius: 8px; border: 0; text-align: center; font-size: 15px; line-height: 1.5; }
 .cs-ctm .wpcf7-form.invalid .wpcf7-response-output,
 .cs-ctm .wpcf7-form.unaccepted .wpcf7-response-output,
 .cs-ctm .wpcf7-form.spam .wpcf7-response-output { color: rgb(196,54,54); background: rgba(196,54,54,0.06); border-color: rgba(196,54,54,0.4); }
