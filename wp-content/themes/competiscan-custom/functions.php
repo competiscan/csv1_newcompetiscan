@@ -314,3 +314,23 @@ function custom_loginlogo_url() {
     return home_url();
 }
 add_filter('login_headerurl', 'custom_loginlogo_url');
+
+// Allow SVG upload in WordPress Media Library
+function allow_svg_uploads($mimes) {
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+}
+add_filter('upload_mimes', 'allow_svg_uploads');
+
+// Fix SVG MIME type
+function fix_svg_mime_type($data, $file, $filename, $mimes) {
+    $filetype = wp_check_filetype($filename, $mimes);
+
+    if ($filetype['ext'] === 'svg') {
+        $data['ext']  = 'svg';
+        $data['type'] = 'image/svg+xml';
+    }
+
+    return $data;
+}
+add_filter('wp_check_filetype_and_ext', 'fix_svg_mime_type', 10, 4);
