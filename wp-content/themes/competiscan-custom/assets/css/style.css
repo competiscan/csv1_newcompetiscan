@@ -1042,6 +1042,9 @@ h3 {
 }
 .industry-item span {
   width: calc(100% - 50px);
+  font-size: 18px;
+    font-weight: 500;
+    color: rgb(0, 30, 51);
 }
 
 .industries-copy {
