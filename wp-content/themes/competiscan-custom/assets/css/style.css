@@ -1121,24 +1121,24 @@ border-radius:var(--radius-lg)
   background: var(--color-white);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; display: none;
 }
 .testi-person .designation {
   color: var(--color-teal-500);
-  line-height: 20px;
+  line-height: 20px;line-height: 25px;
 }
 .testi-person strong {
   display: block;
-  font-size: var(--fs-small);
+  font-size: clamp(15px,1.5vw,19px);
 }
 .testi-person span {
-  font-size: var(--fs-xs);
+  font-size: clamp(14px,1.4vw,18px); color: rgb(153,196,220)112;
 }
 .slick-arrow-group {
   display: flex;
   gap: 0.75rem;
   flex-shrink: 0;
-  display: none;
+  /*display: none;*/
 }
 
 .carousel-arrow,

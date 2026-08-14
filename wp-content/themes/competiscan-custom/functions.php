@@ -142,6 +142,8 @@ require_once get_template_directory() . '/inc/class-competiscan-mobile-nav-walke
 require_once get_template_directory() . '/inc/nav-fallbacks.php';
 require_once get_template_directory() . '/inc/nav-menu-bootstrap.php';
 require_once get_template_directory() . '/inc/footer-options.php';
+require_once get_template_directory() . '/inc/faq-fields.php';
+require_once get_template_directory() . '/inc/home-fields.php';
 require_once get_template_directory() . '/inc/pagination.php';
 require_once get_template_directory() . '/inc/insights-page.php';
 require_once get_template_directory() . '/inc/team-cpt.php';
