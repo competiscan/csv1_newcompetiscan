@@ -16,7 +16,7 @@ $img = get_template_directory_uri() . '/assets/images/';
 
 // Each cell is either a stat (num/colour/label) or a logo image, in source order.
 $cells = array(
-	array( 'num' => '8,000+', 'color' => 'yellow', 'label' => 'projects completed for clients in 2025' ),
+	array( 'num' => '8,000+', 'color' => 'yellow', 'label' => 'projects completed for clients annually' ),
 	array( 'img' => 'fortune-1.png' ),
 	array( 'num' => '2,000+', 'color' => 'orange', 'label' => 'hours of custom research per year' ),
 	array( 'img' => 'fortune-2.png' ),
