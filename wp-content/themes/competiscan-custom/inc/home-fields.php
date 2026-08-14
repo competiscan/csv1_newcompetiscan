@@ -287,6 +287,249 @@ function competiscan_register_home_fields() {
 			),
 		)
 	);
+
+	// ---- Partners ---------------------------------------------------------
+	acf_add_local_field_group(
+		array(
+			'key'        => 'group_competiscan_home_partners',
+			'title'      => 'Home — Partners',
+			'menu_order' => 2,
+			'location'   => $front,
+			'fields'     => array(
+				array(
+					'key'   => 'field_home_partners_eyebrow',
+					'label' => 'Eyebrow label',
+					'name'  => 'partners_eyebrow',
+					'type'  => 'text',
+				),
+				array(
+					'key'          => 'field_home_partners_logos',
+					'label'        => 'Logos',
+					'name'         => 'partners_logos',
+					'type'         => 'repeater',
+					'layout'       => 'table',
+					'button_label' => 'Add logo',
+					'sub_fields'   => array(
+						array(
+							'key'           => 'field_home_partner_logo',
+							'label'         => 'Logo',
+							'name'          => 'logo',
+							'type'          => 'image',
+							'return_format' => 'url',
+							'preview_size'  => 'thumbnail',
+						),
+					),
+				),
+			),
+		)
+	);
+
+	// ---- Omnichannel Tracking --------------------------------------------
+	acf_add_local_field_group(
+		array(
+			'key'        => 'group_competiscan_home_tracking',
+			'title'      => 'Home — Omnichannel Tracking',
+			'menu_order' => 3,
+			'location'   => $front,
+			'fields'     => array(
+				array(
+					'key'   => 'field_home_tracking_heading',
+					'label' => 'Heading',
+					'name'  => 'tracking_heading',
+					'type'  => 'text',
+				),
+				array(
+					'key'       => 'field_home_tracking_desc',
+					'label'     => 'Description',
+					'name'      => 'tracking_desc',
+					'type'      => 'textarea',
+					'rows'      => 4,
+					'new_lines' => '',
+				),
+				array(
+					'key'          => 'field_home_tracking_cards',
+					'label'        => 'Channel cards',
+					'name'         => 'tracking_cards',
+					'type'         => 'repeater',
+					'layout'       => 'block',
+					'button_label' => 'Add channel',
+					'sub_fields'   => array(
+						array(
+							'key'           => 'field_home_track_icon',
+							'label'         => 'Icon (optional — keeps the built-in icon if empty)',
+							'name'          => 'icon',
+							'type'          => 'image',
+							'return_format' => 'url',
+							'preview_size'  => 'thumbnail',
+							'wrapper'       => array( 'width' => '30' ),
+						),
+						array(
+							'key'     => 'field_home_track_title',
+							'label'   => 'Title',
+							'name'    => 'title',
+							'type'    => 'text',
+							'wrapper' => array( 'width' => '30' ),
+						),
+						array(
+							'key'       => 'field_home_track_text',
+							'label'     => 'Text',
+							'name'      => 'text',
+							'type'      => 'textarea',
+							'rows'      => 2,
+							'new_lines' => '',
+							'wrapper'   => array( 'width' => '40' ),
+						),
+					),
+				),
+			),
+		)
+	);
+
+	// ---- Fortune 500 Stats -----------------------------------------------
+	acf_add_local_field_group(
+		array(
+			'key'        => 'group_competiscan_home_stats',
+			'title'      => 'Home — Stats',
+			'menu_order' => 4,
+			'location'   => $front,
+			'fields'     => array(
+				array(
+					'key'   => 'field_home_stats_accent',
+					'label' => 'Heading (highlighted part)',
+					'name'  => 'stats_accent',
+					'type'  => 'text',
+				),
+				array(
+					'key'   => 'field_home_stats_tail',
+					'label' => 'Heading (rest)',
+					'name'  => 'stats_tail',
+					'type'  => 'text',
+				),
+				array(
+					'key'          => 'field_home_stats_cells',
+					'label'        => 'Grid cells (stats + images, in display order)',
+					'name'         => 'stats_cells',
+					'type'         => 'repeater',
+					'layout'       => 'block',
+					'button_label' => 'Add cell',
+					'sub_fields'   => array(
+						array(
+							'key'           => 'field_home_stat_type',
+							'label'         => 'Cell type',
+							'name'          => 'cell_type',
+							'type'          => 'select',
+							'choices'       => array( 'stat' => 'Stat', 'logo' => 'Image' ),
+							'default_value' => 'stat',
+							'wrapper'       => array( 'width' => '25' ),
+						),
+						array(
+							'key'               => 'field_home_stat_num',
+							'label'             => 'Number',
+							'name'              => 'number',
+							'type'              => 'text',
+							'wrapper'           => array( 'width' => '25' ),
+							'conditional_logic' => array( array( array( 'field' => 'field_home_stat_type', 'operator' => '==', 'value' => 'stat' ) ) ),
+						),
+						array(
+							'key'               => 'field_home_stat_color',
+							'label'             => 'Colour',
+							'name'              => 'color',
+							'type'              => 'select',
+							'choices'           => array( 'yellow' => 'Yellow', 'orange' => 'Orange', 'blue' => 'Blue' ),
+							'wrapper'           => array( 'width' => '25' ),
+							'conditional_logic' => array( array( array( 'field' => 'field_home_stat_type', 'operator' => '==', 'value' => 'stat' ) ) ),
+						),
+						array(
+							'key'               => 'field_home_stat_label',
+							'label'             => 'Label',
+							'name'              => 'label',
+							'type'              => 'text',
+							'wrapper'           => array( 'width' => '25' ),
+							'conditional_logic' => array( array( array( 'field' => 'field_home_stat_type', 'operator' => '==', 'value' => 'stat' ) ) ),
+						),
+						array(
+							'key'               => 'field_home_stat_img',
+							'label'             => 'Image',
+							'name'              => 'logo_image',
+							'type'              => 'image',
+							'return_format'     => 'url',
+							'preview_size'      => 'thumbnail',
+							'conditional_logic' => array( array( array( 'field' => 'field_home_stat_type', 'operator' => '==', 'value' => 'logo' ) ) ),
+						),
+					),
+				),
+			),
+		)
+	);
+
+	// ---- Industries We Serve ---------------------------------------------
+	acf_add_local_field_group(
+		array(
+			'key'        => 'group_competiscan_home_industries',
+			'title'      => 'Home — Industries',
+			'menu_order' => 5,
+			'location'   => $front,
+			'fields'     => array(
+				array(
+					'key'          => 'field_home_ind_heading',
+					'label'        => 'Heading',
+					'name'         => 'ind_heading',
+					'type'         => 'textarea',
+					'rows'         => 2,
+					'new_lines'    => '',
+					'instructions' => 'Line breaks are preserved.',
+				),
+				array(
+					'key'       => 'field_home_ind_desc',
+					'label'     => 'Description',
+					'name'      => 'ind_desc',
+					'type'      => 'textarea',
+					'rows'      => 3,
+					'new_lines' => '',
+				),
+				array(
+					'key'     => 'field_home_ind_btn_label',
+					'label'   => 'Button label',
+					'name'    => 'ind_btn_label',
+					'type'    => 'text',
+					'wrapper' => array( 'width' => '50' ),
+				),
+				array(
+					'key'     => 'field_home_ind_btn_url',
+					'label'   => 'Button URL',
+					'name'    => 'ind_btn_url',
+					'type'    => 'url',
+					'wrapper' => array( 'width' => '50' ),
+				),
+				array(
+					'key'          => 'field_home_ind_items',
+					'label'        => 'Industries',
+					'name'         => 'ind_items',
+					'type'         => 'repeater',
+					'layout'       => 'table',
+					'button_label' => 'Add industry',
+					'sub_fields'   => array(
+						array(
+							'key'           => 'field_home_ind_icon',
+							'label'         => 'Icon (optional — keeps the built-in icon if empty)',
+							'name'          => 'icon',
+							'type'          => 'image',
+							'return_format' => 'url',
+							'preview_size'  => 'thumbnail',
+							'wrapper'       => array( 'width' => '40' ),
+						),
+						array(
+							'key'     => 'field_home_ind_label',
+							'label'   => 'Label',
+							'name'    => 'label',
+							'type'    => 'text',
+							'wrapper' => array( 'width' => '60' ),
+						),
+					),
+				),
+			),
+		)
+	);
 }
 add_action( 'acf/init', 'competiscan_register_home_fields' );
 
@@ -313,8 +556,10 @@ function competiscan_seed_home_hero() {
 	$img = get_template_directory_uri() . '/assets/images/';
 
 	$defaults = array(
-		'hero_heading'           => "Your Single\nSource for Market\nand Competitive\nInsights",
-		'hero_text'              => 'Competiscan transforms direct and digital marketing activity across the marketplace into clear, actionable insights, backed by best-in-class service along with the largest omni-channel consumer, business owner, and advisor/broker panels.',
+		'hero_heading'           => "Your Single Source\nfor Market and\nCompetitive\nInsights",
+		'hero_text'              => 'Competiscan transforms direct mail and digital marketing into actionable insights. Our best-in-class service leverages the largest longitudinal, omni-channel panels of consumers, business owners, insurance producers, financial advisors, and mortgage brokers in the marketplace.
+
+',
 		'hero_email_placeholder' => 'Enter work email',
 		'hero_button_text'       => 'Request a demo',
 		'hero_image_alt'         => 'Financial advisor reviewing insights dashboard',
@@ -407,6 +652,115 @@ function competiscan_seed_home_testimonials() {
 	update_option( 'competiscan_home_testi_seeded', COMPETISCAN_HOME_TESTI_SEED );
 }
 add_action( 'wp_loaded', 'competiscan_seed_home_testimonials', 49 );
+
+/**
+ * Seed the remaining Home sections (Partners, Tracking, Stats, Industries) with the
+ * current design content once. Fills empty fields only; images are imported into the
+ * media library (icons are left empty so the built-in artwork shows as fallback).
+ */
+function competiscan_seed_home_sections() {
+	if ( '1' === get_option( 'competiscan_home_sections_seeded' ) ) {
+		return;
+	}
+	if ( ! function_exists( 'update_field' ) || ! function_exists( 'get_field' ) ) {
+		return;
+	}
+	if ( false === add_option( 'competiscan_home_sections_seed_claim', time(), '', 'no' ) ) {
+		return;
+	}
+
+	$pid = (int) get_option( 'page_on_front' );
+	if ( ! $pid ) {
+		update_option( 'competiscan_home_sections_seeded', '1' );
+		return;
+	}
+
+	// Partners.
+	if ( '' === (string) get_field( 'partners_eyebrow', $pid ) ) {
+		update_field( 'field_home_partners_eyebrow', 'Our Trusted Partners', $pid );
+	}
+	if ( empty( get_field( 'partners_logos', $pid ) ) ) {
+		$logos = array( 'amsive-logo.jpg', 'amazon-web-services.png', 'deluxe.png', 'njm.png', 'prosper-logo.png', 'publix.png', 'rbc.png', 'sir.png', 'snap.png' );
+		$rows  = array();
+		foreach ( $logos as $fn ) {
+			$att   = competiscan_import_theme_image( $fn, 'Partner logo' );
+			$rows[] = array( 'logo' => $att ? $att : '' );
+		}
+		update_field( 'field_home_partners_logos', $rows, $pid );
+	}
+
+	// Omnichannel tracking.
+	if ( '' === (string) get_field( 'tracking_heading', $pid ) ) {
+		update_field( 'field_home_tracking_heading', 'Our Comprehensive Omnichannel Tracking', $pid );
+	}
+	if ( '' === (string) get_field( 'tracking_desc', $pid ) ) {
+		update_field( 'field_home_tracking_desc', 'Competiscan captures competitor activity across every major channel, giving you one clear, comparable view of how strategies shift over time and where the market is heading next.', $pid );
+	}
+	if ( empty( get_field( 'tracking_cards', $pid ) ) ) {
+		$tp    = 'Track creative trends, mail volumes, and segmentation strategy.';
+		$rows  = array();
+		foreach ( array( 'Direct Mail', 'Email', 'Digital', 'Social Media', 'Print' ) as $title ) {
+			$rows[] = array( 'icon' => '', 'title' => $title, 'text' => $tp );
+		}
+		update_field( 'field_home_tracking_cards', $rows, $pid );
+	}
+
+	// Stats.
+	if ( '' === (string) get_field( 'stats_accent', $pid ) ) {
+		update_field( 'field_home_stats_accent', 'Most Fortune 500 firms rely on us to stay ahead.', $pid );
+	}
+	if ( '' === (string) get_field( 'stats_tail', $pid ) ) {
+		update_field( 'field_home_stats_tail', " Shouldn't you?", $pid );
+	}
+	if ( empty( get_field( 'stats_cells', $pid ) ) ) {
+		$cells_src = array(
+			array( 'type' => 'stat', 'number' => '8,000+', 'color' => 'yellow', 'label' => 'projects completed for clients annually' ),
+			array( 'type' => 'logo', 'img' => 'fortune-1.png' ),
+			array( 'type' => 'stat', 'number' => '2,000+', 'color' => 'orange', 'label' => 'hours of custom research per year' ),
+			array( 'type' => 'logo', 'img' => 'fortune-2.png' ),
+			array( 'type' => 'logo', 'img' => 'fortune-3.png' ),
+			array( 'type' => 'stat', 'number' => '~20,000', 'color' => 'blue', 'label' => 'hours per year supporting client research' ),
+			array( 'type' => 'logo', 'img' => 'fortune-4.png' ),
+			array( 'type' => 'stat', 'number' => '24/7', 'color' => 'yellow', 'label' => 'monitoring coverage' ),
+			array( 'type' => 'stat', 'number' => '90%+', 'color' => 'orange', 'label' => 'average annual renewal rate among subscribers' ),
+			array( 'type' => 'logo', 'img' => 'fortune-5.png' ),
+			array( 'type' => 'stat', 'number' => '#1', 'color' => 'blue', 'label' => 'longitudinal consumer panel' ),
+			array( 'type' => 'logo', 'img' => 'fortune-6.png' ),
+		);
+		$rows = array();
+		foreach ( $cells_src as $c ) {
+			if ( 'logo' === $c['type'] ) {
+				$att   = competiscan_import_theme_image( $c['img'], 'Fortune logo' );
+				$rows[] = array( 'cell_type' => 'logo', 'logo_image' => $att ? $att : '', 'number' => '', 'color' => '', 'label' => '' );
+			} else {
+				$rows[] = array( 'cell_type' => 'stat', 'number' => $c['number'], 'color' => $c['color'], 'label' => $c['label'], 'logo_image' => '' );
+			}
+		}
+		update_field( 'field_home_stats_cells', $rows, $pid );
+	}
+
+	// Industries.
+	if ( '' === (string) get_field( 'ind_heading', $pid ) ) {
+		update_field( 'field_home_ind_heading', "Industries\nWe Serve", $pid );
+	}
+	if ( '' === (string) get_field( 'ind_desc', $pid ) ) {
+		update_field( 'field_home_ind_desc', 'Etiam accumsan urna a mauris dapibus, nec aliquet nunc convallis. Phasellus eget justo et libero ultrices posuere.', $pid );
+	}
+	if ( '' === (string) get_field( 'ind_btn_label', $pid ) ) {
+		update_field( 'field_home_ind_btn_label', 'Learn More', $pid );
+	}
+	if ( empty( get_field( 'ind_items', $pid ) ) ) {
+		$items = array( 'Banking', 'Mortgage & Loans', 'Credit Cards', 'Retail', 'Insurance', 'Telecoms', 'Investment & Wealth', 'And more...' );
+		$rows  = array();
+		foreach ( $items as $label ) {
+			$rows[] = array( 'icon' => '', 'label' => $label );
+		}
+		update_field( 'field_home_ind_items', $rows, $pid );
+	}
+
+	update_option( 'competiscan_home_sections_seeded', '1' );
+}
+add_action( 'wp_loaded', 'competiscan_seed_home_sections', 50 );
 
 /**
  * Import a bundled theme image (assets/images/<file>) into the media library once,

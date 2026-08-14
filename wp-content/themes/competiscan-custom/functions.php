@@ -158,6 +158,7 @@ require_once get_template_directory() . '/inc/custom-research-layouts.php';
 require_once get_template_directory() . '/inc/industries-layouts.php';
 require_once get_template_directory() . '/inc/login-layouts.php';
 require_once get_template_directory() . '/inc/vpt-layouts.php';
+require_once get_template_directory() . '/inc/flex-layout-normalize.php';
 
 /**
  * Contact modal assets — loaded site-wide so the CF7 "Get In Touch" form is

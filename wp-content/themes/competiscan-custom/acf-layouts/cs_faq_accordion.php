@@ -79,19 +79,25 @@ if ( empty( $faqs ) ) {
       <?php endif; ?>
     </div>
     <div class="faq-list">
-      <?php foreach ( $faqs as $i => $faq ) : ?>
+      <?php
+      foreach ( $faqs as $i => $faq ) :
+        // Accept either q/a or question/answer keys so every data source works.
+        $cs_q = isset( $faq['q'] ) ? $faq['q'] : ( isset( $faq['question'] ) ? $faq['question'] : '' );
+        $cs_a = isset( $faq['a'] ) ? $faq['a'] : ( isset( $faq['answer'] ) ? $faq['answer'] : '' );
+        ?>
       <div class="faq-item<?php echo 0 === $i ? ' active' : ''; ?>">
         <?php if ( 'insights' === $variant ) : ?>
-        <button class="faq-q"><span><span class="dot">•</span><?php echo esc_html( $faq['q'] ); ?></span><span class="faq-toggle-ic"></span></button>
+        <button class="faq-q"><span><span class="dot">•</span><?php echo esc_html( $cs_q ); ?></span><span class="faq-toggle-ic"></span></button>
         <?php else : ?>
         <button class="faq-q">
           <span class="lft">
-            <span class="dot">•</span> <span><?php echo esc_html( $faq['q'] ); ?></span>
+            <span class="dot">•</span> 
+            <span class="faq_que"><?php echo esc_html( $cs_q ); ?></span>
           </span>
           <span class="faq-toggle-ic"></span>
         </button>
         <?php endif; ?>
-        <div class="faq-a"><p><?php echo wp_kses_post( $faq['a'] ); ?></p></div>
+        <div class="faq-a"><p><?php echo wp_kses_post( $cs_a ); ?></p></div>
       </div>
       <?php endforeach; ?>
     </div>

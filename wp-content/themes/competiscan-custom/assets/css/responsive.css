@@ -181,7 +181,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 2000;
+    z-index: 99999;
     background: var(--color-navy-700);
     color: var(--color-white);
     padding: 1.25rem;
