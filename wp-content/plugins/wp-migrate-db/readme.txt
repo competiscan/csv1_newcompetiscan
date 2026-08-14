@@ -1,10 +1,10 @@
-=== WP Migrate Lite - WordPress Migration Made Easy ===
+=== WP Migrate Lite - Migration Made Easy ===
 Contributors: wpengine, deliciousbrains, bradt, ahmedgeek, philwebs, dalewilliams, tysonreeder, kevinwhoffman
 Tags: migrate, push pull, clone, import site, export site, transfer, restore, backup, wordpress migration plugin, move site, database migration, site migration
 Requires at least: 5.2
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 5.6
-Stable tag: 2.7.6
+Stable tag: 2.7.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -116,6 +116,24 @@ Yes, WP Migrate Lite includes `export` and `find-replace` commands. Qualifying l
 10. Saved migration profiles
 
 == Changelog ==
+
+= WP Migrate 2.7.11 - 2026-08-05 =
+* New: Dependencies have been updated for improved security and stability
+* Fixed: Compatibility mode can now only be activated from within the migration process, thanks to tipsen via the Intigriti Bug Bounty program
+
+= WP Migrate 2.7.10 - 2026-06-30 =
+* New: Dependencies have been updated for improved security and stability
+* Fixed: Backticks in MySQL table and column names are now properly escaped in migration SQL queries, thanks to 0nlymohammed via the Intigriti Bug Bounty program
+* Fixed: Primary key resume state is validated against the table schema before being used in migration queries, thanks to 0nlymohammed via the Intigriti Bug Bounty program
+* Fixed: Post type filters in migration row queries now use the WordPress database prepare method for correct SQL escaping, thanks to 0nlymohammed via the Intigriti Bug Bounty program
+
+= WP Migrate 2.7.9 - 2026-06-02 =
+* Security: Fixed CSRF vulnerability in file download handler, thanks to Nguyen Ba Khanh via Patchstack
+* New: Dependencies have been updated for improved security and stability
+
+= WP Migrate 2.7.8 - 2026-05-28 =
+* New: Dependencies have been updated for improved security and stability
+* Fixed: Various CSS fixes for WordPress 7.0 compatibility
 
 = WP Migrate 2.7.7 - 2025-11-11 =
 * Security: Improved security of the cache flush functionality, thanks to security researcher Dmitrii Ignatyev

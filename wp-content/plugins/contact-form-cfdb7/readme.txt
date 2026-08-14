@@ -1,10 +1,10 @@
-=== Contact Form 7 Database Addon - CFDB7 ===
+=== Database Addon for Contact Form 7 - CFDB7 ===
 Contributors: arshidkv12
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=H5F3Z6S3MNTXA&lc=IN&item_name=wp%2dlogin%2dlimit&amount=5%2e00&currency_code=USD&button_subtype=services&bn=PP%2dBuyNowBF%3abtn_buynowCC_LG%2egif%3aNonHosted
 Tags: cf7, contact form 7, contact form 7 db, cf7 database, wpcf7
 Requires at least: 4.8
-Tested up to: 6.8.3
-Stable tag: 1.3.3
+Tested up to: 7.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP: 7.0
@@ -33,11 +33,11 @@ By simply installing the plugin, it will automatically begin to capture form sub
 
 = Plugins =
 * [PostBox Email Log](https://wordpress.org/plugins/postbox-email-logs/)
-* [WP SMTP Mailer – SMTP7](https://wordpress.org/plugins/wp-mail-smtp-mailer/)
+* [WP mail smtp](https://wordpress.org/plugins/wp-mail-smtp-mailer/)
 
 = Pro Addons =
-* [Scheduled Export CSV](https://ciphercoin.com/downloads/public-export-csv/)
-Automatically export form entries to CSV on a schedule
+* [Entry Automation](https://ciphercoin.com/downloads/public-export-csv/)
+Automatically export CFDB7 form entries to CSV on a schedule
 * [Advanced MYSQL DB](https://ciphercoin.com/downloads/contact-form-7-column-base-mysql-database-addon/)
 Separate MySQL column for each cf7 input field
 * [Excel Spreadsheet (XLSX) Extension](https://ciphercoin.com/downloads/excel-xlsx-spreadsheet/)
@@ -58,12 +58,7 @@ Extensions : [Contact form 7 more Add-ons](https://ciphercoin.com/contact-form-7
 
 == Frequently Asked Questions ==
 = 1. How do you change the CSV delimiter to a semicolon? =
-To change the CSV delimiter to a semicolon, add the following code to your theme's **functions.php** file:
-```
-add_filter('cfdb7_csv_delimiter', function( $delimiter ){
-    return ';';
-});
-```
+To change the CSV delimiter to a semicolon, go to WP Admin > Contact Forms > Settings, select "Semicolon (;)" from the Delimiter dropdown, and save your changes.
 
 
 == Installation ==
@@ -79,6 +74,12 @@ add_filter('cfdb7_csv_delimiter', function( $delimiter ){
 1. Admin
 
 == Changelog ==
+
+= 1.4.0 =
+Settings page is added
+
+= 1.3.6 =
+New hooks added
 
 = 1.3.3 =
 Security improvements
@@ -100,33 +101,4 @@ Changed csv delimiter to comma with filter
 
 = 1.2.8 =
 Changed csv delimiter to semicolon
-
-= 1.2.7 =
-Extra protection for files
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

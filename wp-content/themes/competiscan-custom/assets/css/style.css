@@ -1140,7 +1140,7 @@ border-radius:var(--radius-lg)
   flex-shrink: 0;
   /*display: none;*/
 }
-
+.tracking-cards .slick-arrow-group{display: none;}
 .carousel-arrow,
 .carousel-arrow2 {
   width: 2.75rem;

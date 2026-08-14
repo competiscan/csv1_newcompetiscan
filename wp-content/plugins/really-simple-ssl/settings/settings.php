@@ -402,12 +402,6 @@ function rsssl_do_action($request, $ajax_data = false)
             $response = apply_filters("rsssl_do_action", [], $action, $data);
 	}
 
-	// Backward compatibility: some legacy actions returned the payload at the top-level,
-	// while older Settings code expects it under `data`.
-	if (in_array($action, ['hardening_data'], true) && is_array($response) && !isset($response['data'])) {
-		$response = array_merge(['data' => $response], $response);
-	}
-
 	if (is_array($response)) {
 		$response['request_success'] = true;
 	}
@@ -426,7 +420,7 @@ function rsssl_clear_test_caches($data)
 		return [];
 	}
 
-	$cache_id = sanitize_title($data['cache_id']);
+	sanitize_title($data['cache_id']);
 
 	do_action('rsssl_clear_test_caches', $data);
 	return [];
@@ -546,17 +540,9 @@ function rsssl_other_plugins_data($slug = false)
 	}
 	$plugins = array(
 		[
-			'slug' => 'complianz-gdpr',
-			'constant_premium' => 'cmplz_premium',
-			'wordpress_url' => 'https://wordpress.org/plugins/complianz-gdpr/',
-			'upgrade_url' => 'https://complianz.io/pricing?src=rsssl-plugin',
-			'title' => __("Complianz - Consent Management as it should be", "really-simple-ssl"),
-		],
-		[
-			'slug' => 'complianz-terms-conditions',
-			'wordpress_url' => 'https://wordpress.org/plugins/complianz-terms-conditions/',
-			'upgrade_url' => 'https://complianz.io?src=rsssl-plugin',
-			'title' => 'Complianz - ' . __("Terms and Conditions", "really-simple-ssl"),
+			'slug' => 'metricool',
+			'wordpress_url' => 'https://wordpress.org/plugins/metricool/',
+			'title' => 'Metricool - ' . __("Social Media Management", "really-simple-ssl"),
 		],
 		[
 			'slug' => 'simplybook',
@@ -564,7 +550,21 @@ function rsssl_other_plugins_data($slug = false)
 			'upgrade_url' => 'https://simplybook.me/en/pricing',
 			'title' => 'SimplyBook.me - ' . __("Online Booking System", "really-simple-ssl"),
 		],
+		[
+			'slug' => 'complianz-gdpr',
+			'constant_premium' => 'cmplz_premium',
+			'wordpress_url' => 'https://wordpress.org/plugins/complianz-gdpr/',
+			'upgrade_url' => 'https://complianz.io/pricing?src=rsssl-plugin',
+			'title' => __("Complianz - Consent Management as it should be", "really-simple-ssl"),
+		],
 	);
+
+	$plugins[] = [
+		'slug' => 'complianz-terms-conditions',
+		'wordpress_url' => 'https://wordpress.org/plugins/complianz-terms-conditions/',
+		'upgrade_url' => 'https://complianz.io?src=rsssl-plugin',
+		'title' => 'Complianz - ' . __("Terms and Conditions", "really-simple-ssl"),
+	];
 
     if (class_exists('rsssl_installer') === false) {
         require_once( rsssl_path . 'class-installer.php');
@@ -588,7 +588,7 @@ function rsssl_other_plugins_data($slug = false)
 	}
 
 	if ($slug) {
-		foreach ($plugins as $key => $plugin) {
+		foreach ($plugins as $plugin) {
 			if ($plugin['slug'] === $slug) {
 				return $plugin;
 			}
@@ -666,21 +666,25 @@ function rsssl_rest_api_fields_set(WP_REST_Request $request, $ajax_data = false)
 	$config_fields = rsssl_fields(false);
 	$config_ids = array_column($config_fields, 'id');
 	foreach ($fields as $index => $field) {
-		$config_field_index = array_search($field['id'], $config_ids);
-		$config_field = $config_fields[$config_field_index];
+		if (!isset($field['id'])) {
+			unset($fields[$index]);
+			continue;
+		}
+		$field_id = sanitize_text_field($field['id']);
+		$config_field_index = array_search($field_id, $config_ids);
 		if ($config_field_index === false) {
 			unset($fields[$index]);
 			continue;
 		}
-		$type = rsssl_sanitize_field_type($field['type']);
+		$config_field = $config_fields[$config_field_index];
+		$type = isset($config_field['type']) ? rsssl_sanitize_field_type($config_field['type']) : false;
         if ($type === false) {
             return [
                 'success' => false,
-                'error'   => 'Invalid field type provided for field ' . sanitize_text_field($field['id']),
+                'error'   => 'Invalid field type configured for field ' . $field_id,
             ];
         }
-		$field_id = sanitize_text_field($field['id']);
-		$value = rsssl_sanitize_field($field['value'], $type, $field_id);
+		$value = rsssl_sanitize_field($field['value'] ?? false, $type, $field_id);
 		//if an endpoint is defined, we use that endpoint instead
 		if (isset($config_field['data_endpoint'])) {
 			//the updateItemId allows us to update one specific item in a field set.
@@ -703,6 +707,8 @@ function rsssl_rest_api_fields_set(WP_REST_Request $request, $ajax_data = false)
 		}
 
 		$field['value'] = $value;
+		$field['id'] = $field_id;
+		$field['type'] = $type;
 		$fields[$index] = $field;
 	}
 
@@ -713,8 +719,10 @@ function rsssl_rest_api_fields_set(WP_REST_Request $request, $ajax_data = false)
 	}
 
 	//build a new options array
+	$previous_values = [];
 	foreach ($fields as $field) {
 		$prev_value = isset($options[$field['id']]) ? $options[$field['id']] : false;
+		$previous_values[ $field['id'] ] = $prev_value;
 		do_action("rsssl_before_save_option", $field['id'], $field['value'], $prev_value, $field['type']);
 		$options[$field['id']] = apply_filters("rsssl_fieldvalue", $field['value'], $field['id'], $field['type']);
 	}
@@ -726,10 +734,7 @@ function rsssl_rest_api_fields_set(WP_REST_Request $request, $ajax_data = false)
 		}
 	}
 	RSSSL()->admin->clear_admin_notices_cache();
-	do_action('rsssl_after_saved_fields', $fields );
-	foreach ( $fields as $field ) {
-		do_action( "rsssl_after_save_field", $field['id'], $field['value'], $prev_value, $field['type'] );
-	}
+	rsssl_finalize_saved_fields_actions( $fields, $previous_values );
 	return [
 		'success' => true,
 		'progress' => RSSSL()->progress->get(),
@@ -772,7 +777,7 @@ function rsssl_update_option($name, $value)
 	$name = sanitize_text_field($name);
 	$type = rsssl_sanitize_field_type($config_field['type']);
 	$value = rsssl_sanitize_field($value, $type, $name);
-	$value = apply_filters("rsssl_fieldvalue", $value, sanitize_text_field($name), $type);
+	$value = apply_filters('rsssl_fieldvalue', $value, sanitize_text_field($name), $type);
 	#skip if value wasn't changed
 	if (isset($options[$name]) && $options[$name] === $value) {
 		return;
@@ -786,8 +791,12 @@ function rsssl_update_option($name, $value)
 	}
 	$config_field['value'] = $value;
 	RSSSL()->admin->clear_admin_notices_cache();
-	do_action('rsssl_after_saved_fields',[$config_field] );
-	do_action( "rsssl_after_save_field", $name, $value, $prev_value, $type );
+	rsssl_finalize_saved_fields_actions(
+		[ $config_field ],
+		[
+			$name => $prev_value,
+		]
+	);
 }
 
 /**
@@ -965,7 +974,7 @@ function rsssl_sanitize_permissions_policy($value, $type, $field_name)
 			}
 
 			//Ensure that all required keys are set with at least an empty value
-			foreach ($possible_keys as $key => $data_type) {
+			foreach (array_keys($possible_keys) as $key) {
 				if (!isset($value[$row_index][$key])) {
 					$value[$row_index][$key] = false;
 				}
@@ -984,7 +993,7 @@ function rsssl_sanitize_permissions_policy($value, $type, $field_name)
 
 	//if the default contains items not in the setting (newly added), add them.
 	if (count($value) < count($default)) {
-		foreach ($default as $def_row_index => $def_row) {
+		foreach ($default as $def_row) {
 			//check if it is available in the array. If not, add
 			if (!in_array($def_row['id'], $stored_ids)) {
 				$value[] = $def_row;
@@ -1039,7 +1048,7 @@ function rsssl_sanitize_datatable($value, $type, $field_name)
 			}
 
 			//Ensure that all required keys are set with at least an empty value
-			foreach ($possible_keys as $key => $data_type) {
+			foreach (array_keys($possible_keys) as $key) {
 				if (!isset($value[$row_index][$key])) {
 					$value[$row_index][$key] = false;
 				}
@@ -1047,6 +1056,36 @@ function rsssl_sanitize_datatable($value, $type, $field_name)
 		}
 	}
 	return $value;
+}
+
+function rsssl_maybe_process_scheduled_htaccess_update(): void
+{
+	if ( ! function_exists( 'rsssl_flush_scheduled_htaccess_update' ) ) {
+		return;
+	}
+
+	rsssl_flush_scheduled_htaccess_update();
+}
+
+function rsssl_finalize_saved_fields_actions( array $fields, array $previous_values ): void
+{
+	do_action( 'rsssl_after_saved_fields', $fields );
+	rsssl_maybe_process_scheduled_htaccess_update();
+
+	foreach ( $fields as $field ) {
+		$field_id = $field['id'] ?? false;
+		if ( $field_id === false ) {
+			continue;
+		}
+
+		do_action(
+			'rsssl_after_save_field',
+			$field_id,
+			$field['value'] ?? '',
+			$previous_values[ $field_id ] ?? false,
+			$field['type'] ?? ''
+		);
+	}
 }
 
 

@@ -378,8 +378,10 @@ class Rsssl_Two_Factor_Email extends Rsssl_Two_Factor_Provider implements Rsssl_
 			<label for="rsssl-authcode"><?php esc_html_e( 'Verification Code:', 'really-simple-ssl' ); ?></label>
 			<input type="text" inputmode="numeric" name="rsssl-two-factor-email-code" id="rsssl-authcode" class="input rsssl-authcode" value="" size="20" pattern="[0-9 ]*" placeholder="1234 5678" data-digits="8" />
 		</p>
-		<?php submit_button( __( 'Log In', 'really-simple-ssl' ), 'primary', 'submit' ); ?>
-		<?php submit_button( __( 'Resend Code', 'really-simple-ssl' ), 'secondary', self::RSSSL_INPUT_NAME_RESEND_CODE ); ?>
+		<div class="rsssl-two-factor-email-actions">
+			<?php submit_button( __( 'Log In', 'really-simple-ssl' ), 'primary', 'submit', false ); ?>
+			<?php submit_button( __( 'Resend Code', 'really-simple-ssl' ), 'secondary', self::RSSSL_INPUT_NAME_RESEND_CODE, false ); ?>
+		</div>
 		<script type="text/javascript">
 			setTimeout( function(){
 				var d;
@@ -576,7 +578,7 @@ class Rsssl_Two_Factor_Email extends Rsssl_Two_Factor_Provider implements Rsssl_
 		// Normalize the preferred method to always be an array.
 		$preferred_methods = is_array( $preferred_method_meta ) ? $preferred_method_meta : (array) $preferred_method_meta;
 		// Check if 'Rsssl_Two_Factor_Email' is the preferred method.
-		$is_preferred      = in_array( 'Rsssl_Two_Factor_Email', $preferred_methods, true );
+		in_array( 'Rsssl_Two_Factor_Email', $preferred_methods, true );
 		$is_enabled        = (bool) get_user_meta( $user->ID, self::SECRET_META_KEY, true );
 		$badge_class       = $is_enabled ? 'badge-enabled' : 'badge-default';
 		$enabled_text      = $is_enabled ? esc_html__( 'Enabled', 'really-simple-ssl' ) : esc_html__( 'Disabled', 'really-simple-ssl' );
@@ -674,4 +676,3 @@ class Rsssl_Two_Factor_Email extends Rsssl_Two_Factor_Provider implements Rsssl_
         delete_user_meta( $user_id, '_rsssl_two_factor_nonce' );
     }
 }
-

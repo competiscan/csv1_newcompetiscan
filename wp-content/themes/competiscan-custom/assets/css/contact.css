@@ -53,7 +53,10 @@
 .cs-ctm .wpcf7-form.unaccepted .wpcf7-response-output,
 .cs-ctm .wpcf7-form.spam .wpcf7-response-output { color: rgb(196,54,54); background: rgba(196,54,54,0.06); border-color: rgba(196,54,54,0.4); }
 .cs-ctm .wpcf7-form.sent .wpcf7-response-output { color: rgb(0,140,90); background: rgba(0,140,90,0.06); border-color: rgba(0,140,90,0.4); }
-
+.submit-btn {
+position: relative;
+}
+.cs-ctm .wpcf7-spinner{position:absolute;z-index: 4;top: 50%;left: 50%;transform: translate(-50%, -50%);}
 /* ---- Responsive --------------------------------------------------------- */
 @media (max-width: 560px) {
   .cs-ctm .form-row { grid-template-columns: minmax(0, 1fr); }

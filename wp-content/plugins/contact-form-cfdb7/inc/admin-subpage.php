@@ -54,7 +54,7 @@ if( ! class_exists( 'WP_List_Table' ) ) {
 class CFDB7_List_Table extends WP_List_Table
 {
     private $form_post_id;
-    private $column_titles;
+    private $column_titles = array();
 
     public function __construct() {
 
@@ -129,7 +129,7 @@ class CFDB7_List_Table extends WP_List_Table
 
         $first_row            = isset($results[0]) ? unserialize( $results[0]->form_value, ['allowed_classes' => false] ): 0 ;
         $columns              = array();
-        $rm_underscore        = apply_filters('remove_underscore_data', true); 
+        $rm_underscore        = apply_filters('cfdb7_remove_underscore_data', true); 
 
         if( !empty($first_row) ){
             //$columns['form_id'] = $results[0]->form_id;
@@ -444,7 +444,7 @@ class CFDB7_List_Table extends WP_List_Table
              *
              * @param array $actions An array of the available bulk actions.
              */
-            $this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
+            $this->_actions = apply_filters( "cfdb7_bulk_actions-{$this->screen->id}", $this->_actions );
             $two = '';
         } else {
             $two = '2';

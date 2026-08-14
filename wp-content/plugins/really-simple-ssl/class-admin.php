@@ -10,6 +10,8 @@ use RSSSL\lib\admin\Encryption;
 use RSSSL\Security\RSSSL_Htaccess_File_Manager;
 
 class rsssl_admin {
+
+	private const HTACCESS_TEST_RESULT_OPTION = 'rsssl_htaccess_test_success';
     use Helper;
     use Encryption;
 	private static $_this;
@@ -59,9 +61,6 @@ class rsssl_admin {
 		add_action( 'admin_init', array( $this, 'listen_for_deactivation' ), 40 );
 		add_action( 'plugins_loaded', array( $this, 'maybe_redirect_old_settings_url' ), 10 );
 
-		//callbacks for the ajax dismiss buttons
-		add_action( 'wp_ajax_rsssl_dismiss_review_notice', array( $this, 'dismiss_review_notice_callback' ) );
-
 		//handle notices
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
 		//show review notice, only to free users
@@ -74,15 +73,12 @@ class rsssl_admin {
 			/**
 			 * Htaccess redirect handling
 			 */
-			add_action( 'rsssl_after_save_field', array( $this, 'maybe_flush_wprocket_htaccess' ), 100, 4 );
 			add_action( 'admin_init', array( $this, 'insert_secure_cookie_settings' ), 70 );
 			add_action( 'admin_init', array( $this, 'recheck_certificate' ) );
 		}
-        add_action('admin_init', array($this, 'autoFixHtaccess'), 100);
+		add_action('admin_init', array($this, 'autoFixHtaccess'), 100);
 		add_filter( 'rsssl_htaccess_security_rules', array( $this, 'add_htaccess_redirect' ) );
 		add_filter( 'admin_init', array( $this, 'handle_activation' ) );
-		add_action( 'rocket_activation', 'rsssl_wrap_htaccess' );
-		add_action( 'rocket_deactivation', 'rsssl_wrap_htaccess' );
         add_action('rocket_after_activation', array($this, 'enableAutoFix'), 100);
 		$plugin = rsssl_plugin;
 		add_filter( "plugin_action_links_$plugin", array( $this, 'plugin_settings_link' ) );
@@ -95,10 +91,6 @@ class rsssl_admin {
 		add_action( "rsssl_after_save_field", array($this, 'maybe_delete_permission_detection_option'), 101, 4 );
     }
 
-	public static function this() {
-		return self::$_this;
-	}
-
     /**
      * Simply fixes the .htaccess file of the wordpress installation.
      *
@@ -109,7 +101,7 @@ class rsssl_admin {
             return;
         }
         if (get_option('rsssl_upgrade_firewall', false ) == true) {
-            do_action('rsssl_update_rules');
+            rsssl_request_managed_htaccess_rebuild();
             update_option('rsssl_upgrade_firewall', false);
         }
     }
@@ -387,18 +379,6 @@ class rsssl_admin {
 	}
 
 	/**
-	 * Check if we're in the middle of wp rocket deactivation
-	 *
-	 * @return bool
-	 */
-	public function is_deactivating_wprocket() {
-		//default deactivating
-		$is_deactivating = isset( $_GET['action'] ) && 'deactivate' === $_GET['action'] && isset( $_GET['plugin'] ) && strpos( $_GET['plugin'], 'wp-rocket.php' ) !== false;
-		//deactivating with modal
-		return $is_deactivating || ( isset( $_GET['action'] ) && 'rocket_deactivation' === $_GET['action'] );
-	}
-
-	/**
 	 * Deactivate the plugin while keeping SSL
 	 * Activated when the 'uninstall_keep_ssl' button is clicked in the settings tab
 	 *
@@ -498,22 +478,6 @@ class rsssl_admin {
         }
 
         return false;
-	}
-
-	/**
-	 * Check if site uses an htaccess.conf file, used in bitnami installations
-	 *
-	 * @Since 3.1
-	 */
-
-	public function uses_htaccess_conf() {
-		$htaccess_conf_file = dirname( ABSPATH ) . '/conf/htaccess.conf';
-		//conf/htaccess.conf can be outside of open basedir, return false if so
-		$open_basedir = ini_get( 'open_basedir' );
-		if ( ! empty( $open_basedir ) ) {
-			return false;
-		}
-		return is_file( $htaccess_conf_file );
 	}
 
 	/**
@@ -670,6 +634,7 @@ class rsssl_admin {
 				.rsssl-notice {
 					display:flex;
 					margin:15px;
+					padding:10px 0;
                     flex-direction: column;
 				}
                 .rsssl-notice-logo {
@@ -1135,7 +1100,7 @@ class rsssl_admin {
 		// Preserve redirect when staying on HTTPS, remove it when reverting to HTTP
 		if ( ! is_multisite() || is_main_site() ) {
 			$clear_htaccess_redirect = $revert_to_http;
-			rsssl_remove_htaccess_security_edits( $clear_htaccess_redirect );
+			rsssl_run_managed_htaccess_cleanup( $clear_htaccess_redirect );
 		}
 
 		// Fire action only if requested (suppressed during multisite loops)
@@ -1299,7 +1264,7 @@ class rsssl_admin {
 	 */
 
 	public function htaccess_test_success() {
-		$test = get_transient( 'rsssl_htaccess_test_success' );
+		$test = $this->get_cached_htaccess_test_result();
 		if ( ! $test ) {
 			$filecontents = '';
 			$testpage_url = trailingslashit( $this->test_url() ) . 'testssl/';
@@ -1353,7 +1318,7 @@ class rsssl_admin {
 			if ( empty( $filecontents ) ) {
 				$test = 'no-response';
 			}
-			set_transient( 'rsssl_htaccess_test_success', $test, 600 );
+			$this->set_cached_htaccess_test_result( $test );
 		}
 
 		if ( 'no-response' === $test || 'error' === $test ) {
@@ -1363,6 +1328,32 @@ class rsssl_admin {
 		if ( 'success' === $test ) {
 			return true;
 		}
+	}
+
+	public function get_cached_htaccess_test_result(): string {
+		$cached = get_option( self::HTACCESS_TEST_RESULT_OPTION, [] );
+		if ( ! is_array( $cached ) ) {
+			return '';
+		}
+
+		$expires_at = (int) ( $cached['expires_at'] ?? 0 );
+		if ( $expires_at <= time() ) {
+			delete_option( self::HTACCESS_TEST_RESULT_OPTION );
+			return '';
+		}
+
+		return (string) ( $cached['result'] ?? '' );
+	}
+
+	private function set_cached_htaccess_test_result( string $result ): void {
+		update_option(
+			self::HTACCESS_TEST_RESULT_OPTION,
+			[
+				'result'     => $result,
+				'expires_at' => time() + 600,
+			],
+			false
+		);
 	}
 
 
@@ -1431,12 +1422,22 @@ class rsssl_admin {
 	 */
 
 	public function htaccess_contains_redirect_rules():bool {
-		if ( $this->htaccess_file_manager->validate_htaccess_file_path() === false ) {
+		$htaccess_path = $this->htaccess_file_manager->determineExistingRootHtaccessFilePath();
+		if ( $htaccess_path === '' ) {
 			return false;
 		}
+
+		if ( ! $this->htaccess_file_manager->is_valid_htaccess_file_path( $htaccess_path ) ) {
+			return false;
+		}
+
 		$pattern  = '/RewriteRule \^\(\.\*\)\$ https:\/\/%{HTTP_HOST}(\/\$1|%{REQUEST_URI}) (\[R=301,.*L\]|\[L,.*R=301\])/i';
-		$htaccess = $this->htaccess_file_manager->get_htaccess_content();
-		return preg_match( $pattern, $htaccess );
+		$htaccess = $this->htaccess_file_manager->get_htaccess_content_for_path( $htaccess_path );
+		if ( ! is_string( $htaccess ) ) {
+			return false;
+		}
+
+		return preg_match( $pattern, $htaccess ) === 1;
 	}
 
 	/**
@@ -1571,13 +1572,26 @@ class rsssl_admin {
 		}
 
 		if ( 'no' === $curl_check_done ) {
-			if ( $this->htaccess_file_manager->validate_htaccess_file_path() && RSSSL()->server->uses_htaccess() ) {
-				$htaccess = $this->htaccess_file_manager->get_htaccess_content();
-				foreach ( $check_headers as $check_header ) {
-					if ( ! preg_match( '/' . $check_header['pattern'] . '/', $htaccess, $check ) ) {
-						$not_used_headers[] = $check_header['name'];
-					}
+			$htaccess_path = $this->htaccess_file_manager->determineExistingRootHtaccessFilePath();
+			if ( $htaccess_path === '' ) {
+				return $not_used_headers;
+			}
+
+			if ( ! $this->htaccess_file_manager->is_valid_htaccess_file_path( $htaccess_path ) || ! RSSSL()->server->uses_htaccess() ) {
+				return $not_used_headers;
+			}
+
+			$htaccess = $this->htaccess_file_manager->get_htaccess_content_for_path( $htaccess_path );
+			if ( ! is_string( $htaccess ) ) {
+				return $not_used_headers;
+			}
+
+			foreach ( $check_headers as $check_header ) {
+				if ( preg_match( '/' . $check_header['pattern'] . '/', $htaccess ) === 1 ) {
+					continue;
 				}
+
+				$not_used_headers[] = $check_header['name'];
 			}
 		} else {
 			$not_used_headers = $curl_check_done;
@@ -1599,22 +1613,6 @@ class rsssl_admin {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Regenerate the wp rocket .htaccess rules
-	 */
-
-	public function maybe_flush_wprocket_htaccess( $field_id, $field_value, $prev_value, $field_type ) {
-		if ( 'redirect' === $field_id && $field_value !== $prev_value && rsssl_user_can_manage() ) {
-			if ( function_exists( 'flush_rocket_htaccess' ) ) {
-				flush_rocket_htaccess();
-			}
-
-			if ( function_exists( 'rocket_generate_config_file' ) ) {
-				rocket_generate_config_file();
-			}
-		}
 	}
 
 	/**
@@ -1750,25 +1748,6 @@ class rsssl_admin {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 *
-	 * @return bool
-	 * since 3.1
-	 * Check if there are already .well-known rules in .htaccess file
-	 * @access public
-	 *
-	 */
-
-	public function has_well_known_needle() {
-		if ( $this->htaccess_file_manager->validate_htaccess_file_path() === false ) {
-			return false;
-		}
-		$htaccess          = $this->htaccess_file_manager->get_htaccess_content();
-		$well_known_needle = 'RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/';
-
-		return strpos( $htaccess, $well_known_needle ) !== false;
 	}
 
 	/**
@@ -1908,17 +1887,16 @@ class rsssl_admin {
 	 */
 
 	public function insert_dismiss_review() {
+		$dismiss_review_url = rsssl_admin_url([
+			'rsssl_review_notice' => 'dismiss',
+			'_wpnonce' => wp_create_nonce( 'rsssl_review_notice_action_dismiss' ),
+		]);
 
 		?>
         <script>
             document.addEventListener('click', e => {
                 if ( e.target.closest('.rsssl-review.notice.is-dismissible .notice-dismiss') ) {
-                    window.location.href='<?php echo esc_url(
-						wp_nonce_url(
-							rsssl_admin_url(['rsssl_review_notice' => 'dismiss']),
-							'rsssl_review_notice_action_dismiss'
-						)
-					); ?>';
+                    window.location.href = <?php echo wp_json_encode( $dismiss_review_url ); ?>;
                 }
             });
         </script>
@@ -2093,7 +2071,6 @@ class rsssl_admin {
 		);
 
 		$curl_error            = get_transient( 'rsssl_curl_error' );
-		$current_plugin_folder = $this->get_current_rsssl_dirname();
 
 		//get expiry date, if we have one.
 		$certinfo    = get_transient( 'rsssl_certinfo' );
@@ -2460,24 +2437,6 @@ class rsssl_admin {
 			        ),
 		        ),
 	        ),
-            'upgraded_to_nine' => array(
-                'condition' => array(
-                    'rsssl_show_upgrade_to_nine_notice',
-                ),
-                'callback' => '_true_',
-                'output' => array(
-                    'true' => array(
-	                    'msg'              => rsssl_upgrade_to_nine_notice(),
-	                    'icon'             => 'open',
-	                    'admin_notice'     => true,
-	                    'logo'             => true,
-	                    'dashboard_button' => true,
-	                    'dismissible'      => true,
-	                    'plusone'          => true,
-                    ),
-                ),
-            ),
-
             'pro_trial' => array(
                 'condition' => array(
                     'rsssl_show_pro_trial_notice',
@@ -2663,23 +2622,6 @@ class rsssl_admin {
 		}
 
 		return $notices;
-	}
-
-	private function is_upgraded_to_6() {
-		return get_option( 'rsssl_show_onboarding' ) && ! get_option( 'rsssl_6_notice_dismissed' );
-	}
-
-	private function is_upgraded() {
-		$previous_version = get_option( 'rsssl_previous_version' );
-		//if there's no first version yet, we assume it's not upgraded
-		if ( ! $previous_version ) {
-			return false;
-		}
-		//if the previous version is below current, we just upgraded.
-		if ( version_compare( $previous_version, rsssl_version, '<' ) ) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -2979,7 +2921,8 @@ class rsssl_admin {
 	}
 
 	/**
-	 * Determine the htaccess file. This can be either the regular .htaccess file, or an htaccess.conf file on bitnami installations.
+	 * Legacy compatibility facade. The file manager is the source of truth for path resolution.
+	 * External callers may still use this, but internal write flows should resolve paths through the manager directly.
 	 *
 	 * since 3.1
 	 *
@@ -2987,12 +2930,7 @@ class rsssl_admin {
 	 */
 
 	public function htaccess_file() {
-		if ( $this->uses_htaccess_conf() ) {
-			$htaccess_file = realpath( dirname( ABSPATH ) . '/conf/htaccess.conf' );
-		} else {
-			$htaccess_file = $this->abs_path . '.htaccess';
-		}
-		return $htaccess_file;
+		return $this->htaccess_file_manager->get_root_htaccess_target_path();
 	}
 
 	/**
@@ -3021,40 +2959,48 @@ class rsssl_admin {
 	}
 
 	/**
-	 * @return void
-     *
-     * Update branding in .htaccess, wp-config.php
+	 * Update legacy brand strings in the files that still store RSSSL-owned text literally.
 	 */
     public function update_branding_in_files() {
         $this->maybe_update_branding_in_htaccess();
         $this->maybe_update_branding_in_wp_config();
     }
 
-	/**
-	 * @return void
-     *
-     * Update branding in .htaccess. Load .htaccess if it exists and is writable, replace branding, write back
-	 */
-	public function maybe_update_branding_in_htaccess(): void {
-		if ( $this->htaccess_file_manager->validate_htaccess_file_path() === false ) {
+		/**
+		 * Queue a root `.htaccess` branding migration when the legacy brand string is still present.
+		 *
+		 * This method only detects stale literal branding and schedules the migration flag. The replacement itself
+		 * is executed later inside the centralized root operation list so branding cleanup shares the same in-memory
+		 * assembly, single root commit, and locking behavior as the rest of the root flow.
+		 */
+		public function maybe_update_branding_in_htaccess(): void {
+		$htaccess_path = $this->htaccess_file_manager->determineExistingRootHtaccessFilePath();
+		if ( $htaccess_path === '' ) {
 			return;
 		}
 
-		$htaccess = $this->htaccess_file_manager->get_htaccess_content();
-
-		if ( strpos( $htaccess, 'Really Simple SSL' ) !== false ) {
-			$updated = str_replace( 'Really Simple SSL', 'Really Simple Security', $htaccess );
-
-			if ( $updated !== $htaccess ) {
-				file_put_contents( $this->htaccess_file(), $updated, LOCK_EX );
-			}
+		if ( ! $this->htaccess_file_manager->is_valid_htaccess_file_path( $htaccess_path ) ) {
+			return;
 		}
+
+		if ( is_link( $htaccess_path ) ) {
+			$this->htaccess_file_manager->log_error( 'Branding update aborted for symlinked .htaccess path: ' . $htaccess_path );
+			return;
+		}
+
+		if ( ! $this->htaccess_file_manager->contains_literal_in_rsssl_blocks_for_path( $htaccess_path, 'Really Simple SSL' ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'rsssl_queue_htaccess_branding_migration' ) ) {
+			return;
+		}
+
+		rsssl_queue_htaccess_branding_migration();
 	}
 
 	/**
-	 * @return void
-	 *
-	 * Update branding in .htaccess. Load .htaccess if it exists and is writable, replace branding, write back
+	 * Replace the legacy brand string in `wp-config.php` when the file still contains RSSSL-owned text.
 	 */
     public function maybe_update_branding_in_wp_config() {
 
@@ -3062,8 +3008,8 @@ class rsssl_admin {
 
 		   $wp_config = file_get_contents( $this->wpconfig_path() );
 
-		   if ( strpos( $wp_config, 'Really Simple SSL' ) !== false ) {
-			   str_replace( "Really Simple SSL", "Really Simple Security", $wp_config );
+		   if ( is_string( $wp_config) && strpos( $wp_config, 'Really Simple SSL' ) !== false ) {
+			   $wp_config = str_replace( "Really Simple SSL", "Really Simple Security", $wp_config );
 		   }
 
 		   file_put_contents( $this->wpconfig_path(), $wp_config, LOCK_EX );
@@ -3163,7 +3109,7 @@ class rsssl_admin {
             rsssl_update_option( 'enable_hibp_check', true );
         }
 
-        do_action('rsssl_update_rules');
+        rsssl_request_managed_rule_rebuild();
 	}
 
     /**
@@ -3404,39 +3350,6 @@ if ( ! function_exists('maybe_disable_frame_ancestors_url_field' ) ) {
 }
 
 /**
- * Upgraded to nine notice text
- */
-if ( ! function_exists('rsssl_upgrade_to_nine_notice' ) ) {
-	function rsssl_upgrade_to_nine_notice() {
-
-		$link = rsssl_link('our-journey-towards-really-simple-security');
-		$msg = sprintf(
-		       /* translators: %1$s: opening bold tag, %2$s: closing bold tag */
-			       __( 'Really Simple SSL is now %1$sReally Simple Security!%2$s', 'really-simple-ssl' ),
-			       '<b>',
-			       '</b>' )
-		       . "<br>" .
-		       sprintf(
-			       "<a href='%s'>%s</a>",
-			       $link,
-			       __( "Read about our journey towards Really Simple Security", 'really-simple-ssl' )
-		       );
-
-		if ( ! defined( 'rsssl_pro' ) ) {
-			$link = rsssl_link( 'checkout/?edd_action=add_to_cart&download_id=860&edd_options%5Bprice_id%5D=1&currency=EUR', 'notification', 'free', 'REALLYSIMPLESECURITY' );
-			$msg  .= "<br>" . sprintf(
-					__( "Experience all powerful features of Really Simple Security Pro using this %slimited time discount%s: %s", 'really-simple-ssl' ),
-					'<strong>',
-					'</strong>',
-					"<a href='$link'>REALLYSIMPLESECURITY</a>"
-				);
-		}
-
-		return $msg;
-	}
-}
-
-/**
  * RSSSL Pro Trial Notice
  */
 if ( ! function_exists('rsssl_pro_trial_notice' ) ) {
@@ -3486,17 +3399,4 @@ if (!function_exists('rsssl_show_pro_trial_notice')) {
 
     return false;
     }
-}
-
-/**
- * Do not show notice after 2024-10-01
- */
-if ( ! function_exists('rsssl_show_upgrade_to_nine_notice' ) ) {
-	function rsssl_show_upgrade_to_nine_notice() {
-		if ( time() >= strtotime('2024-10-01') ) {
-			return false;
-		}
-
-        return true;
-	}
 }

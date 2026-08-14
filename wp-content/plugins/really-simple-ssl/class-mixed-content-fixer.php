@@ -24,11 +24,6 @@ if (!class_exists('rsssl_admin_mixed_content_fixer')) {
             }
         }
 
-        static function this()
-        {
-            return self::$_this;
-        }
-
         /**
          *
          * add action hooks at the start and at the end of the WP process.
@@ -103,7 +98,8 @@ if (!class_exists('rsssl_admin_mixed_content_fixer')) {
          */
         public function end_buffer()
         {
-            // Only flush if buffer level is above zlib's level.
+            // Only flush if buffer level is above zlib's level
+            // to avoid "failed to send buffer of zlib output compression" notice
             if (function_exists('wp_ob_end_flush_all')) {
                 wp_ob_end_flush_all();
             }
@@ -182,4 +178,3 @@ if (!class_exists('rsssl_admin_mixed_content_fixer')) {
 
     }
 }
-

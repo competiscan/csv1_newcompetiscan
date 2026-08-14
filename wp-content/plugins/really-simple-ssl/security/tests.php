@@ -1,4 +1,7 @@
 <?php
+
+use RSSSL\Security\RSSSL_Htaccess_File_Manager;
+
 defined( 'ABSPATH' ) or die();
 
 /**
@@ -192,18 +195,6 @@ function rsssl_new_username_valid(): bool {
 	}
 
 	return is_string($new_user_login) && strlen($new_user_login)>2;
-}
-
-/**
- * For backward compatibility we need to wrap this function, as older versions do not have this function (<5.6)
- * @return bool
- */
-function rsssl_wp_is_application_passwords_available(){
-	if ( function_exists('wp_is_application_passwords_available') ) {
-		return wp_is_application_passwords_available();
-	}
-
-	return false;
 }
 
 /**
@@ -404,27 +395,6 @@ function rsssl_directory_indexing_allowed() {
 }
 
 /**
- * Check if file editing is allowed
- * @return bool
- */
-function rsssl_file_editing_allowed()
-{
-	if ( function_exists('wp_is_block_theme') && wp_is_block_theme() ) {
-		return false;
-	}
-	return !defined('DISALLOW_FILE_EDIT' ) || !DISALLOW_FILE_EDIT;
-}
-
-/**
- * Check if user registration is allowed
- * @return bool
- */
-function rsssl_user_registration_allowed()
-{
-	return get_option( 'users_can_register' );
-}
-
-/**
  * Check if page source contains WordPress version information
  * @return bool
  */
@@ -461,47 +431,196 @@ function rsssl_src_contains_wp_version() {
 }
 
 /**
- * Count the number of open hardening features
- * @return int
+ * Get recommended hardening field IDs that still need attention.
+ *
+ * @return string[]
  */
-function rsssl_count_open_hardening_features() {
-	$open   = 0;
+function rsssl_get_open_hardening_feature_ids(): array {
+	$open   = [];
 	$fields = rsssl_fields( false );
 
+	// TODO: Cache this with wp_cache_* once hardening setting changes reliably clear the cache.
 	// Filter out unused fields
 	$recommended_hardening_fields = array_filter($fields, function($field){
 		return isset($field['recommended']) && $field['recommended'];
 	});
 
-	// Create $hardening_options dynamically based on recommended field IDs
-	$hardening_options = array_map(function($field) {
-		return $field['id'];
-	}, $recommended_hardening_fields);
+	foreach ( $recommended_hardening_fields as $field ) {
+		$option = $field['id'] ?? '';
 
-	foreach ( $hardening_options as $option ) {
+		if ( $option === '' ) {
+			continue;
+		}
 
-		// Get the field
-		$field = array_filter( $fields, function ( $f ) use ( $option ) {
-			return $f['id'] === $option;
-		} );
+		if ( rsssl_get_option( $option ) === true ) {
+			continue;
+		}
 
-		if ( ! empty( $field ) ) {
-			$field = reset( $field );
-			// Apply the rsssl_disable_fields filter
-			$field = apply_filters( 'rsssl_field', $field, $field['id'] );
+		if ( rsssl_is_recommended_hardening_feature_already_active( $option ) ) {
+			continue;
+		}
 
-			// Check if the option is not set to true and the field is not disabled
-			if ( rsssl_get_option( $option ) !== true &&
-			     ( ! isset( $field['disabled'] ) || $field['disabled'] !== true ) &&
-			     ( ! isset( $field['value'] ) || $field['value'] !== true ) ) {
-				$open ++;
-			}
+		// Apply the rsssl_disable_fields filter
+		$field = apply_filters( 'rsssl_field', $field, $option );
+
+		// Check if the option is not set to true and the field is not disabled
+		if ( ( ! isset( $field['disabled'] ) || $field['disabled'] !== true ) &&
+		     ( ! isset( $field['value'] ) || $field['value'] !== true ) ) {
+			$open[] = $option;
 		}
 	}
 
 	return $open;
 }
 
+/**
+ * Count the number of open hardening features.
+ *
+ * @return int
+ */
+function rsssl_count_open_hardening_features() {
+	return count( rsssl_get_open_hardening_feature_ids() );
+}
+
 function rsssl_has_open_hardening_features() {
 	return rsssl_count_open_hardening_features() > 0;
+}
+
+/**
+ * Get hardening data for dashboard consumers.
+ *
+ * @param array  $response Existing action response.
+ * @param string $action   Requested action.
+ *
+ * @return array
+ */
+function rsssl_get_hardening_data( array $response, string $action ): array {
+	if ( $action !== 'hardening_data' ) {
+		return $response;
+	}
+
+	return [
+		'data' => [
+			'openHardeningFeatures' => rsssl_count_open_hardening_features(),
+		],
+	];
+}
+add_filter( 'rsssl_do_action', 'rsssl_get_hardening_data', 10, 2 );
+
+/**
+ * Check whether a recommended hardening field is already enforced outside RSSSL.
+ *
+ * @param string $option Field ID to inspect.
+ *
+ * @return bool
+ */
+function rsssl_is_recommended_hardening_feature_already_active( string $option ): bool {
+	if ( $option === 'disable_indexing' ) {
+		return ! rsssl_directory_indexing_allowed();
+	}
+
+	if ( $option === 'block_code_execution_uploads' ) {
+		return ! rsssl_code_execution_allowed();
+	}
+
+	if ( $option === 'disable_anyone_can_register' ) {
+		return ! (bool) get_option( 'users_can_register' );
+	}
+
+	return false;
+}
+
+/**
+ * Check whether a managed `.htaccess` field is already enforced externally.
+ *
+ * @param string $field_id Field ID to inspect.
+ *
+ * @return bool
+ */
+function rsssl_is_htaccess_field_externally_managed( string $field_id ): bool {
+	if ( $field_id === 'disable_indexing' ) {
+		return rsssl_has_external_directory_indexing_rule();
+	}
+
+	if ( $field_id === 'block_code_execution_uploads' ) {
+		return rsssl_has_external_uploads_code_execution_rule();
+	}
+
+	return false;
+}
+
+/**
+ * Detect a directory indexing rule outside the RSSSL-managed root block.
+ *
+ * @return bool
+ */
+function rsssl_has_external_directory_indexing_rule(): bool {
+	if ( ! class_exists( RSSSL_Htaccess_File_Manager::class ) ) {
+		return false;
+	}
+
+	$content = RSSSL_Htaccess_File_Manager::get_instance()->get_root_htaccess_content_for_detection();
+	if ( $content === '' ) {
+		return false;
+	}
+
+	$content = rsssl_strip_root_directory_indexing_marker_block_for_detection( $content );
+	return preg_match( '/^\s*Options\s+-Indexes\b/im', $content ) === 1;
+}
+
+/**
+ * Detect a PHP execution block outside the RSSSL-managed uploads block.
+ *
+ * @return bool
+ */
+function rsssl_has_external_uploads_code_execution_rule(): bool {
+	if ( ! class_exists( RSSSL_Htaccess_File_Manager::class ) ) {
+		return false;
+	}
+
+	$content = RSSSL_Htaccess_File_Manager::get_instance()->get_current_blog_uploads_htaccess_content_for_detection();
+	if ( $content === '' ) {
+		return false;
+	}
+
+	$content = rsssl_strip_uploads_htaccess_marker_block_for_detection( $content );
+	return preg_match( '/<Files(?:Match)?[^>]*php[^>]*>.*?(Require\s+all\s+denied|Deny\s+from\s+all).*?<\/Files(?:Match)?>/is', $content ) === 1;
+}
+
+/**
+ * Remove the managed root directory-indexing block before detecting external rules.
+ *
+ * @param string $content Root `.htaccess` contents.
+ *
+ * @return string
+ */
+function rsssl_strip_root_directory_indexing_marker_block_for_detection( string $content ): string {
+	if ( ! class_exists( RSSSL_Htaccess_File_Manager::class ) ) {
+		return $content;
+	}
+
+	$manager = RSSSL_Htaccess_File_Manager::get_instance();
+	$pattern = $manager->generate_marker_pattern( rsssl_get_disable_directory_indexing_marker() );
+	$stripped = preg_replace( $pattern, '', $content );
+	if ( ! is_string( $stripped ) ) {
+		return $content;
+	}
+
+	return $stripped;
+}
+
+/**
+ * Remove the managed uploads block before detecting external rules.
+ *
+ * @param string $content Uploads `.htaccess` contents.
+ *
+ * @return string
+ */
+function rsssl_strip_uploads_htaccess_marker_block_for_detection( string $content ): string {
+	$stripped = preg_replace( '/^\s*#Begin Really Simple Security.*?^\s*#End Really Simple Security\s*/ims', '', $content );
+	if ( ! is_string( $stripped ) ) {
+		return $content;
+	}
+
+	return $stripped;
 }
