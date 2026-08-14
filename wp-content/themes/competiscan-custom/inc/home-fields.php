@@ -219,6 +219,74 @@ function competiscan_register_home_fields() {
 			),
 		)
 	);
+
+	// ---- Testimonials -----------------------------------------------------
+	acf_add_local_field_group(
+		array(
+			'key'        => 'group_competiscan_home_testimonials',
+			'title'      => 'Home — Testimonials',
+			'menu_order' => 6,
+			'location'   => $front,
+			'fields'     => array(
+				array(
+					'key'   => 'field_home_testi_heading',
+					'label' => 'Section heading',
+					'name'  => 'testi_heading',
+					'type'  => 'text',
+				),
+				array(
+					'key'          => 'field_home_testi_items',
+					'label'        => 'Testimonials',
+					'name'         => 'testi_items',
+					'type'         => 'repeater',
+					'layout'       => 'block',
+					'button_label' => 'Add testimonial',
+					'sub_fields'   => array(
+						array(
+							'key'           => 'field_home_testi_image',
+							'label'         => 'Photo',
+							'name'          => 'person_image',
+							'type'          => 'image',
+							'return_format' => 'url',
+							'preview_size'  => 'thumbnail',
+							'wrapper'       => array( 'width' => '50' ),
+						),
+						array(
+							'key'           => 'field_home_testi_avatar',
+							'label'         => 'Avatar / icon',
+							'name'          => 'avatar_image',
+							'type'          => 'image',
+							'return_format' => 'url',
+							'preview_size'  => 'thumbnail',
+							'wrapper'       => array( 'width' => '50' ),
+						),
+						array(
+							'key'       => 'field_home_testi_quote',
+							'label'     => 'Quote',
+							'name'      => 'quote',
+							'type'      => 'textarea',
+							'rows'      => 4,
+							'new_lines' => '',
+						),
+						array(
+							'key'     => 'field_home_testi_name',
+							'label'   => 'Name / title',
+							'name'    => 'name',
+							'type'    => 'text',
+							'wrapper' => array( 'width' => '50' ),
+						),
+						array(
+							'key'     => 'field_home_testi_role',
+							'label'   => 'Role / company',
+							'name'    => 'role',
+							'type'    => 'text',
+							'wrapper' => array( 'width' => '50' ),
+						),
+					),
+				),
+			),
+		)
+	);
 }
 add_action( 'acf/init', 'competiscan_register_home_fields' );
 
@@ -289,6 +357,56 @@ function competiscan_seed_home_hero() {
 	update_option( 'competiscan_home_hero_seeded', '1' );
 }
 add_action( 'wp_loaded', 'competiscan_seed_home_hero', 48 );
+
+/**
+ * Seed the Home testimonials repeater with the current design content. Versioned so
+ * a corrected seed can overwrite a previous one; bump COMPETISCAN_HOME_TESTI_SEED to
+ * re-seed.
+ */
+define( 'COMPETISCAN_HOME_TESTI_SEED', '2' );
+function competiscan_seed_home_testimonials() {
+	if ( COMPETISCAN_HOME_TESTI_SEED === get_option( 'competiscan_home_testi_seeded' ) ) {
+		return;
+	}
+	if ( ! function_exists( 'update_field' ) || ! function_exists( 'get_field' ) ) {
+		return;
+	}
+	if ( false === add_option( 'competiscan_home_testi_seed_claim_' . COMPETISCAN_HOME_TESTI_SEED, time(), '', 'no' ) ) {
+		return;
+	}
+
+	$pid = (int) get_option( 'page_on_front' );
+	if ( ! $pid ) {
+		update_option( 'competiscan_home_testi_seeded', COMPETISCAN_HOME_TESTI_SEED );
+		return;
+	}
+
+	update_field( 'field_home_testi_heading', 'Market Leaders Trust Competiscan', $pid );
+
+	$data = array(
+		array( 'img' => 'leaders-1.png', 'icon' => 'icon1.svg', 'quote' => '“Competiscan is a reliable source to receive timely competitor intelligence with national and local perspectives. We are very pleased with the results and relationship with Competiscan.”', 'name' => 'VP Strategic Marketing', 'role' => 'Health Insurance Carrier' ),
+		array( 'img' => 'leaders-2.png', 'icon' => 'icon2.svg', 'quote' => '“Competiscan’s database is thorough and easy to search, but what really stands out is their research. The insights team goes the extra mile to understand and respond to our needs.”', 'name' => 'Creative Director', 'role' => 'Direct Marketing Agency' ),
+		array( 'img' => 'leaders-3.png', 'icon' => 'icon3.svg', 'quote' => '"The team has been phenomenal – they are super responsive to queries and are willing to work with us on our requests outside of the self-servicing platform. We also appreciate the fast turnaround as well. The Competiscan team are stars!!”', 'name' => 'Research Analyst', 'role' => 'Investment Management Firm' ),
+		array( 'img' => 'leaders-4.png', 'icon' => 'icon4.svg', 'quote' => '“The Competiscan team is amazing to work with. From helping solve problems and account coordination to presenting, the team is nailing it with me and my business partners. I appreciate all of Competiscan’s support!”', 'name' => 'Competitive Intelligence', 'role' => 'Financial Services' ),
+	);
+
+	$rows = array();
+	foreach ( $data as $d ) {
+		$person = competiscan_import_theme_image( $d['img'], 'Testimonial photo' );
+		$avatar = competiscan_import_theme_image( $d['icon'], 'Testimonial avatar' );
+		$rows[] = array(
+			'person_image' => $person ? $person : '',
+			'avatar_image' => $avatar ? $avatar : '',
+			'quote'        => $d['quote'],
+			'name'         => $d['name'],
+			'role'         => $d['role'],
+		);
+	}
+	update_field( 'field_home_testi_items', $rows, $pid );
+
+	update_option( 'competiscan_home_testi_seeded', COMPETISCAN_HOME_TESTI_SEED );
+}
+add_action( 'wp_loaded', 'competiscan_seed_home_testimonials', 49 );
 
 /**
  * Import a bundled theme image (assets/images/<file>) into the media library once,

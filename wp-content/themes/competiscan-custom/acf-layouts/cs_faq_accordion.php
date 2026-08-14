@@ -60,12 +60,12 @@ if ( isset( $args['faqs'] ) && is_array( $args['faqs'] ) ) {
 
 if ( empty( $faqs ) ) {
 	$faqs = array(
-		array( 'q' => 'Who is Competiscan?', 'a' => 'Competiscan is a leading-edge competitive intelligence and market research company, providing clients with best-in-class service.' ),
-		array( 'q' => 'What services does Competiscan provide?', 'a' => 'We provide market intelligence databases, value proposition trackers, custom research and analysis, and an AI-powered toolkit.' ),
-		array( 'q' => 'What channels does Competiscan monitor?', 'a' => 'Direct mail, email, digital, social media, and print channels across the marketplace.' ),
-		array( 'q' => 'What industries does Competiscan cover?', 'a' => 'Banking, credit cards, insurance, investment &amp; wealth, mortgage &amp; loans, retail, telecoms, and more.' ),
-		array( 'q' => 'What audiences does Competiscan cover?', 'a' => 'Consumers, business owners, and financial advisors/brokers across our omni-channel panels.' ),
-		array( 'q' => 'What parts of the customer journey does Competiscan capture?', 'a' => 'From acquisition and onboarding through retention and loyalty stages of the customer journey.' ),
+		array( 'question' => 'Who is Competiscan?', 'answer' => 'Competiscan is a leading-edge market intelligence company, providing clients with best-in-class service.', 'order' => 1 ),
+    array( 'question' => 'What services does Competiscan provide?', 'answer' => 'Competiscan delivers market and competitive intelligence that helps organizations understand how competitors engage with different audiences across channels. Our capabilities include value proposition tracking, creative trends, customer journeys and experiences, behind-the-login insights, marketing strategies, targeting insights, AI-driven analysis of marketing campaigns, and more. With access to the largest consumer panels in the market, we deliver real-time insight into competitors activities.', 'order' => 2 ),
+    array( 'question' => 'What channels does Competiscan monitor?', 'answer' => 'We monitor a variety of media channels for a comprehensive view of how competitors communicate with customers and prospects, including direct mail, email, digital, social media, and print.', 'order' => 3 ),
+    array( 'question' => 'What industries does Competiscan cover?', 'answer' => 'Competiscan covers key sectors, including Automotive, Banking, Payment Cards, Energy, Insurance, Investments, Mortgage & Loan, Retail, Travel & Leisure, and Telecom.', 'order' => 4 ),
+    array( 'question' => 'What audiences does Competiscan cover?', 'answer' => 'Our panel includes a diverse range of audiences: Consumers, Business Owners, Insurance Producers, Financial Advisors, Mortgage Brokers, and Healthcare Providers.', 'order' => 5 ),
+    array( 'question' => 'What parts of the customer journey does Competiscan capture?', 'answer' => 'We provide a 360-degree view of customer-journey communications, including acquisition, follow-up, loyalty, retention, win-back, statements, and upgrade & cross-sell.', 'order' => 6 ),
 	);
 }
 ?>
