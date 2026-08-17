@@ -47,7 +47,7 @@
       $competiscan_login_page = get_page_by_path( 'client-login' );
       $competiscan_login_url  = $competiscan_login_page ? get_permalink( $competiscan_login_page ) : home_url( '/client-login/' );
       ?>
-      <a href="https://competiscan.com/login.php"  class="btn btn-outline">Client Login</a>
+      <a href="https://demo1.competiscan.com/login.php"  class="btn btn-outline">Client Login</a>
       <a href="#" class="btn btn-primary">Contact Us</a>
       <button class="hamburger" aria-label="Open menu"><span></span></button>
     </div>
