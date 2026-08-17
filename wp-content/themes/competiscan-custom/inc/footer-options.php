@@ -80,6 +80,72 @@ function competiscan_register_social_fields() {
 add_action( 'acf/init', 'competiscan_register_social_fields' );
 
 /**
+ * Register the global Newsletter fields on the Site Options page. The newsletter
+ * section is a shared component (template-parts/newsletter.php) used on multiple
+ * pages, so its copy lives in ACF Options (global) rather than per page.
+ */
+function competiscan_register_newsletter_fields() {
+	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
+		return;
+	}
+	acf_add_local_field_group(
+		array(
+			'key'      => 'group_competiscan_newsletter',
+			'title'    => 'Newsletter Section',
+			'fields'   => array(
+				array(
+					'key'          => 'field_newsletter_heading',
+					'label'        => 'Heading',
+					'name'         => 'newsletter_heading',
+					'type'         => 'text',
+					'instructions' => 'You may include a &lt;br&gt; to control the line break.',
+				),
+				array(
+					'key'   => 'field_newsletter_subtext',
+					'label' => 'Sub-text',
+					'name'  => 'newsletter_subtext',
+					'type'  => 'text',
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'competiscan-site-options',
+					),
+				),
+			),
+		)
+	);
+}
+add_action( 'acf/init', 'competiscan_register_newsletter_fields' );
+
+/**
+ * Seed the newsletter copy once (global option), so the shared component is
+ * unchanged after activation.
+ */
+function competiscan_seed_newsletter() {
+	if ( '1' === get_option( 'competiscan_newsletter_seeded' ) ) {
+		return;
+	}
+	if ( ! function_exists( 'update_field' ) || ! function_exists( 'get_field' ) ) {
+		return;
+	}
+	if ( false === add_option( 'competiscan_newsletter_seed_claim', time(), '', 'no' ) ) {
+		return;
+	}
+	if ( '' === (string) get_field( 'newsletter_heading', 'option' ) ) {
+		update_field( 'field_newsletter_heading', 'Subscribe to our <br> free newsletter', 'option' );
+	}
+	if ( '' === (string) get_field( 'newsletter_subtext', 'option' ) ) {
+		update_field( 'field_newsletter_subtext', 'Get the latest insights straight to your inbox every month', 'option' );
+	}
+	update_option( 'competiscan_newsletter_seeded', '1' );
+}
+add_action( 'wp_loaded', 'competiscan_seed_newsletter', 47 );
+
+/**
  * Register the editable "Footer Company Information" fields on the options page.
  */
 function competiscan_register_footer_company_fields() {

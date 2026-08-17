@@ -217,24 +217,7 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
 
 
 <!-- ============ NEWSLETTER ============ -->
-<section class="free-subscribe">
-  <div class="container">
-    <div class="newsletter">
-      <div>
-        <h2>Subscribe to our <br> free newsletter</h2>
-        <p>Get the latest insights straight to your inbox every month</p>
-      </div>
-      <?php
-      // Newsletter signup powered by the Noptin plugin. Field set, hidden labels,
-      // placeholders and the "Submit" button mirror the original design; the visual
-      // layout is matched via theme CSS scoped to .free-subscribe (assets/css/style.css).
-      // html_class "newsletter-form" reuses the existing field styling. Storing/sending
-      // subscribers is handled entirely by the plugin.
-      echo do_shortcode( '[noptin fields="first_name,last_name,email" labels="hide" styles="none" template="normal" submit="Submit" first_name_placeholder="First name" last_name_placeholder="Last name" email_placeholder="Enter work email" html_class="newsletter-form cs-noptin-newsletter"]' ); // phpcs:ignore WordPress.Security.EscapeOutput
-      ?>
-    </div>
-  </div>
-</section>
+<?php get_template_part( 'template-parts/newsletter' ); ?>
 <?php // Filter tabs, result-count visibility and Reset are handled in assets/js/main.js. ?>
 <?php
 get_template_part( 'template-parts/faq', null, array( 'variant' => 'insights' ) );

@@ -181,20 +181,7 @@ while ( have_posts() ) :
 <?php endif; ?>
 
 <!-- ============ NEWSLETTER (reused Simple Newsletter / Noptin) ============ -->
-<section class="free-subscribe">
-  <div class="container">
-    <div class="newsletter">
-      <div>
-        <h2>Subscribe to our <br> free newsletter</h2>
-        <p>Get the latest insights straight to your inbox every month</p>
-      </div>
-      <?php
-      // Same Noptin form as the Insights archive — do not create a new form.
-      echo do_shortcode( '[noptin fields="first_name,last_name,email" labels="hide" styles="none" template="normal" submit="Submit" first_name_placeholder="First name" last_name_placeholder="Last name" email_placeholder="Enter work email" html_class="newsletter-form cs-noptin-newsletter"]' ); // phpcs:ignore WordPress.Security.EscapeOutput
-      ?>
-    </div>
-  </div>
-</section>
+<?php get_template_part( 'template-parts/newsletter' ); ?>
 
 <?php
 endwhile;

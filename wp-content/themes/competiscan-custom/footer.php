@@ -96,7 +96,7 @@ if ( ! empty( $competiscan_email ) ) {
     </div>
     <div class="footer-bottom">
       <span>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>
-      <span>ⓒ</span>
+      <span class="copy-right"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/images/COM-logomark-white.png' ); ?>" alt="Logo"></span>
       <a href="#" class="back-to-top">Back to top ↑</a>
     </div>
   </div>
