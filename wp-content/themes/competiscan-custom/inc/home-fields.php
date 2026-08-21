@@ -75,9 +75,9 @@ function competiscan_register_home_fields() {
 					'key'          => 'field_home_hero_btn_url',
 					'label'        => 'Button URL',
 					'name'         => 'hero_button_url',
-					'type'         => 'url',
+					'type'         => 'text',
 					'wrapper'      => array( 'width' => '33' ),
-					'instructions' => 'Optional. Where the demo form submits.',
+					'instructions' => 'Where the button links. Accepts a full URL, an anchor like #learn (opens Calendly), or mailto:.',
 				),
 				array(
 					'key'           => 'field_home_hero_image',
@@ -498,7 +498,7 @@ function competiscan_register_home_fields() {
 					'key'     => 'field_home_ind_btn_url',
 					'label'   => 'Button URL',
 					'name'    => 'ind_btn_url',
-					'type'    => 'url',
+					'type'    => 'text',
 					'wrapper' => array( 'width' => '50' ),
 				),
 				array(

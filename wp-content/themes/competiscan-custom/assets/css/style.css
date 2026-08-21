@@ -546,22 +546,27 @@ h3 {
   animation: floaty 5s ease-in-out infinite;
 }
 .float-card.card-top {
-  top: 6%;
-  left: 4%;
-  animation-delay: 0s;
-  width: fit-content;
-  gap: 11px;
-  display: flex;
-  align-items: center;
+    top: 4%;
+    left: -5%;
+    animation-delay: 0s;
+    width: 204px;
+    gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;font-size: 13px;
+}
+.float-card.card-top strong {
+    display: flex;
+    margin-left: auto;
 }
 .float-card.card-banking {
-  top: 14%;
+  top: 7%;
   right: -2%;
   animation-delay: 0.4s;
 }
 .float-card.card-insurance {
-  top: 38%;
-  right: 12%;
+     top: 34%;
+    right: 1%;
   animation-delay: 0.9s;
 }
 .float-card.card-consumer {
@@ -570,8 +575,8 @@ h3 {
   animation-delay: 1.3s;
 }
 .float-card.card-percent {
-  bottom: 22%;
-  left: -4%;
+    bottom: 21%;
+    left: -5%;
   display: flex;
   align-items: center;
   gap: 0rem;
@@ -581,8 +586,8 @@ h3 {
   padding-bottom: 24px;
 }
 .float-card.card-audience {
-  bottom: 16%;
-  left: 12%;
+ bottom: 6%;
+    left: 7%;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -597,7 +602,7 @@ h3 {
   text-align: center;
 }
 .float-card {
-  width: 220px;
+  width: 255px;
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -696,8 +701,8 @@ h3 {
   }
 }
 .ring {
-  width: 6.813rem;
-  height: 6.813rem;
+  width: 52px;
+  height: 52px;
   margin-bottom: 5px;
   display: flex;
   align-items: center;
@@ -719,9 +724,9 @@ h3 {
   margin-inline: auto;
   width: fit-content;
   margin-bottom: var(--space-lg);
-  color: var(--color-navy-700);
+  color: rgb(0,30,51);
   border: 1px solid rgba(0, 75, 129, 0.15);
-  padding: 0.875rem 1.875rem;
+  padding: 9px 1.875rem;
   font-size: var(--fs-body);
   font-weight: 500;
 }
@@ -1215,130 +1220,126 @@ border-radius:var(--radius-lg)
    11. FAQ
 ----------------------------------------------------------- */
 .faq {
-  background: var(--color-navy-700);
+  background: rgb(0, 75, 129);
   color: var(--color-white);
   position: relative;
 }
+.faq .container {
+  padding-inline: clamp(20px, 5vw, 40px);
+}
 .faq-grid {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: var(--space-lg);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
+  gap: clamp(32px, 5vw, 72px);
 }
 .faq h2 {
   color: var(--color-white);
+  font-size: clamp(34px, 4.5vw, 54px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin: 0 0 20px;
 }
 .faq h2 span {
-  color: var(--color-teal-500);
+  color: rgb(0, 171, 171);
 }
 .faq-copy p {
-  color: white;
-  margin-top: var(--space-sm);
-  max-width: 22rem;
+  color: rgb(204, 234, 255);
+  margin: 0;
+  max-width: 380px;
   font-size: 18px;
+  line-height: 1.55;
 }
 .faq-item {
   border-radius: 0;
-  transition: background var(--dur-med) var(--ease-out);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
 }
 .faq-item span.lft {
   display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
 }
 a.link-arrow {
   font-size: 16px;
-}
-.faq-item:last-child {
-  border-bottom: 0;
-}
-.faq-item.active {
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
-  border-bottom: 0;
-  margin-top: 1rem;
 }
 .faq-q {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: var(--space-sm) 1rem;
+  gap: 18px;
+  padding: 22px 4px;
   text-align: left;
-  color: var(--color-teal-500);
+  color: rgb(0, 171, 171);
   font-weight: 500;
-  font-size: 1.5rem;
-  line-height: 1.875rem;
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.25;
   transition: color var(--dur-fast) var(--ease-out);
 }
 .faq-q .dot {
-  color: var(--color-orange-500);
-  width: 20px;
-}
-.faq-q .dot + span {
-  width: calc(100% - 20px);
-}
-.faq-toggle-ic {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgb(232, 119, 82);
+  font-size: 0;
+  flex-shrink: 0;
+}
+/* Plain teal "+" that becomes "−" when open — no circle/fill, matching source. */
+.faq-toggle-ic {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   position: relative;
-  transition:
-    background var(--dur-med) var(--ease-out),
-    border-color var(--dur-med) var(--ease-out),
-    transform var(--dur-med) var(--ease-out);
+  color: rgb(0, 171, 171);
 }
 .faq-toggle-ic::before,
 .faq-toggle-ic::after {
   content: "";
   position: absolute;
   background: currentColor;
-  transition:
-    transform var(--dur-med) var(--ease-out),
-    opacity var(--dur-med) var(--ease-out);
+  transition: opacity var(--dur-med) var(--ease-out);
 }
 .faq-toggle-ic::before {
-  width: 0.6rem;
-  height: 1.5px;
+  width: 18px;
+  height: 2px;
 }
 .faq-toggle-ic::after {
-  width: 1.5px;
-  height: 0.6rem;
-}
-.faq-item.active .faq-toggle-ic::before {
-  background: var(--color-navy-700);
-}
-.faq-item.active .faq-q {
-  color: var(--color-teal-400);
-}
-.faq-item.active .faq-toggle-ic {
-  background: var(--color-teal-500);
-  border-color: var(--color-teal-500);
-  color: var(--color-white);
+  width: 2px;
+  height: 18px;
 }
 .faq-item.active .faq-toggle-ic::after {
   opacity: 0;
 }
+/* Smooth collapse: animate grid-template-rows 0fr → 1fr so it eases to the
+   answer's true height (max-height:inherit can't be interpolated, so it jumped). */
 .faq-a {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  padding-inline: 1rem;
   transition:
-    max-height var(--dur-slow) var(--ease-out),
-    padding var(--dur-slow) var(--ease-out);
+    grid-template-rows var(--dur-med) var(--ease-out),
+    padding var(--dur-med) var(--ease-out);
+}
+.faq-a > * {
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
 }
 .faq-item.active .faq-a {
-  max-height: 12rem;
-  padding-bottom: var(--space-sm);
+  grid-template-rows: 1fr;
+  padding-bottom: 26px;
 }
 .faq-a p {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: var(--fs-body);
-  padding: 0 30px 0 23px;
+  color: rgb(204, 234, 255);
+  font-size: 17px;
+  line-height: 1.6;
+  padding: 0 26px;
 }
 
 /* -----------------------------------------------------------

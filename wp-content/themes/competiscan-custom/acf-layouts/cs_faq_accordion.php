@@ -27,7 +27,7 @@ $variant = isset( $args['variant'] ) ? $args['variant'] : 'home';
 // --- Title -------------------------------------------------------------------
 $cs_faq_title = isset( $args['title'] ) ? $args['title'] : ( function_exists( 'get_sub_field' ) ? get_sub_field( 'title' ) : '' );
 if ( ! $cs_faq_title ) {
-	$cs_faq_title = 'Got Questions?';
+	$cs_faq_title = 'Got questions?';
 }
 
 // --- Description --------------------------------------------------------------
@@ -73,7 +73,7 @@ if ( empty( $faqs ) ) {
 <section class="section faq" id="<?php echo esc_attr( $cs_faq_section_id ); ?>">
   <div class="container faq-grid">
     <div class="faq-copy">
-      <h2><span><?php echo esc_html( $cs_faq_title ); ?></span> <br> We've Got <br> Answers</h2>
+      <h2><span><?php echo esc_html( $cs_faq_title ); ?></span><br>We've got answers</h2>
       <?php if ( $cs_faq_desc ) : ?>
       <p><?php echo wp_kses_post( $cs_faq_desc ); ?></p>
       <?php endif; ?>
@@ -85,7 +85,7 @@ if ( empty( $faqs ) ) {
         $cs_q = isset( $faq['q'] ) ? $faq['q'] : ( isset( $faq['question'] ) ? $faq['question'] : '' );
         $cs_a = isset( $faq['a'] ) ? $faq['a'] : ( isset( $faq['answer'] ) ? $faq['answer'] : '' );
         ?>
-      <div class="faq-item<?php echo 0 === $i ? ' active' : ''; ?>">
+      <div class="faq-item">
         <?php if ( 'insights' === $variant ) : ?>
         <button class="faq-q"><span><span class="dot">•</span><?php echo esc_html( $cs_q ); ?></span><span class="faq-toggle-ic"></span></button>
         <?php else : ?>
