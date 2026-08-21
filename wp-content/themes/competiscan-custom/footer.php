@@ -54,6 +54,7 @@ if ( ! empty( $competiscan_email ) ) {
         }
         ?>
       </div>
+      <div class="footer-menu-row">
       <div class="footer-col">
         <h5>Solutions</h5>
         <?php
@@ -94,6 +95,7 @@ if ( ! empty( $competiscan_email ) ) {
         </div>
       </div>
     </div>
+  </div>
     <div class="footer-bottom">
       <span>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>
       <span class="copy-right"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/images/COM-logomark-white.png' ); ?>" alt="Logo"></span>

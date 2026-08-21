@@ -22,11 +22,15 @@ $get = static function ( $name, $fallback ) use ( $f, $pid ) {
 	return ( '' === $v || null === $v || false === $v ) ? $fallback : $v;
 };
 
-$hero_heading = $get( 'hero_heading', "Your Single\nSource for Market\nand Competitive\nInsights" );
-$hero_text    = $get( 'hero_text', 'Competiscan transforms direct and digital marketing activity across the marketplace into clear, actionable insights, backed by best-in-class service along with the largest omni-channel consumer, business owner, and advisor/broker panels.' );
-$hero_ph      = $get( 'hero_email_placeholder', 'Enter work email' );
-$hero_btn     = $get( 'hero_button_text', 'Request a demo' );
-$hero_btn_url = $f ? get_field( 'hero_button_url', $pid ) : '';
+$hero_heading = $get( 'hero_heading', 'Your Single Source for Market and Competitive Insights' );
+$hero_text    = $get( 'hero_text', 'Competiscan transforms direct mail and digital marketing into actionable insights. Our best-in-class service leverages the largest longitudinal, omni-channel panels of consumers, business owners, insurance producers, financial advisors, and mortgage brokers in the marketplace.' );
+$hero_btn     = $get( 'hero_button_text', 'See it in action' );
+$hero_btn_url = $get( 'hero_button_url', '#learn' );
+
+// Site convention: a "#learn" (or Calendly) URL opens the Calendly popup — handled
+// site-wide by assets/js/contact.js via the data-cs-calendly attribute.
+$hero_is_calendly = ( '#learn' === $hero_btn_url || false !== strpos( (string) $hero_btn_url, 'calendly.com' ) );
+
 $hero_img     = $get( 'hero_image', $img . 'hero-image.jpg' );
 $hero_alt     = $get( 'hero_image_alt', 'Financial advisor reviewing insights dashboard' );
 
@@ -57,12 +61,11 @@ $aud_v     = $get( 'hero_audience_value', 'Financial Advisors' );
         <?php echo nl2br( esc_html( $hero_heading ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- nl2br over esc_html. ?>
       </h1>
       <p><?php echo esc_html( $hero_text ); ?></p>
-      <form class="hero-form"<?php echo $hero_btn_url ? ' action="' . esc_url( $hero_btn_url ) . '" method="post"' : ' onsubmit="return false;"'; ?>>
-        <input type="email" placeholder="<?php echo esc_attr( $hero_ph ); ?>" required>
-        <button type="submit" class="btn btn-primary"><?php echo esc_html( $hero_btn ); ?>
+      <div class="hero-form">
+        <a class="btn btn-primary"<?php echo $hero_is_calendly ? ' data-cs-calendly' : ''; ?> href="<?php echo esc_url( $hero_btn_url ); ?>"><?php echo esc_html( $hero_btn ); ?>
           <svg width="14" height="10" viewBox="0 0 16 12" fill="none"><path d="M1 6H15M15 6L10 1M15 6L10 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </form>
+        </a>
+      </div>
     </div>
     <div class="hero-media">
       <img src="<?php echo esc_url( $hero_img ); ?>" class="media-img" alt="<?php echo esc_attr( $hero_alt ); ?>">

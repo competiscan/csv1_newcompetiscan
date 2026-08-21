@@ -30,7 +30,7 @@ if ( ! $track_head ) {
 }
 $track_desc = function_exists( 'get_field' ) ? get_field( 'tracking_desc', $pid ) : '';
 if ( ! $track_desc ) {
-	$track_desc = 'Etiam accumsan urna a mauris dapibus, nec aliquet nunc convallis. Phasellus eget justo et libero ultrices posuere. Cras euismod, arcu nec congue convallis, ipsum purus cursus nibh, vel condimentum sapien orci non libero.';
+	$track_desc = 'Competiscan captures competitor activity across every major channel, giving you one clear, comparable view of how strategies shift over time and where the market is heading next.';
 }
 
 $track_rows = function_exists( 'get_field' ) ? get_field( 'tracking_cards', $pid ) : array();
@@ -44,9 +44,15 @@ if ( ! empty( $track_rows ) && is_array( $track_rows ) ) {
 		);
 	}
 } else {
-	$tp = 'Fusce ut nisi arcu. Quisque sed dolor nec dui scelerisque dapibus. Sed at purus at sem.';
-	foreach ( array( 'Direct Mail', 'Email', 'Digital', 'Social Media', 'Print' ) as $title ) {
-		$track_cards[] = array( 'icon' => '', 'title' => $title, 'text' => $tp );
+	$track_fallback = array(
+		array( 'Direct Mail', 'Track creative trends, mail volumes, and segmentation strategy.' ),
+		array( 'Email', 'Monitor email messages, designs, send volumes, and cadence.' ),
+		array( 'Digital', 'See online display and online video creatives, spend and impressions.' ),
+		array( 'Social Media', 'Follow organic and paid social activity across platforms.' ),
+		array( 'Print', 'Capture print advertising across local newspapers and trade publications.' ),
+	);
+	foreach ( $track_fallback as $tf ) {
+		$track_cards[] = array( 'icon' => '', 'title' => $tf[0], 'text' => $tf[1] );
 	}
 }
 ?>

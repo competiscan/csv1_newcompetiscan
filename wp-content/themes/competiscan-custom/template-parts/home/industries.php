@@ -23,11 +23,11 @@ if ( ! $ind_heading ) {
 }
 $ind_desc = function_exists( 'get_field' ) ? get_field( 'ind_desc', $pid ) : '';
 if ( ! $ind_desc ) {
-	$ind_desc = 'Etiam accumsan urna a mauris dapibus, nec aliquet nunc convallis. Phasellus eget justo et libero ultrices posuere.';
+	$ind_desc = 'From financial services to retail and telecom, we track the sectors where staying ahead of the competition matters most.';
 }
 $ind_btn_label = function_exists( 'get_field' ) ? get_field( 'ind_btn_label', $pid ) : '';
 if ( ! $ind_btn_label ) {
-	$ind_btn_label = 'Learn More';
+	$ind_btn_label = 'Explore industries';
 }
 $ind_btn_url = function_exists( 'get_field' ) ? get_field( 'ind_btn_url', $pid ) : '';
 if ( ! $ind_btn_url ) {

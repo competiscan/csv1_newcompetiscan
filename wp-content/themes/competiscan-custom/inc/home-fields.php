@@ -556,12 +556,11 @@ function competiscan_seed_home_hero() {
 	$img = get_template_directory_uri() . '/assets/images/';
 
 	$defaults = array(
-		'hero_heading'           => "Your Single Source\nfor Market and\nCompetitive\nInsights",
-		'hero_text'              => 'Competiscan transforms direct mail and digital marketing into actionable insights. Our best-in-class service leverages the largest longitudinal, omni-channel panels of consumers, business owners, insurance producers, financial advisors, and mortgage brokers in the marketplace.
-
-',
+		'hero_heading'           => 'Your Single Source for Market and Competitive Insights',
+		'hero_text'              => 'Competiscan transforms direct mail and digital marketing into actionable insights. Our best-in-class service leverages the largest longitudinal, omni-channel panels of consumers, business owners, insurance producers, financial advisors, and mortgage brokers in the marketplace.',
 		'hero_email_placeholder' => 'Enter work email',
-		'hero_button_text'       => 'Request a demo',
+		'hero_button_text'       => 'See it in action',
+		'hero_button_url'        => '#learn',
 		'hero_image_alt'         => 'Financial advisor reviewing insights dashboard',
 		'hero_media_prefix'      => 'Media:',
 		'hero_media_value'       => 'Direct Mail',
@@ -680,10 +679,9 @@ function competiscan_seed_home_sections() {
 		update_field( 'field_home_partners_eyebrow', 'Our Trusted Partners', $pid );
 	}
 	if ( empty( get_field( 'partners_logos', $pid ) ) ) {
-		$logos = array( 'amsive-logo.jpg', 'amazon-web-services.png', 'deluxe.png', 'njm.png', 'prosper-logo.png', 'publix.png', 'rbc.png', 'sir.png', 'snap.png' );
-		$rows  = array();
-		foreach ( $logos as $fn ) {
-			$att   = competiscan_import_theme_image( $fn, 'Partner logo' );
+		$rows = array();
+		foreach ( competiscan_home_partner_logos() as $fn ) {
+			$att    = competiscan_import_theme_image( 'companylogos/' . $fn, 'Partner logo' );
 			$rows[] = array( 'logo' => $att ? $att : '' );
 		}
 		update_field( 'field_home_partners_logos', $rows, $pid );
@@ -697,10 +695,9 @@ function competiscan_seed_home_sections() {
 		update_field( 'field_home_tracking_desc', 'Competiscan captures competitor activity across every major channel, giving you one clear, comparable view of how strategies shift over time and where the market is heading next.', $pid );
 	}
 	if ( empty( get_field( 'tracking_cards', $pid ) ) ) {
-		$tp    = 'Track creative trends, mail volumes, and segmentation strategy.';
-		$rows  = array();
-		foreach ( array( 'Direct Mail', 'Email', 'Digital', 'Social Media', 'Print' ) as $title ) {
-			$rows[] = array( 'icon' => '', 'title' => $title, 'text' => $tp );
+		$rows = array();
+		foreach ( competiscan_home_tracking_cards() as $tf ) {
+			$rows[] = array( 'icon' => '', 'title' => $tf[0], 'text' => $tf[1] );
 		}
 		update_field( 'field_home_tracking_cards', $rows, $pid );
 	}
@@ -744,10 +741,14 @@ function competiscan_seed_home_sections() {
 		update_field( 'field_home_ind_heading', "Industries\nWe Serve", $pid );
 	}
 	if ( '' === (string) get_field( 'ind_desc', $pid ) ) {
-		update_field( 'field_home_ind_desc', 'Etiam accumsan urna a mauris dapibus, nec aliquet nunc convallis. Phasellus eget justo et libero ultrices posuere.', $pid );
+		update_field( 'field_home_ind_desc', 'From financial services to retail and telecom, we track the sectors where staying ahead of the competition matters most.', $pid );
 	}
 	if ( '' === (string) get_field( 'ind_btn_label', $pid ) ) {
-		update_field( 'field_home_ind_btn_label', 'Learn More', $pid );
+		update_field( 'field_home_ind_btn_label', 'Explore industries', $pid );
+	}
+	if ( '' === (string) get_field( 'ind_btn_url', $pid ) ) {
+		$ind_page = get_page_by_path( 'industries' );
+		update_field( 'field_home_ind_btn_url', $ind_page ? get_permalink( $ind_page ) : '#', $pid );
 	}
 	if ( empty( get_field( 'ind_items', $pid ) ) ) {
 		$items = array( 'Banking', 'Mortgage & Loans', 'Credit Cards', 'Retail', 'Insurance', 'Telecoms', 'Investment & Wealth', 'And more...' );
@@ -761,6 +762,95 @@ function competiscan_seed_home_sections() {
 	update_option( 'competiscan_home_sections_seeded', '1' );
 }
 add_action( 'wp_loaded', 'competiscan_seed_home_sections', 50 );
+
+/**
+ * The five Omnichannel Tracking channel cards (title, description) — matches the
+ * HTML source. Shared by the seed and the template fallback.
+ *
+ * @return array<int,array{0:string,1:string}>
+ */
+function competiscan_home_tracking_cards() {
+	return array(
+		array( 'Direct Mail', 'Track creative trends, mail volumes, and segmentation strategy.' ),
+		array( 'Email', 'Monitor email messages, designs, send volumes, and cadence.' ),
+		array( 'Digital', 'See online display and online video creatives, spend and impressions.' ),
+		array( 'Social Media', 'Follow organic and paid social activity across platforms.' ),
+		array( 'Print', 'Capture print advertising across local newspapers and trade publications.' ),
+	);
+}
+
+/**
+ * Partner logo files (in assets/images/companylogos/), in the HTML-source order.
+ * Shared by the seed and the template fallback.
+ *
+ * @return string[]
+ */
+function competiscan_home_partner_logos() {
+	return array(
+		'aflac.png', 'amsive.png', 'aws.png', 'deluxe.png', 'new-york-life.png',
+		'njm.png', 'prosper.png', 'publix.png', 'rbc.png', 'sir.png',
+		'snap.png', 'verizon.png', 'wells-fargo.png',
+	);
+}
+
+/**
+ * One-time content correction: overwrite Home fields that earlier seeds captured
+ * with placeholder or now-outdated copy, so the live page matches the HTML source
+ * exactly. Versioned — bump COMPETISCAN_HOME_MATCH_SEED to re-apply. Runs once and
+ * the fields stay fully editable from the admin afterwards.
+ */
+define( 'COMPETISCAN_HOME_MATCH_SEED', '2' );
+function competiscan_seed_home_match() {
+	if ( COMPETISCAN_HOME_MATCH_SEED === get_option( 'competiscan_home_match_seeded' ) ) {
+		return;
+	}
+	if ( ! function_exists( 'update_field' ) ) {
+		return;
+	}
+	if ( false === add_option( 'competiscan_home_match_claim_' . COMPETISCAN_HOME_MATCH_SEED, time(), '', 'no' ) ) {
+		return;
+	}
+
+	$pid = (int) get_option( 'page_on_front' );
+	if ( ! $pid ) {
+		update_option( 'competiscan_home_match_seeded', COMPETISCAN_HOME_MATCH_SEED );
+		return;
+	}
+
+	// Hero — single "See it in action" Calendly CTA (no email form in the source).
+	update_field( 'field_home_hero_heading', 'Your Single Source for Market and Competitive Insights', $pid );
+	update_field( 'field_home_hero_text', 'Competiscan transforms direct mail and digital marketing into actionable insights. Our best-in-class service leverages the largest longitudinal, omni-channel panels of consumers, business owners, insurance producers, financial advisors, and mortgage brokers in the marketplace.', $pid );
+	update_field( 'field_home_hero_btn_text', 'See it in action', $pid );
+	update_field( 'field_home_hero_btn_url', '#learn', $pid );
+
+	// Omnichannel Tracking — heading, description and per-card copy.
+	update_field( 'field_home_tracking_heading', 'Our Comprehensive Omnichannel Tracking', $pid );
+	update_field( 'field_home_tracking_desc', 'Competiscan captures competitor activity across every major channel, giving you one clear, comparable view of how strategies shift over time and where the market is heading next.', $pid );
+	$track_rows = array();
+	foreach ( competiscan_home_tracking_cards() as $tf ) {
+		$track_rows[] = array( 'icon' => '', 'title' => $tf[0], 'text' => $tf[1] );
+	}
+	update_field( 'field_home_tracking_cards', $track_rows, $pid );
+
+	// Industries — description, button label and destination.
+	update_field( 'field_home_ind_desc', 'From financial services to retail and telecom, we track the sectors where staying ahead of the competition matters most.', $pid );
+	update_field( 'field_home_ind_btn_label', 'Explore industries', $pid );
+	$ind_page = get_page_by_path( 'industries' );
+	update_field( 'field_home_ind_btn_url', $ind_page ? get_permalink( $ind_page ) : '#', $pid );
+
+	// Partners — replace with the full colour logo set from the HTML source.
+	$logo_rows = array();
+	foreach ( competiscan_home_partner_logos() as $fn ) {
+		$att         = competiscan_import_theme_image( 'companylogos/' . $fn, 'Partner logo' );
+		$logo_rows[] = array( 'logo' => $att ? $att : '' );
+	}
+	if ( ! empty( $logo_rows ) ) {
+		update_field( 'field_home_partners_logos', $logo_rows, $pid );
+	}
+
+	update_option( 'competiscan_home_match_seeded', COMPETISCAN_HOME_MATCH_SEED );
+}
+add_action( 'wp_loaded', 'competiscan_seed_home_match', 51 );
 
 /**
  * Import a bundled theme image (assets/images/<file>) into the media library once,
@@ -802,7 +892,7 @@ function competiscan_import_theme_image( $file, $title = '' ) {
 
 	$att_id = media_handle_sideload(
 		array(
-			'name'     => $file,
+			'name'     => basename( $file ),
 			'tmp_name' => $tmp,
 		),
 		0,

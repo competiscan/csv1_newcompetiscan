@@ -287,9 +287,8 @@ h3 {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 9999;
   width: 100%;
-  z-index: 999;
   /* Transition only appearance — never layout — so the scrolled state can't
      cause a jump/glitch while scrolling on Windows. */
   transition: background 0.3s ease, box-shadow 0.3s ease;
@@ -298,9 +297,6 @@ h3 {
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /*background:rgba(255,255,255,0.92);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--color-border-soft);*/
 }
 .header-inner {
   display: flex;
@@ -309,47 +305,8 @@ h3 {
   padding-block: var(--space-sm);
   gap: var(--space-md);
 }
-
-/*header{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 999;
-    transition: all .4s ease;
-}
-*/
-/* The header is already position: sticky, so it stays pinned natively. On scroll,
-   main.js adds .header-fixed purely as a "scrolled" appearance flag — we do NOT
-   switch to position: fixed (that removes it from flow and jumps the page) and we
-   do NOT re-run a slide-down animation (that glitches each time the class toggles).
-   Only the background + shadow change, transitioned smoothly. */
-/*header.header-fixed {
-  background: linear-gradient(90deg, #ffffff 0%, #e2f2f8 100%);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}*/
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 9999;
-  width: 100%;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
+/* main.js adds .header-fixed on scroll — only the background + shadow change
+   (never position/layout), so the sticky header stays smooth. */
 .site-header.header-fixed {
   background: linear-gradient(90deg, #ffffff 0%, #e2f2f8 100%);
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
@@ -462,6 +419,42 @@ h3 {
   line-height: 1.5;
 }
 
+/* "About Us" simple dropdown — single column, left-aligned to the label and sized
+   to content, matching the HTML source. Auto-detected: a dropdown with no
+   description paragraphs (About Us / Careers) is the simple one, so this works
+   regardless of any menu-item CSS class. The .mega-drop-simple class the walker adds
+   is also honoured. */
+.mega-drop.mega-drop-simple,
+.mega-drop:not(:has(p)) {
+  left: 0;
+  transform: translateY(8px);
+  width: auto;
+  min-width: 12rem;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  border-radius: 14px;
+  padding: 14px;
+}
+.nav-item.open .mega-drop.mega-drop-simple,
+.nav-item.open .mega-drop:not(:has(p)) {
+  transform: translateY(0);
+}
+.mega-drop.mega-drop-simple .mega-drop-link,
+.mega-drop:not(:has(p)) .mega-drop-link {
+  padding: 12px 14px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.mega-drop.mega-drop-simple .mega-drop-link:hover,
+.mega-drop:not(:has(p)) .mega-drop-link:hover {
+  background: #e2f2f8;
+  transform: none;
+}
+.mega-drop.mega-drop-simple .title,
+.mega-drop:not(:has(p)) .title {
+  margin-bottom: 0;
+  font-weight: 500;
+}
 .header-actions {
   display: flex;
   align-items: center;
@@ -474,31 +467,10 @@ h3 {
 /* -----------------------------------------------------------
    6. HERO
 ----------------------------------------------------------- */
-/*.hero{
-  background-color:var(--color-bg-hero);background-image: url(../images/pattern-bg.svg);background-size: contain; background-position: top left;
-
-  position:relative;
-}*/
-/*.hero{
-    position: relative;
-    background:
-        url("../images/pattern.png") top left / contain repeat,
-        linear-gradient(90deg, #FFFFFF 0%, #E2F2F8 100%);
-}*/
 .hero {
   position: relative;
   overflow: hidden;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    url("../images/pattern.png") top left / contain repeat,
-    linear-gradient(90deg, #ffffff 0%, #e2f2f8 100%);
-  opacity: 0.7;
-  z-index: 0;
+  background: transparent; /* single backdrop comes from body */
 }
 
 .hero > * {
@@ -525,7 +497,7 @@ h3 {
 }
 .hero-media img.media-img {
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg);width: 500px;
 }
 
 .hero-copy h1 {
@@ -738,9 +710,9 @@ h3 {
 */
 /* Partners strip — pure CSS marquee (edge-to-edge, no JS dependency) */
 .partners {
-  padding-block: var(--space-2xl);
-  background: var(--color-white);
-  overflow: hidden;
+  /*padding-block: var(--space-2xl);*/
+  background: transparent; /* single backdrop comes from body */
+  overflow: hidden;padding-top: 40px;
 }
 .partners .eyebrow-pill {
   display: flex;
@@ -812,6 +784,66 @@ h3 {
   color: var(--color-navy-700);
 }
 
+/* ============================================================
+   Match the HTML source: page-wide grid + white→light-blue wash
+   behind a transparent header, on the home AND all inner pages
+   (the source uses this same body backdrop everywhere).
+   ============================================================ */
+body {
+  background-color: #fff;
+  background-image:
+    linear-gradient(rgba(0, 75, 129, 0.05) 0.75px, transparent 0.75px),
+    linear-gradient(90deg, rgba(0, 75, 129, 0.05) 0.75px, transparent 0.75px),
+    linear-gradient(90deg, #ffffff 0%, #e2f2f8 100%);
+  background-size: 189px 192px, 189px 192px, 100% 100%;
+  background-position: top left;
+  background-attachment: scroll;
+}
+/* Restore the container side padding (disabled globally) so home content
+   isn't flush to the viewport edges — matches the source's clamp(20,5vw,40). */
+body.home .container { padding-inline: clamp(20px, 5vw, 40px); }
+
+/* Hero split — source is 0.85fr copy / 1.15fr graphic, centred, with the
+   source's generous top/bottom padding. */
+body.home .hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+  padding-block: clamp(40px, 6vw, 80px) clamp(48px, 7vw, 90px);
+}
+body.home .hero-copy { width: auto; }
+/* Copy column — match the source: paragraph capped at 460px and the heading's
+   -0.03em letter-spacing (the base rule uses an invalid "-3%" that browsers drop). */
+body.home .hero-copy p { max-width: 460px; }
+body.home .hero-copy h1 { letter-spacing: -0.03em; }
+/* Hero graphic — match the source frame: fixed 648:534 ratio, capped at 640px
+   and centred in its column, so the photo (and the hero height) match the HTML
+   instead of the photo filling the column at its natural, taller ratio. */
+body.home .hero-media {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  aspect-ratio: 648 / 534;
+}
+body.home .hero-media img.media-img {
+  width: 80%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% 50%;
+}
+
+/* Partner marquee logos — full colour, 34px tall, evenly spaced. */
+.partners .logo-chip { padding-inline: 0; filter: none; opacity: 1; }
+.partners .logo-chip img {
+  height: 34px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  filter: none;
+  opacity: 1;
+}
+
 /* -----------------------------------------------------------
    7. OMNICHANNEL TRACKING
 ----------------------------------------------------------- */
@@ -858,7 +890,7 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: clamp(2rem, 4.5vw, 4.875rem);
+  margin-bottom: 18px;
   transition: transform var(--dur-med) var(--ease-out);
 }
 .tracking-card:hover .icon {
@@ -1316,17 +1348,32 @@ a.link-arrow {
   background: var(--color-navy-900);
   color: rgba(255, 255, 255, 0.7);
   padding-block: var(--space-lg) var(--space-md);
-  border-top-left-radius: 30px;
-  border-top-right-radius: 30px;
-  margin-top: -30px;
+  border-top-left-radius:0px;
+  border-top-right-radius: 0px;
+  margin-top: 0px;
   position: relative;
   z-index: 2;
 }
+
+.footer-menu-row {
+    display: flex;
+    width: calc(100% - 45%);
+    justify-content: space-around;
+}
+
+.footer-col.footer-logo-col {
+    width: 35%;
+}
+.footer-logo img{width: 320px;}
 .footer-top {
-  display: grid;
+      display: flex;
+    justify-content: space-between;
+    gap: 0;
+    margin-bottom: var(--space-lg);
+  /*display: grid;
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: var(--space-lg);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-lg);*/
 }
 .footer-top P {
   color: var(--White, rgba(255, 255, 255, 1));
@@ -1338,6 +1385,7 @@ a.link-arrow {
 .footer-top p a.footer-tel::after {
   content: none;
 }
+.footer-top p a.footer-tel:hover{color: var(--color-teal-400);}
 .footer-logo {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -1356,11 +1404,12 @@ a.link-arrow {
 }
 .footer-col a {
   display: inline-block;
-  font-size: 18px;
+  font-size: 16px;
   color: var(--color-teal-500);
   position: relative;
   transition: color var(--dur-fast) var(--ease-out);
 }
+a .badge-new{font-size: 14px;}
 .footer-col a::after {
   content: "";
   position: absolute;
@@ -1368,7 +1417,7 @@ a.link-arrow {
   bottom: -2px;
   width: 0;
   height: 1px;
-  background: var(--color-teal-400);
+  background: rgb(0,120,120);
   transition: width var(--dur-med) var(--ease-out);
 }
 a .badge-new {
@@ -1376,7 +1425,7 @@ a .badge-new {
 }
 .footer-col a:hover,
 .footer-col a.active {
-  color: var(--color-teal-400);
+  color: rgb(0,120,120);
   text-decoration: none;
 }
 .footer-col a:hover::after,
@@ -1425,6 +1474,101 @@ a .badge-new {
 .back-to-top:hover {
   color: var(--color-teal-400);
   transform: translateY(-3px);
+}
+
+/* ---------------------------------------------------------
+   Footer — match the HTML source: spacing (padding/margin),
+   grid layout, logo size and font-sizes.
+--------------------------------------------------------- */
+.site-footer {
+  color: #fff;
+  padding-block: 0;
+}
+/* Restore side padding (disabled on .container globally) so the footer isn't
+   flush to the viewport edges — source uses clamp(20px,5vw,40px). */
+.site-footer .container {
+  padding-inline: clamp(20px, 5vw, 40px);
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(auto, 600px);
+  gap: 40px clamp(40px, 8vw, 120px);
+  align-items: start;
+  margin-bottom: 0;
+  padding-top: clamp(48px, 6vw, 80px);
+  padding-bottom: 40px;
+}
+.footer-menu-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  width: auto;
+}
+.footer-col.footer-logo-col {
+  width: auto;
+}
+.footer-logo {
+  margin-bottom: 26px;
+}
+.footer-logo img {
+  height: 52px;
+  width: auto;
+}
+.footer-logo-col p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.footer-col h5 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+.footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.footer-col li {
+  margin: 0;
+}
+.footer-col a {
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.footer-social {
+  gap: 12px;
+}
+.footer-social a {
+  gap: 10px;
+}
+.footer-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 0 36px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 18px;
+}
+.footer-bottom .copy-right {
+  width: auto;
+  height: auto;
+  justify-self: center;
+}
+.footer-bottom .copy-right img {
+  height: 34px;
+  width: auto;
+}
+.footer-bottom .back-to-top {
+  justify-self: end;
+  font-size: 18px;
 }
 
 /* =========================================================
@@ -1894,17 +2038,19 @@ a .badge-new {
   gap: 20px;
 }
 .newsletter-form input {
-  padding: 0.9rem 1.1rem;
-  border-radius: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 16px;
+  border-radius: 6px;
+  border: none;
   background: #fff;
-  color: #000;
+  color: rgb(0, 30, 51);
+  font-size: 16px;
   transition:
     background var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out);
 }
 .newsletter-form input::placeholder {
-  color: #000;
+  color: #757575;
+  opacity: 1;
 }
 .newsletter-form input:focus {
   outline: none;
@@ -1963,18 +2109,22 @@ a .badge-new {
 .free-subscribe .newsletter-form .noptin-form-field-submit {
   position: relative;
 }
+.free-subscribe .newsletter-form .noptin-form-field-wrapper input::placeholder {
+  color: #757575;
+  opacity: 1;
+}
 .free-subscribe .newsletter-form .noptin-form-submit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: var(--fs-medium);
+  font-weight: 500;
+  font-size: 16px;
   line-height: 1.2;
-  padding: 0.813rem 2.75rem 0.813rem 1.5rem;
-  border-radius: var(--radius-btn);
+  padding: 13px 44px 13px 22px;
+  border-radius: 10px;
   background: transparent;
   color: var(--color-white);
-  border: 1.5px solid var(--color-teal-500);
+  border: 1px solid rgb(0, 171, 171);
   width: fit-content;
   cursor: pointer;
   white-space: nowrap;
@@ -1994,8 +2144,8 @@ a .badge-new {
   right: 1.4rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-teal-400);
-  font-size: var(--fs-medium);
+  color: rgb(0, 171, 171);
+  font-size: 16px;
   pointer-events: none;
 }
 .free-subscribe .newsletter-form .noptin-form-notice {
@@ -2226,24 +2376,8 @@ a .badge-new {
 }
 
 /* -----------------------------------------------------------
-   13. DECORATIVE BACKGROUND PATTERN (Home - Desktop.png)
+   13. SECTIONS — single page backdrop lives on body (see top).
 ----------------------------------------------------------- */
-/*.hero,
-.section,
-.tracking,
-.partners,
-.testimonials,
-.insights-hero{
-  background-image:var(--pattern-navy);
-  background-repeat:repeat;
-}*/
-/*.stats,
-.faq,
-.newsletter{
-  background-image:var(--pattern-white);
-  background-repeat:repeat;
-}*/
-/* keep section base colors intact; pattern layered via background-image only */
 .section {
   position: relative;
 }
@@ -2301,60 +2435,15 @@ a .badge-new {
   object-fit: contain;
 }
 
-.industrie-section,
-/*.tracking{border-top: 1px solid #d6e2eb; position: relative;
-  background:url("../images/pattern.png") top left / contain repeat,linear-gradient(90deg, #FFFFFF 0%, #E2F2F8 100%);}*/
-/*.industrie-section{ position: relative;
-  background:linear-gradient(90deg, #FFFFFF 0%, #E2F2F8 100%);}
-.industrie-section:before{position: absolute; content: ""; width: 100%; height: 100%;
-background-image: url("../images/pattern.png");background-repeat: repeat;background-position: top left;
-    opacity: 0.5;
-}*/
+/* Sections are transparent — the single page backdrop comes from body. */
 .industrie-section,
 .tracking {
   position: relative;
   overflow: hidden;
-  border-top: 1px solid #d6e2eb;
   background: transparent;
-}
-
-.industrie-section::before,
-.tracking::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    url("../images/pattern.png") top left / contain repeat,
-    linear-gradient(90deg, #ffffff 0%, #e2f2f8 100%);
-  opacity: 0.5; /* Change opacity here */
-  z-index: 0;
-}
-
-.industrie-section > *,
-.tracking > * {
-  position: relative;
-  z-index: 1;
-}
-.industrie-section section {
-  position: relative;
-  z-index: 2;
 }
 .insights-hero {
   position: relative;
-}
-.insights-hero:before {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-image: url("../images/pattern.png");
-  background-repeat: repeat;
-  background-position: top left; /*background-size: 280px;*/
-  z-index: 1;
-  opacity: 0.5;
-}
-.inner-pages {
-  background: linear-gradient(90deg, #ffffff 0%, #e2f2f8 100%);
 }
 .insights-hero .container,
 .free-subscribe .container {
@@ -2390,19 +2479,6 @@ hr {
 .free-subscribe {
   position: relative;
   padding: 4.688rem 0 5rem;
-  border-top: 1px solid #d6e2eb;
-}
-.free-subscribe:before {
-  top: 0;
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-image: url("../images/pattern.png");
-  background-repeat: repeat;
-  background-position: top left; /*background-size: 280px;*/
-  z-index: 1;
-  opacity: 0.5;
 }
 /*.pattern-white{position: relative;}
 .pattern-white .container{position: relative; z-index: 2;}
@@ -2472,5 +2548,22 @@ form.wpcf7-form p:last-of-type {position: relative;}
     margin: 0 auto;
     text-align: center;
 }
-span.copy-right{width: 20px; height: 20px; display: inline-flex;}
+span.copy-right{width: 35px; height: 35px; display: inline-flex;}
 .copy-right im{width: 100%; height: 100%;}
+/*.cs-x1{    margin-top: -200px;
+    padding-top: 200px;}
+    .insights-hero{margin-top: -400px;
+    padding-top: 400px;}*/
+    header.site-header .btn {
+    line-height: normal;
+}
+body.home .hero-media:before {
+    position: absolute;
+    left: 0;
+    bottom: -43px;
+    width: 9%;
+    height: 8%;
+    border-radius: 8px;
+    background: rgb(203, 227, 242);
+    content: "";
+}

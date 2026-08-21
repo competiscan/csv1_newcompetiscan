@@ -31,8 +31,8 @@ if ( ! empty( $logo_rows ) && is_array( $logo_rows ) ) {
 	}
 }
 if ( empty( $logos ) ) {
-	foreach ( array( 'amsive-logo.jpg', 'amazon-web-services.png', 'deluxe.png', 'njm.png', 'prosper-logo.png', 'publix.png', 'rbc.png', 'sir.png', 'snap.png' ) as $fn ) {
-		$logos[] = $img . $fn;
+	foreach ( competiscan_home_partner_logos() as $fn ) {
+		$logos[] = $img . 'companylogos/' . $fn;
 	}
 }
 ?>
@@ -41,7 +41,7 @@ if ( empty( $logos ) ) {
   <div class="container">
     <span class="eyebrow-pill"><?php echo esc_html( $eyebrow ); ?></span>
     </div>
-    <div class="partners-track">
+    <div class="partners-track container">
       <div class="marquee-row">
         <?php foreach ( $logos as $logo ) : ?>
         <span class="logo-chip"><img src="<?php echo esc_url( $logo ); ?>" alt="logo"></span>

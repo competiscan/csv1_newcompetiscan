@@ -47,12 +47,14 @@ class Competiscan_Nav_Walker extends Walker_Nav_Menu {
 			return;
 		}
 
-		// Mirrors the inline style on the "About Us" dropdown in the HTML source.
-		$style = in_array( 'mega-drop-narrow', $this->current_parent_classes, true )
-			? ' style="grid-template-columns:1fr;width:16rem;"'
-			: '';
+		// The "About Us" menu uses the single-column "simple" dropdown from the
+		// source (styled via .mega-drop-simple), triggered by the mega-drop-narrow
+		// CSS class on the parent menu item.
+		$class = in_array( 'mega-drop-narrow', $this->current_parent_classes, true )
+			? 'mega-drop mega-drop-simple'
+			: 'mega-drop';
 
-		$output .= '<div class="mega-drop"' . $style . '>';
+		$output .= '<div class="' . esc_attr( $class ) . '">';
 	}
 
 	/**

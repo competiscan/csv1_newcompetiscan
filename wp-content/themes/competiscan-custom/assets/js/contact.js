@@ -5,6 +5,41 @@
 (function () {
   'use strict';
 
+  // --- Calendly popup (site-wide) ------------------------------------------
+  // Any element with [data-cs-calendly] opens the Calendly demo popup. Mirrors
+  // the source Home hero "See it in action" button. Inner pages (.cs-x1) are
+  // handled by cs-site.js, so those are skipped here to avoid opening twice.
+  (function () {
+    var CAL_URL = 'https://calendly.com/competiscan/competiscan-demo';
+    var ready = false;
+    function load(cb) {
+      if (ready) { cb(); return; }
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://assets.calendly.com/assets/external/widget.css';
+      document.head.appendChild(css);
+      var js = document.createElement('script');
+      js.src = 'https://assets.calendly.com/assets/external/widget.js';
+      js.async = true;
+      js.onload = function () { ready = true; cb(); };
+      document.body.appendChild(js);
+    }
+    document.addEventListener('click', function (e) {
+      var el = e.target;
+      while (el && el !== document.body) {
+        if (el.hasAttribute && el.hasAttribute('data-cs-calendly')) {
+          if (el.closest && el.closest('.cs-x1')) { return; } // cs-site.js handles these
+          e.preventDefault();
+          load(function () {
+            if (window.Calendly) { window.Calendly.initPopupWidget({ url: CAL_URL }); }
+          });
+          return;
+        }
+        el = el.parentElement;
+      }
+    });
+  })();
+
   var overlay = document.querySelector('[data-cs-contact-modal]');
   if (!overlay) return;
 

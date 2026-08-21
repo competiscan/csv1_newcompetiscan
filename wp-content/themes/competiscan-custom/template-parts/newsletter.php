@@ -33,7 +33,7 @@ if ( ! $nl_subtext ) {
       </div>
       <?php
       // Shared Noptin form — do not create a new form.
-      echo do_shortcode( '[noptin fields="first_name,last_name,email" labels="hide" styles="none" template="normal" submit="Submit" first_name_placeholder="First name" last_name_placeholder="Last name" email_placeholder="Enter work email" html_class="newsletter-form cs-noptin-newsletter"]' ); // phpcs:ignore WordPress.Security.EscapeOutput
+      echo do_shortcode( '[noptin fields="first_name,last_name,email" labels="hide" styles="none" template="normal" submit="Join the list" first_name_placeholder="First name" last_name_placeholder="Last name" email_placeholder="Enter work email" html_class="newsletter-form cs-noptin-newsletter"]' ); // phpcs:ignore WordPress.Security.EscapeOutput
       ?>
     </div>
   </div>
