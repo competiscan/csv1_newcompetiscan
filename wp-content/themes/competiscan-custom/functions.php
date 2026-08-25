@@ -98,6 +98,16 @@ function competiscan_assets() {
 		true
 	);
 
+	// Shared FAQ accordion — one event-delegated handler, loaded on every page so
+	// every FAQ (any page, any number of sections) opens/closes consistently.
+	wp_enqueue_script(
+		'competiscan-faq',
+		$uri . '/assets/js/faq.js',
+		array(),
+		competiscan_asset_version( $dir . '/assets/js/faq.js' ),
+		true
+	);
+
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}

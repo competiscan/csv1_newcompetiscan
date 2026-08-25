@@ -44,15 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  /* ---------- FAQ accordion ---------- */
-  document.querySelectorAll('.faq-item').forEach(function (item) {
-    var q = item.querySelector('.faq-q');
-    q.addEventListener('click', function () {
-      var wasOpen = item.classList.contains('active');
-      document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('active'); });
-      if (!wasOpen) item.classList.add('active');
-    });
-  });
+  /* ---------- FAQ accordion ----------
+     Moved to the shared, event-delegated handler in assets/js/faq.js so it works
+     on every page (and with multiple FAQ sections). Not handled here to avoid
+     double-toggling. */
 
   /* ---------- Insights: filter tabs + result count + reset ---------- */
   var insightsBar = document.querySelector('.filter-bar');

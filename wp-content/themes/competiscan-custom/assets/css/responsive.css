@@ -6,6 +6,32 @@
 /* -----------------------------------------------------------
    TABLET  ≤ 1024px
 ----------------------------------------------------------- */
+.industry-item span {
+width: calc(100% - 50px);
+font-size: 18px;
+font-weight: 500;
+color: rgb(0, 30, 51);
+}
+span.badge-new {
+font-size: 11px;    margin-left: 4px;
+}
+.float-card {
+animation: inherit;
+}
+.industries-grid a {
+pointer-events: none;
+cursor: default;
+}
+.float-card.card-audience{bottom: 4%;width: 273px; font-size:13px}
+@media (min-width: 1920px) and (max-width: 2500px) {
+.container {
+    width: 1300px;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+}
+
 @media (max-width: 1300px) {
   .container {
     max-width: var(--container-max);
@@ -18,12 +44,12 @@
 @media (max-width: 767px) {
   /* h1{font-size: 28px;}
  h2{font-size: 25px;}*/
-  .hero-grid {
+  .hero-grid, body.home .hero-grid {
     grid-template-columns: 1fr;
     display: grid;
   }
   .hero-copy,
-  .hero-media {
+  .hero-media,body.home .hero-copy,body.home .hero-media img.media-img {
     width: 100%;
   }
   .mobil-img {
@@ -528,7 +554,7 @@
   }
   .float-card.card-audience {
     gap: 5px;
-    left: 0%;
+    left: 0%;bottom: -45px;
   }
   .float-card.card-banking {
     top: 6%;
@@ -551,7 +577,9 @@
   .float-card .cnt {
     width: calc(100% - 8px);
   }
-
+.float-card{font-size: 11px !important;}
+.float-card.card-insurance {
+    top: 37%;}
   .partners {
     padding: 2rem 0 2.5rem;
   }

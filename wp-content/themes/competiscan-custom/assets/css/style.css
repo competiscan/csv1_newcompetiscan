@@ -651,7 +651,7 @@ h3 {
     left: 7%;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 10px;
   animation-delay: 1s;
   width: fit-content;
 }
@@ -661,6 +661,13 @@ h3 {
   padding: 5px 9px;
   border-radius: 5px;
   text-align: center;
+      font-size: 13px;
+    font-weight: 600;
+    color: rgb(0, 30, 51);
+    background: rgb(223, 238, 250);
+    border-radius: 6px;
+    padding: 5px 10px;
+    white-space: nowrap;
 }
 .float-card {
   width: 255px;
@@ -1377,23 +1384,22 @@ a.link-arrow {
 .faq-item.active .faq-toggle-ic::after {
   opacity: 0;
 }
-/* Smooth collapse: animate grid-template-rows 0fr → 1fr so it eases to the
-   answer's true height (max-height:inherit can't be interpolated, so it jumped). */
+/* Smooth collapse via max-height — context-independent so it collapses to 0 on
+   EVERY page. (The grid-template-rows:0fr trick worked on the home page but did
+   not resolve to 0 inside the inner-page .cs-x1 wrapper, leaving answers open.)
+   The cap is well above the tallest answer. */
 .faq-a {
-  display: grid;
-  grid-template-rows: 0fr;
+  max-height: 0;
   overflow: hidden;
   transition:
-    grid-template-rows var(--dur-med) var(--ease-out),
+    max-height var(--dur-med) var(--ease-out),
     padding var(--dur-med) var(--ease-out);
 }
 .faq-a > * {
-  min-height: 0;
   margin: 0;
-  overflow: hidden;
 }
 .faq-item.active .faq-a {
-  grid-template-rows: 1fr;
+  max-height: 600px;
   padding-bottom: 26px;
 }
 .faq-a p {

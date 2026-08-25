@@ -61,20 +61,20 @@ if ( ! $form_id && function_exists( 'competiscan_whitepaper_form_id' ) ) {
         </p>
       </div>
 
-      <div class="cs-x71">
+      <div class="cs-x355">
         <?php
-        if ( $form_id ) {
+        // Existing CF7 form: "Turning Credit Card Onboarding into Continuous Growth".
+        $wp_form_id = function_exists( 'competiscan_whitepaper_form_id' ) ? competiscan_whitepaper_form_id() : 0;
 
-          // PDF path:
-          // wp-content/themes/your-theme/assets/images/competiscan-compass-case-study.pdf
-          $pdf = get_template_directory_uri() . '/assets/images/competiscan-compass-case-study.pdf';
+        if ( $wp_form_id ) {
+            $pdf = get_template_directory_uri() . '/assets/images/competiscan-compass-case-study.pdf';
 
-          echo '<div class="cs-cf7" data-cs-pdf="' . esc_url( $pdf ) . '" data-cs-btn="Access the white paper">'
-            . do_shortcode( '[contact-form-7 id="' . $form_id . '"]' )
-            . '</div>';
+            echo '<div class="cs-cf7" data-cs-pdf="' . esc_url( $pdf ) . '" data-cs-btn="Download the white paper">'
+                . do_shortcode( '[contact-form-7 id="' . $wp_form_id . '"]' )
+                . '</div>';
         }
         ?>
-      </div>
+    </div>
     </div>
 
   </div>
