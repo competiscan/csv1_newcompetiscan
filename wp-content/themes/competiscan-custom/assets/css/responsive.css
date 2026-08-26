@@ -162,17 +162,39 @@ cursor: default;
     font-size: 32px;
   }
   .footer-top P {
-    font-size: 18px;
+    font-size: 14px;
   }
   .footer-col h5 {
     font-size: 18px;
   }
   /* ---- Header ---- */
-  .main-nav,
+  .main-nav, .header-inner .header-actions .btn-outline,  .header-inner .header-actions  .btn-primary
+  /*,
   .header-actions .btn-outline,
-  .header-actions .btn-primary {
+  .header-actions .btn-primary*/ {
     display: none;
   }
+  .mobile-menu .header-actions{display: flex; flex-direction: column; margin-top: auto;  padding-bottom:20px;}
+  .header-actions .btn-outline{    display: block; width: 100%;
+    text-align: center;
+    padding: 13px 22px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    font-size: 16px;
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+}
+  .header-actions .btn-primary{display: block;width: 100%; 
+    text-align: center;
+    padding: 13px 22px;
+    border-radius: 10px;
+    background: rgb(0, 171, 171);
+    font-size: 16px;
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+    transition: background 0.14s ease;}
+.header-actions .btn-primary:hover{    background: rgb(0, 0, 0) !important;
+    color: rgb(255, 255, 255) !important;}
   .hamburger {
     display: flex;
     align-items: center;
@@ -204,7 +226,7 @@ cursor: default;
 
   /* ---- Mobile fullscreen menu (Home - Mobile - Menu.png) ---- */
   .mobile-menu {
-    display: block;
+    display: flex; flex-direction: column;
     position: fixed;
     inset: 0;
     z-index: 99999;
@@ -432,8 +454,10 @@ cursor: default;
     flex-direction: row;
     gap: 0.75rem;
     text-align: center;
-    font-size: 18px;
+    font-size: 14px; display: flex; justify-content: space-between;
   }
+  .footer-menu-row{ grid-template-columns: repeat(1, 1fr);}
+  .footer-bottom .back-to-top{font-size: 14px;}
   button.search-toggle {
     color: #001e33;
     font-weight: 400;
@@ -508,6 +532,7 @@ cursor: default;
    SMALL MOBILE  ≤ 30rem (480px)
 ----------------------------------------------------------- */
 @media (max-width: 30rem) {
+  .footer-bottom .copy-right{display: none;}
   .tracking-cards {
     grid-template-columns: 1fr 1fr;
   }

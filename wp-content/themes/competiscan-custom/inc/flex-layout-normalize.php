@@ -3,14 +3,16 @@
  * Normalise the dynamically-appended Flexible Content layouts.
  *
  * The per-page layout files (toolkit-layouts.php, careers-layouts.php, etc.) append
- * layouts to the shared cms_content flexible field without the optional `min`/`max`
- * keys. ACF Pro's Flexible Content renderer reads those keys directly, so on the
- * post-edit screen it emits "Undefined array key min/max" warnings (Render.php),
- * which clutter the editor and make the sections hard to manage.
+ * layouts — and their sub-fields — to the shared cms_content flexible field via the
+ * acf/load_field filter. Because those fields are injected at load time they skip
+ * ACF's normal field validation, so they are missing default keys ACF core and the
+ * admin read directly (`min`/`max` on layouts; `ID`, `required`, `wrapper`, … on
+ * fields). That triggers "Undefined array key …" notices in the editor
+ * (Render.php, acf-field-group/field.php, acf-field-functions.php).
  *
- * This runs at a late priority (after every layout has been appended) and fills in
- * the keys ACF expects on each layout, so the editor is clean. No layout content
- * changes — it only supplies missing structural defaults.
+ * This runs at a late priority (after every layout has been appended) and fills the
+ * missing structural defaults on each layout and, recursively, on every sub-field.
+ * It only supplies defaults for keys that are absent — no existing values change.
  *
  * @package Competiscan_Custom
  */
@@ -20,7 +22,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Ensure every layout on the flexible field has the keys ACF expects.
+ * Give a single field every default key ACF expects, recursing into the sub-fields
+ * of repeaters/groups. Uses array-union (+=) so present values are never overwritten.
+ *
+ * @param array $f A field definition.
+ * @return array
+ */
+function competiscan_normalize_flex_field( $f ) {
+	if ( ! is_array( $f ) ) {
+		return $f;
+	}
+
+	$f += array(
+		'ID'                => false,
+		'required'          => 0,
+		'conditional_logic' => 0,
+		'instructions'      => '',
+		'menu_order'        => 0,
+		'parent'            => '',
+	);
+	if ( ! isset( $f['wrapper'] ) || ! is_array( $f['wrapper'] ) ) {
+		$f['wrapper'] = array();
+	}
+	$f['wrapper'] += array(
+		'width' => '',
+		'class' => '',
+		'id'    => '',
+	);
+
+	if ( isset( $f['sub_fields'] ) && is_array( $f['sub_fields'] ) ) {
+		foreach ( $f['sub_fields'] as $i => $sf ) {
+			$f['sub_fields'][ $i ] = competiscan_normalize_flex_field( $sf );
+		}
+	}
+
+	return $f;
+}
+
+/**
+ * Ensure every layout on the flexible field — and each of its sub-fields — has the
+ * keys ACF expects.
  *
  * @param array $field The cms_content flexible-content field.
  * @return array
@@ -34,18 +75,20 @@ function competiscan_normalize_flex_layouts( $field ) {
 		if ( ! is_array( $layout ) ) {
 			continue;
 		}
-		if ( ! isset( $layout['min'] ) ) {
-			$field['layouts'][ $key ]['min'] = '';
-		}
-		if ( ! isset( $layout['max'] ) ) {
-			$field['layouts'][ $key ]['max'] = '';
-		}
-		if ( ! isset( $layout['display'] ) ) {
-			$field['layouts'][ $key ]['display'] = 'block';
-		}
+
+		$layout += array(
+			'min'     => '',
+			'max'     => '',
+			'display' => 'block',
+		);
 		if ( ! isset( $layout['sub_fields'] ) || ! is_array( $layout['sub_fields'] ) ) {
-			$field['layouts'][ $key ]['sub_fields'] = array();
+			$layout['sub_fields'] = array();
 		}
+		foreach ( $layout['sub_fields'] as $i => $sf ) {
+			$layout['sub_fields'][ $i ] = competiscan_normalize_flex_field( $sf );
+		}
+
+		$field['layouts'][ $key ] = $layout;
 	}
 
 	return $field;

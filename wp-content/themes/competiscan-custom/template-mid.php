@@ -57,7 +57,11 @@ if ( empty( $faqs ) ) {
 	);
 }
 
-$wp_pdf = competiscan_pg_f( 'mid_wp_pdf', home_url( '/competiscan-html/assets/whitepapers/competiscan-whitepaper-credit-card-onboarding.pdf' ) );
+
+$wp_pdf = competiscan_pg_f(
+    'mid_wp_pdf',
+    get_template_directory_uri() . '/assets/images/competiscan-whitepaper-credit-card-onboarding.pdf'
+);
 ?>
 
 <div class="cs-x1">
@@ -99,14 +103,18 @@ $wp_pdf = competiscan_pg_f( 'mid_wp_pdf', home_url( '/competiscan-html/assets/wh
           <p class="cs-x70"><?php echo esc_html( competiscan_pg_f( 'mid_wp_desc', "See the kind of analysis the database powers: how leading credit card issuers turn the first 30–60 days of a cardholder's lifecycle into lasting engagement, drawn from real journeys captured in our longitudinal panel." ) ); ?></p>
         </div>
         <div class="cs-x355">
-          <?php
-          // Existing CF7 form: "Turning Credit Card Onboarding into Continuous Growth".
-          $wp_form_id = function_exists( 'competiscan_whitepaper_form_id' ) ? competiscan_whitepaper_form_id() : 0;
-          if ( $wp_form_id ) {
-            $pdf = home_url( '/competiscan-html/assets/whitepapers/competiscan-whitepaper-credit-card-onboarding.pdf' );
-            echo '<div class="cs-cf7" data-cs-pdf="' . esc_url( $pdf ) . '" data-cs-btn="Download the white paper">' . do_shortcode( '[contact-form-7 id="' . $wp_form_id . '"]' ) . '</div>';
-          }
-          ?>
+            <?php
+            // Existing CF7 form: "Turning Credit Card Onboarding into Continuous Growth".
+            $wp_form_id = function_exists( 'competiscan_whitepaper_form_id' ) ? competiscan_whitepaper_form_id() : 0;
+
+            if ( $wp_form_id ) {
+                $pdf = get_template_directory_uri() . '/assets/images/competiscan-whitepaper-credit-card-onboarding.pdf';
+
+                echo '<div class="cs-cf7" data-cs-pdf="' . esc_url( $pdf ) . '" data-cs-btn="Download the white paper">'
+                    . do_shortcode( '[contact-form-7 id="' . $wp_form_id . '"]' )
+                    . '</div>';
+            }
+            ?>
         </div>
       </div>
     </div>

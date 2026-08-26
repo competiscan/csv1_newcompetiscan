@@ -160,6 +160,64 @@ function competiscan_configure_whitepaper_form() {
 add_action( 'init', 'competiscan_configure_whitepaper_form', 22 );
 
 /**
+ * The white-paper lead form used on the AI Toolkit page. This is a SEPARATE CF7
+ * form from the Market Intelligence Database one, so each page submits its own
+ * form and downloads its own PDF.
+ *
+ * @return int
+ */
+function competiscan_aitk_whitepaper_form_id() {
+	$id = (int) get_option( 'competiscan_aitk_wp_form_created' );
+	if ( $id && 'wpcf7_contact_form' === get_post_type( $id ) ) {
+		return $id;
+	}
+	return competiscan_cf7_id_by_slug( 'ai-toolkit-design-best-practices' );
+}
+
+/**
+ * Create the AI Toolkit white-paper CF7 form once (distinct from the Market
+ * Intelligence Database form). Same three fields, its own title/mail. Guarded by
+ * an option so it is created a single time.
+ */
+function competiscan_create_aitk_whitepaper_form() {
+	if ( get_option( 'competiscan_aitk_wp_form_created' ) ) {
+		return;
+	}
+	if ( ! class_exists( 'WPCF7_ContactForm' ) ) {
+		return;
+	}
+
+	$body =
+		'<label class="wp-l" for="aitk-firstname">Full name</label>' . "\n" .
+		'[text* firstname id:aitk-firstname placeholder "Jane Smith"]' . "\n\n" .
+		'<label class="wp-l" for="aitk-email">Business email</label>' . "\n" .
+		'[email* email id:aitk-email placeholder "you@company.com"]' . "\n\n" .
+		'<label class="wp-l" for="aitk-company">Company</label>' . "\n" .
+		'[text* company id:aitk-company placeholder "Company name"]' . "\n\n" .
+		'[submit "Download the white paper"]';
+
+	$form = WPCF7_ContactForm::get_template();
+	$form->set_title( 'AI Toolkit — Design Best Practices (Highest-Volume Mailers)' );
+
+	$props                               = $form->get_properties();
+	$props['form']                       = $body;
+	$props['mail']['active']             = true;
+	$props['mail']['subject']            = 'AI Toolkit Case Study Request: [firstname]';
+	$props['mail']['sender']             = 'competiscan <preeti.mittal@nmgtechnologies.com>';
+	$props['mail']['recipient']          = 'preeti.mittal@nmgtechnologies.com';
+	$props['mail']['additional_headers'] = 'Reply-To: [email]';
+	$props['mail']['body']               = "AI Toolkit case study requested: Design best practices from Spring 2026's highest-volume mailers\n\nName: [firstname]\nEmail: [email]\nCompany: [company]";
+
+	$form->set_properties( $props );
+	$id = $form->save();
+
+	if ( $id && ! is_wp_error( $id ) ) {
+		update_option( 'competiscan_aitk_wp_form_created', (int) $id );
+	}
+}
+add_action( 'init', 'competiscan_create_aitk_whitepaper_form', 23 );
+
+/**
  * Output the shared contact modal (with the existing CF7 form) in the footer.
  */
 function competiscan_render_contact_modal() {

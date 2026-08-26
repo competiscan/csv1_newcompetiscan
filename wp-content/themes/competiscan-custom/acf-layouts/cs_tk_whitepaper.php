@@ -31,8 +31,8 @@ if ( '' !== $form_ref ) {
     );
 }
 
-if ( ! $form_id && function_exists( 'competiscan_whitepaper_form_id' ) ) {
-  $form_id = competiscan_whitepaper_form_id();
+if ( ! $form_id && function_exists( 'competiscan_aitk_whitepaper_form_id' ) ) {
+  $form_id = competiscan_aitk_whitepaper_form_id();
 }
 ?>
 
@@ -63,14 +63,13 @@ if ( ! $form_id && function_exists( 'competiscan_whitepaper_form_id' ) ) {
 
       <div class="cs-x355">
         <?php
-        // Existing CF7 form: "Turning Credit Card Onboarding into Continuous Growth".
-        $wp_form_id = function_exists( 'competiscan_whitepaper_form_id' ) ? competiscan_whitepaper_form_id() : 0;
-
-        if ( $wp_form_id ) {
+        // AI Toolkit's OWN CF7 form (separate from the Market Intelligence
+        // Database form), with its own PDF — resolved above into $form_id.
+        if ( $form_id ) {
             $pdf = get_template_directory_uri() . '/assets/images/competiscan-compass-case-study.pdf';
 
             echo '<div class="cs-cf7" data-cs-pdf="' . esc_url( $pdf ) . '" data-cs-btn="Download the white paper">'
-                . do_shortcode( '[contact-form-7 id="' . $wp_form_id . '"]' )
+                . do_shortcode( '[contact-form-7 id="' . $form_id . '"]' )
                 . '</div>';
         }
         ?>
