@@ -1136,6 +1136,9 @@ if($DRW->num_rows($resultCheck) > 0){
         $postdata['age_id']=$dataSearchCheck['age'];
         
     }
+    if($dataSearchCheck['tip_on_card']!='0'){
+        $postdata['tip_on_card']=$dataSearchCheck['tip_on_card'];
+    }
     if($page_type!=3 && $sid!=''){
         $postdata['current_page']=$page_no;
         $postdata['direction']=$dct;  
@@ -1557,10 +1560,6 @@ if($search_num_of_rows > 0) {
         </tr>
 <?php
         $countbasket = 0;
-        ///echo 'START Total time in ('.number_format((microtime(true) - $start_time),3).' Seconds)'."<br/>";
-        //echo "<pre>";
-        //print_r($responseData);
-        //echo "</pre>";
         foreach($jsonResponseAPIData['results'] as $resultProdData){
             //echo "<pre>";
             //print_r($resultProdData);
@@ -1577,26 +1576,63 @@ if($search_num_of_rows > 0) {
                         $productHeadline = 'See complete product details';
                 }
             }
-            $sectorName="";
-            if(isset($resultProdData['sector_categories']['category']) AND !empty(($resultProdData['sector_categories']['category']))){
-                foreach($resultProdData['sector_categories']['category'] as $sectName){
-                        $sectorName.=$sectName.", ";
+            
+            $sectorName = "";
+            $uniqueSectors = array();
+            if (isset($resultProdData['sector_categories']['category']) &&
+                !empty($resultProdData['sector_categories']['category'])) {
+
+                foreach ($resultProdData['sector_categories']['category'] as $sectName) {
+
+                    $sectName = trim($sectName);
+
+                    if (!in_array($sectName, $uniqueSectors)) {
+                        $uniqueSectors[] = $sectName;
+                    }
                 }
+
+                $sectorName = implode(", ", $uniqueSectors);
             }
-            $category="";
-            if(isset($resultProdData['sector_categories']['sub_category']) AND !empty(($resultProdData['sector_categories']['sub_category']))){
-                foreach($resultProdData['sector_categories']['sub_category'] as $categoryName){
-                        $category.=$categoryName.", ";
+            $category = "";
+            $uniqueCategories = array();
+            if (isset($resultProdData['sector_categories']['sub_category']) &&
+                !empty($resultProdData['sector_categories']['sub_category'])) {
+
+                foreach ($resultProdData['sector_categories']['sub_category'] as $categoryName) {
+
+                    $categoryName = trim($categoryName);
+
+                    if (!in_array($categoryName, $uniqueCategories)) {
+                        $uniqueCategories[] = $categoryName;
+                    }
                 }
+
+                $category = implode(", ", $uniqueCategories);
             }
-            if($category == '') {
-                    $category ='Not Mentioned';
+
+            if ($category == '') {
+                $category = 'Not Mentioned';
             }
-            $subCat="";
-            if(isset($resultProdData['sector_categories']['sub_sub_category']) AND !empty(($resultProdData['sector_categories']['sub_sub_category']))){
-                foreach($resultProdData['sector_categories']['sub_sub_category'] as $subcategoryName){
-                        $subCat.=$subcategoryName.", ";
+            $subCat = "";
+            $uniqueSubCategories = array();
+
+            if (isset($resultProdData['sector_categories']['sub_sub_category']) &&
+                !empty($resultProdData['sector_categories']['sub_sub_category'])) {
+
+                foreach ($resultProdData['sector_categories']['sub_sub_category'] as $subcategoryName) {
+
+                    $subcategoryName = trim($subcategoryName);
+
+                    if (!in_array($subcategoryName, $uniqueSubCategories)) {
+                        $uniqueSubCategories[] = $subcategoryName;
+                    }
                 }
+
+                $subCat = implode(", ", $uniqueSubCategories);
+            }
+
+            if ($subCat == '') {
+                $subCat = 'Not Mentioned';
             }
             $mpannelid = $resultProdData['mpanel_id'];
             //$addedToDatabase = $resultProdData['actual_added_to_database'];
@@ -1629,12 +1665,16 @@ if($search_num_of_rows > 0) {
             $queryI = "SELECT UNIX_TIMESTAMP(img_document_createddate) FROM cscan_img_document WHERE productID=$productID AND document_id=1 AND img_document_default=1";
             $query_resultI = $DRW->query($queryI,$DRW_read);
             $dataI = $DRW->fetch_row($query_resultI);
-            $img_createddate_ts = (float)$dataI[0];
-
+            $img_createddate_ts = 0;
+            if (is_array($dataI) && isset($dataI[0]) && is_numeric($dataI[0])) {
+                $img_createddate_ts = (float)$dataI[0];
+            }
             $queryI = "SELECT img_companyID FROM cscan_img WHERE productID=$productID AND img_id=1";
             $query_resultI = $DRW->query($queryI,$DRW_read);
-            $dataI = $DRW->fetch_row($query_resultI);
-            $img_companyID = (float)$dataI[0];
+            $img_companyID = 0;
+            if (is_array($dataI) && isset($dataI[0])) {
+                $img_companyID = (float)$dataI[0];
+            }
             if(!empty($img_companyID)){
                     $pi = 'cid='.$img_companyID;
             }
@@ -1648,11 +1688,15 @@ if($search_num_of_rows > 0) {
                     $query2 = "SELECT document_size_byte,document_filename,document_path,document_content_type,document_placement FROM cscan_document WHERE productID=$productID AND document_id=2";
                     $query_result2 = $DRW->query($query2,$DRW_read);
                     $data2 = $DRW->fetch_row($query_result2);
-                    $document_size_byte = (int)$data2[0];
-                    $document_filename = $data2[1];
-                    $document_path = $data2[2];
-                    $document_content_type = $data2[3];
-                    $document_placement = $data2[4];
+                    $document_size_byte = 0;
+                    if (is_array($data2) && isset($data2[0]) && is_numeric($data2[0])) {
+                        $document_size_byte = (int)$data2[0];
+                        $document_filename = $data2[1];
+                        $document_path = $data2[2];
+                        $document_content_type = $data2[3];
+                        $document_placement = $data2[4];
+                    }
+                    
                     if(empty($document_placement)){
                             $document_placement = '200x200';
                     }
@@ -1683,7 +1727,10 @@ if($search_num_of_rows > 0) {
         $query2 = "SELECT document_content_type FROM cscan_document WHERE productID=$productID AND document_id=1";
         $query_result2 = $DRW->query($query2,$DRW_read);
         $data2 = $DRW->fetch_row($query_result2);
-        $document_content_type = $data2[0]; 
+        $document_content_type = '';
+        if (is_array($data2) && isset($data2[0])) {
+            $document_content_type = $data2[0];
+        }
         if($document_content_type=='html'){
             $showprev='1';
             $filetyp='1';
@@ -1740,7 +1787,11 @@ if($search_num_of_rows > 0) {
                 $query2 = "SELECT document_size_byte FROM cscan_document WHERE productID=$productID AND document_id=1";
                 $query_result2 = $DRW->query($query2,$DRW_read);
                 $data2 = $DRW->fetch_row($query_result2);
-                $document_size_byte = (int)$data2[0];
+                $document_size_byte = 0;
+
+                if (is_array($data2) && isset($data2[0]) && is_numeric($data2[0])) {
+                    $document_size_byte = (int)$data2[0];
+                }
                 $sizeofPDFinKB=$document_size_byte/1024;
                 $sizeofPDFinMB=$sizeofPDFinKB/1024;
                 if($sizeofPDFinMB<1) {
@@ -1770,7 +1821,10 @@ if($search_num_of_rows > 0) {
                 $query_result3 = $DRW->query($query3,$DRW_read);
                 $numrows3=$DRW->num_rows($query_result3);
                 $resultData=$DRW->fetch_array($query_result3);
-                $electronicID=$resultData['electronicID'];
+                $electronicID = '';
+                if (is_array($resultData) && isset($resultData['electronicID'])) {
+                    $electronicID = $resultData['electronicID'];
+                }
                 if($numrows3>0 && $electronicID==1){
                     $query2 = "select muid from cscan_product_email where productID=$productID";   
                     $query_result2 = $DRW->query($query2,$DRW_read);

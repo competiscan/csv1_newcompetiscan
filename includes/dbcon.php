@@ -21,6 +21,7 @@ define("EMAIL_PIECE_MULTIPLIER_PRODUCER", "1");
 define("ANNOTATIONTOOLDATAURL","https://vat.competiscan.com/display/");
 define("ANNOTATIONTOOLDATAANALYSISURL","https://vat.competiscan.com/getanalysis/");
 define("API_URL","https://api1.competiscan.com/elasticsearch/v1/search/");
+define("API_URL_PRE_PROD","https://api-pre-prod.competiscan.com/elasticsearch-service/v1/search/");
 define("API_URL_UAT","https://api1-uat.competiscan.com/elasticsearch/v1/search/");
 define("API_DOWNLOADURL","https://api1.competiscan.com/elasticsearch/v1/search/download");
 define("API_URL_EMAIL_ALERT","https://api1.competiscan.com/elasticsearch/v1/search/onlypids");
@@ -66,7 +67,7 @@ define("CLIENT_SECRET", "h935u6cjmsgq58seaa51e3vchbf2fitcph45mu8mhl4ci08mou");
 define("ACCESS_UAT_API_URL", "https://api2.competiscan.com/users/v1/user-from-token");
 define("SCOPE", ""); // optional
 
-define("CALLBACK_URL_NMG", "https://competiscan.com/sso_auth_uat.php");
+define("CALLBACK_URL_UAT1", "https://demo.competiscan.com/sso_auth_uat.php");
 define("AUTH_URL_NMG", "https://samluat.competiscan.com/login?");
 define("ACCESS_TOKEN_URL_NMG", "https://samluat.competiscan.com/oauth2/token");
 define("CLIENT_ID_NMG", "6dlvlc0pl9ar5ct3sub70s00s5");
@@ -97,7 +98,7 @@ define("USER_LOGIN_API_URL_PROD", "https://api1-uat.competiscan.com/client-profi
 define("USER_PERMISSION_API_URL_PROD", "https://api1-uat.competiscan.com/users/v1/");
 define("SUGGESTION_API_URL_UAT", "https://api1-uat.competiscan.com/master/v1/");
 define("RETRIVAL_API_URL_UAT", "https://api1-uat.competiscan.com/retrieval-service/v1/");
-define("ALERT_API_URL_UAT", "https://api1-uat.competiscan.com/master/v1/");
+define("ALERT_API_URL_UAT", "https://api-pre-prod.competiscan.com/master/v1/");
 define("DIGITAL_DASHBOARD_UAT", "https://api-pre-prod.competiscan.com/digitaldashboard/v1/");
 define("RETAIL_DASHBOARD_UAT", "https://api1-uat.competiscan.com/energy-dashboard-client/v1/");
 define("DIGITAL_DASHBOARD_UAT_DOWNLAOD", "https://api-pre-prod.competiscan.com/digitaldashboard-elasticsearch/v1/");

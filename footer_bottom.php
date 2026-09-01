@@ -3,7 +3,7 @@
 	<div id="app-bottom-links">
 		<ul>
 			<li>
-		    	<a href="/contact-us">Contact Us</a>
+		    	<a href="/#contact">Contact Us</a>
 		    </li>
 		    <li>
 		    	<a href="quickHelp.php">Quick Help</a>
