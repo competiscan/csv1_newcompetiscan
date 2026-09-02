@@ -2625,7 +2625,7 @@ span.copy-right{width: 35px; height: 35px; display: inline-flex;}
     header.site-header .btn {
     line-height: normal;
 }
-/* body.home .hero-media:before {
+body.home .hero-media:before {
     position: absolute;
     left: 0;
     bottom: -43px;
@@ -2634,9 +2634,4 @@ span.copy-right{width: 35px; height: 35px; display: inline-flex;}
     border-radius: 8px;
     background: rgb(203, 227, 242);
     content: "";
-} */
-.float-card.card-consumer a {
-    pointer-events: none;
-    cursor: default;
-    text-decoration: none;
 }
