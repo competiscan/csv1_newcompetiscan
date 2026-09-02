@@ -1,0 +1,1 @@
+ALTER TABLE `cscan_panelists_product` CHANGE `ppageID` `ppageID` VARCHAR(200) NOT NULL DEFAULT '0';

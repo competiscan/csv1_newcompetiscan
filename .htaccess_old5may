@@ -1,0 +1,41 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+# HTTP to HTTPS redirect
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteRule . https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+
+# Static redirects
+RewriteRule ^aboutus.php https://%{HTTP_HOST}/about-us/ [R=301,L]
+RewriteRule ^contactus.php https://%{HTTP_HOST}/contact-us/ [R=301,L]
+RewriteRule ^fileuploads/(.*)$ https://files.competiscan.com/fileuploads/$1 [R=301,L]
+RewriteRule ^downloads/(.*)$ https://files.competiscan.com/downloads/$1 [R=301,L]
+
+# ❗ IMPORTANT: static files ko bypass karo
+#RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|ttf)$ [NC]
+#RewriteRule ^ - [L]
+
+# Existing files/folders allow karo
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Baaki WordPress pe bhejo
+RewriteRule ^$ /wordpress/index.php [L]
+RewriteRule ^(.*)$ /wordpress/index.php [L]
+
+# BEGIN WordPress
+# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
