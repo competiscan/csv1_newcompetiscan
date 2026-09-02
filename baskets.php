@@ -215,7 +215,7 @@ if($num_of_rows > 0){
 	$limit1 = $a->getRange1();
 	//if($limit1 < 0) $limit1 = 0;
 	$limit2 = $a->getRange2();
-	echo $Q .= " ORDER BY basket_name LIMIT $limit1,$limit2";
+	$Q .= " ORDER BY basket_name LIMIT $limit1,$limit2";
 	$rs = $DRW->query($Q,$DRW_read);
 	
 	while($dataB = $DRW->fetch_row($rs)){
