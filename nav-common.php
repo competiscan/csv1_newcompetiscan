@@ -64,8 +64,8 @@ if (empty($_SESSION['sess_username'])) {
     ?>
     <li <?= $uri == '/about-us/' ? $cMI : '' ?>><a href="/about-us/">About Us</a></li>
     <li <?= $uri == '/careers/' ? $cMI : '' ?>><a href="/careers/">Careers</a></li>
-    <li <?= $uri == '/articles/' ? $cMI : '' ?>><a href="/articles/">Articles</a></li>
-    <li <?= $uri == '/contact-us/' ? $cMI : '' ?>><a href="/contact-us/">Contact Us</a></li>
+    <li <?= $uri == '/insights/' ? $cMI : '' ?>><a href="/insights/">Articles</a></li>
+    <li <?= $uri == '/#contact/' ? $cMI : '' ?>><a href="/#contact/">Contact Us</a></li>
     <li class="login-link <?= $uri == '/login.php' ? 'current-menu-item' : '' ?>">
         <a href="/login.php">Login</a>
     </li>

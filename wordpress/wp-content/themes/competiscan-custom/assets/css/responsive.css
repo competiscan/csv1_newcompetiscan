@@ -532,7 +532,6 @@ cursor: default;
    SMALL MOBILE  ≤ 30rem (480px)
 ----------------------------------------------------------- */
 @media (max-width: 30rem) {
- 
   .footer-bottom .copy-right{display: none;}
   .tracking-cards {
     grid-template-columns: 1fr 1fr;

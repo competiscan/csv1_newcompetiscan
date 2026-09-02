@@ -347,8 +347,6 @@
   .cs-vpt-mockcol table { font-size: 10px; }
   .cs-vpt-mockcol th, .cs-vpt-mockcol td { padding: 7px 5px !important; font-size: 10px !important; }
   .cs-vpt-mockcol th:first-child, .cs-vpt-mockcol td:first-child { padding-left: 10px !important; }
-	 .cs-x355{padding: 30px 15px;}
-  .cs-cf7 .wpcf7-submit{font-size: 14px;padding: 15px 10px;}
 }
 @media (max-width: 980px) {
   .cs-2col { grid-template-columns: minmax(0, 1fr) !important; }
