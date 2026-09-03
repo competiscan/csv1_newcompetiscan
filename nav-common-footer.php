@@ -1,25 +1,25 @@
 
 					<li class="menu-item"><a href="https://demo1.competiscan.com/about-us/">About Us</a></li>
-                                        <?php //$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-                                        //if(strstr($actual_link,'demo.competiscan.com')){ ?>
-                                        <li class="menu-item"><a href="/services/">Services</a></li>
-                                        <?php // }?>
+					<?php //$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+					//if(strstr($actual_link,'demo.competiscan.com')){ ?>
+					<!--<li class="menu-item"><a href="/services/">Services</a></li>-->
+					<?php // }?>
 					<li class="menu-item"><a href="https://demo1.competiscan.com/careers/">Careers</a></li>
 					<li class="menu-item"><a href="https://demo1.competiscan.com/insights/">Articles</a></li>
 					<li class="menu-item"><a href="https://demo1.competiscan.com/#contact">Contact Us</a></li>
-<?php
-if(empty($_SESSION['sess_username'])) { // not logged in
-?>
-					<li class="menu-item"><a href="/login.php">Login</a></li>
-<?php }
-else { 	// logged in ?>
-					<li class="menu-item"><a href="/logout.php">Logout</a></li>	
-<?php } ?>
+					<?php
+					if(empty($_SESSION['sess_username'])) { // not logged in
+					?>
+						<li class="menu-item"><a href="/login.php">Login</a></li>
+					<?php }
+					else { 	// logged in ?>
+						<li class="menu-item"><a href="/logout.php">Logout</a></li>	
+					<?php } ?>
  
                                          
 <?php 
 if(!defined('ENV')){
-    define('ENV',getenv('SERVER_NAME'));
+	define('ENV',getenv('SERVER_NAME'));
 } 
 //if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){  
  if(!isset($_SESSION['sess_username'])){ ?>
