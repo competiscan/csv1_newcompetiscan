@@ -1671,6 +1671,7 @@ if($search_num_of_rows > 0) {
             }
             $queryI = "SELECT img_companyID FROM cscan_img WHERE productID=$productID AND img_id=1";
             $query_resultI = $DRW->query($queryI,$DRW_read);
+            $dataI = $DRW->fetch_row($query_resultI);
             $img_companyID = 0;
             if (is_array($dataI) && isset($dataI[0])) {
                 $img_companyID = (float)$dataI[0];
