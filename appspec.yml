@@ -1,8 +1,12 @@
 version: 0.0
 os: linux
+
+file_exists_behavior: OVERWRITE
+
 files:
    - source: /
      destination: /var/www/test
+
 permissions:
    - object: /var/www/test
      pattern: "**"
@@ -11,6 +15,7 @@ permissions:
      mode: 755
      type:
        - file
+
 hooks:
    BeforeInstall:
     - location: scripts/installapache.sh
