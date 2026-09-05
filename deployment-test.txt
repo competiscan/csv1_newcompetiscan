@@ -1,0 +1,3 @@
+Demo1 Competiscan Deployment Test
+Jenkins -> CodeDeploy -> Csv-Demo1-WP
+Test: 05-Sep-2026
