@@ -1120,6 +1120,9 @@ if($DRW->num_rows($resultCheck) > 0){
             //echo $postdata['sender_domain'] = "[".implode(",", $domains)."]";
 			
 	}
+    if($dataSearchCheck['tip_on_card']!='0'){
+        $postdata['tip_on_card']=$dataSearchCheck['tip_on_card'];
+    }
     if($page_type!=3 && $sid!=''){
         $postdata['current_page']=$page_no;
         $postdata['direction']=$dct;  
@@ -1561,7 +1564,7 @@ if($search_num_of_rows > 0) {
                         $productHeadline = 'See complete product details';
                 }
             }
-            $sectorName="";
+             /* $sectorName="";
             if(isset($resultProdData['sector_categories']['category']) AND !empty(($resultProdData['sector_categories']['category']))){
                 foreach($resultProdData['sector_categories']['category'] as $sectName){
                         $sectorName.=$sectName.", ";
@@ -1581,6 +1584,63 @@ if($search_num_of_rows > 0) {
                 foreach($resultProdData['sector_categories']['sub_sub_category'] as $subcategoryName){
                         $subCat.=$subcategoryName.", ";
                 }
+            }*/
+             $sectorName = "";
+            $uniqueSectors = array();
+            if (isset($resultProdData['sector_categories']['category']) &&
+                !empty($resultProdData['sector_categories']['category'])) {
+
+                foreach ($resultProdData['sector_categories']['category'] as $sectName) {
+
+                    $sectName = trim($sectName);
+
+                    if (!in_array($sectName, $uniqueSectors)) {
+                        $uniqueSectors[] = $sectName;
+                    }
+                }
+
+                $sectorName = implode(", ", $uniqueSectors);
+            }
+            $category = "";
+            $uniqueCategories = array();
+            if (isset($resultProdData['sector_categories']['sub_category']) &&
+                !empty($resultProdData['sector_categories']['sub_category'])) {
+
+                foreach ($resultProdData['sector_categories']['sub_category'] as $categoryName) {
+
+                    $categoryName = trim($categoryName);
+
+                    if (!in_array($categoryName, $uniqueCategories)) {
+                        $uniqueCategories[] = $categoryName;
+                    }
+                }
+
+                $category = implode(", ", $uniqueCategories);
+            }
+
+            if ($category == '') {
+                $category = 'Not Mentioned';
+            }
+            $subCat = "";
+            $uniqueSubCategories = array();
+
+            if (isset($resultProdData['sector_categories']['sub_sub_category']) &&
+                !empty($resultProdData['sector_categories']['sub_sub_category'])) {
+
+                foreach ($resultProdData['sector_categories']['sub_sub_category'] as $subcategoryName) {
+
+                    $subcategoryName = trim($subcategoryName);
+
+                    if (!in_array($subcategoryName, $uniqueSubCategories)) {
+                        $uniqueSubCategories[] = $subcategoryName;
+                    }
+                }
+
+                $subCat = implode(", ", $uniqueSubCategories);
+            }
+
+            if ($subCat == '') {
+                $subCat = 'Not Mentioned';
             }
             $mpannelid = $resultProdData['mpanel_id'];
             //$addedToDatabase = $resultProdData['actual_added_to_database'];

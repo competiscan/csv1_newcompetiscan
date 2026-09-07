@@ -4985,7 +4985,7 @@ function getKeywords($search_id,$searchTable='') {
 				siteCatID_mult,pubTypeID_mult,approved_date,electronicID_mult,DMA_ID_mult,businessContent_mult,delmethid_mult,affinity_association,prescription,AffinityCategoryID_mult,is_affinion,is_military,
 				ApplicationType_mult,is_multicultural,IntroPricing_mult,is_rewards,RewardsProgramEmphasis_mult,is_incentive,responseMechID_mult,multiculturalmarkets_mult,CardNetwork_mult,FeeProduct,external_link,FeeProductType,approved_date_to,
 				search_competi_id,ca_related,searchKey2,search_type_and,search_rules,is_mover,scsc_primary,OptOutFirmOffer,riders_mult,is_hphsa,subSubCategoryID,Income_Producing_Assets_Segment_Code_mult,cg_id,is_citi,is_CreditCardMentioned,
-				spanelist_filter,edc_id_mult,AffinitySubCategoryID_mult,ERateType_mult,EOfferPrice_mult,ETermLength_mult,is_ECancelFee,IssueTypeID_mult,pcountry,is_Reloadable,creditUnion,is_mobile,value_score,refinance,jumbo_ncnfg,va,fha,conventional,usda,correspondent_lending,faux_check,minmaxmortgage,socialmedia_adtype,publication_name,deliveryTypeId,postageId,presortedId,packageTypeId,fico_score,credit_vision_score,vantage_score,sender_domain_name 
+				spanelist_filter,edc_id_mult,AffinitySubCategoryID_mult,ERateType_mult,EOfferPrice_mult,ETermLength_mult,is_ECancelFee,IssueTypeID_mult,pcountry,is_Reloadable,creditUnion,is_mobile,value_score,refinance,jumbo_ncnfg,va,fha,conventional,usda,correspondent_lending,faux_check,minmaxmortgage,socialmedia_adtype,publication_name,deliveryTypeId,postageId,presortedId,packageTypeId,fico_score,credit_vision_score,vantage_score,sender_domain_name,tip_on_card 
 				FROM $searchcondition ='" . $search_id . "'";
   
     /* $savedQ = "SELECT searchKey,searchType,searchOption,mChannelID,sectorID,mPanelID,
@@ -5114,7 +5114,7 @@ function getKeywords($search_id,$searchTable='') {
    // }
     
     ############################## End FICO/Vantage/Credit Vision Score Fields ##############
-    
+     $tip_on_card=trim($data[104]);
     $displayKeywords = '';
     if ($searchKey != '') {
         $displayKeywords .= ' ' . htmlspecialchars($searchKey) . ' ';
@@ -5332,7 +5332,9 @@ function getKeywords($search_id,$searchTable='') {
         } 
    // }
           
-    
+     if($tip_on_card){
+        $nameField[] = array('Tip On Card', array('Tip On Card'), ''); 
+    }
     ############################## End FICO/CreditVision/Vantage Score Fields ##############
     
     foreach ($nameField as $a) {
