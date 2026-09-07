@@ -23,9 +23,9 @@ if(!empty($_POST['byadmin'])){
     ################# Start for Anotation Tool Link Permission################
     $_SESSION['sess_anotation_tool_link'] = array();
 	$_SESSION['sess_ai_analysis_link'] = array();
-    echo $uid    =   $_POST['userID'];
+    $uid    =   $_POST['userID'];
     
-    echo $sqlsel = sprintf("SELECT userID,emailAddress,password FROM cscan_users WHERE active='y' AND userID='".$uid."'" );
+    $sqlsel = sprintf("SELECT userID,emailAddress,password FROM cscan_users WHERE active='y' AND userID='".$uid."'" );
 	
     $resultsel              = $DRW->query($sqlsel,$DRW_read);
     $resultselrow              = $DRW->fetch_assoc($resultsel);
@@ -87,7 +87,7 @@ if(isset($_POST['login'])){
 	$password  = $_POST['password']; 
 	$IPAddress = $_SERVER['REMOTE_ADDR'];
 	
-	echo $sql = sprintf("SELECT userID,number_machines,bypass,companyName,plevel FROM cscan_users WHERE active='y' AND emailAddress=%s AND password=%s", quote_smart( $username ), quote_smart( $password ) );
+	$sql = sprintf("SELECT userID,number_machines,bypass,companyName,plevel FROM cscan_users WHERE active='y' AND emailAddress=%s AND password=%s", quote_smart( $username ), quote_smart( $password ) );
 	
 	$result = $DRW->query($sql,$DRW_read);
 	$rs        = $DRW->fetch_assoc($result);
@@ -97,19 +97,13 @@ if(isset($_POST['login'])){
 	$bypass = $rs['bypass'];
 	$companyName = $rs['companyName'];
 	$plevel = $rs['plevel'];
-	echo "<pre>";
-	print_r($_SESSION);
-	echo "</pre>";
 	if($count > 0) {
-		echo $_SESSION['sess_username'] = $username;
-		echo $_SESSION['sess_userID']   = $userID; 
+		$_SESSION['sess_username'] = $username;
+		$_SESSION['sess_userID']   = $userID; 
 		$_SESSION['sess_userType'] = 'a';
 		$_SESSION['sess_companyName'] = $companyName;
 		$_SESSION['sess_plevel'] = $plevel;
 		$parentID = 0;
-		echo "<pre>";
-	print_r($_SESSION);
-	echo "</pre>"; die;
 		$_SESSION['sess_mchannel'] = array();
 		$result = $DRW->query("SELECT mu.mChannelID FROM cscan_mc_users_allow mu,cscan_mchannel mc WHERE userID=$userID AND mu.mChannelID=mc.mChannelID",$DRW_read);
 		while($data2 = $DRW->fetch_row($result)){

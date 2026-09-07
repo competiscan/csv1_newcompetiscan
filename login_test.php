@@ -390,15 +390,12 @@ if(isset($_POST['us']) && !empty($_POST['us'])){
 include 'footer_bottom.php';
 # quote variable to make safe
 function quote_smart($value) {
-	global $DRW,$DRW_main,$DRW_read;
-	// stripslashes
-	if( get_magic_quotes_gpc() ) {
-		$value = stripslashes( $value );
-	}
-	// quote if not integer
-	if( !is_numeric( $value ) ) {
-		$value = "'" . $DRW->real_escape_string( $value ) . "'";
-	}
-	return $value;
+    global $DRW, $DRW_main, $DRW_read;
+
+    // quote if not integer
+    if (!is_numeric($value)) {
+        $value = "'" . $DRW->real_escape_string($value) . "'";
+    }
+    return $value;
 }
 ?>
