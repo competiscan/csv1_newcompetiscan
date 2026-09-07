@@ -189,6 +189,20 @@ $(document).ready(function () {
     jQuery.validator.addMethod("lettersonly", function(value, element) {
         return this.optional(element) || /^[a-zA-Z0-9]+$/i.test(value);
     }, "Letters only please");
+
+    jQuery.validator.addMethod("filesize", function (value, element, param) {
+        if (element.files.length === 0) {
+            return true;
+        }
+
+        for (var i = 0; i < element.files.length; i++) {
+            if (element.files[i].size > param) {
+                return false;
+            }
+        }
+        return true;
+    }, "Each file must be less than 20 MB.");
+
     $('#frm1').validate({ 
         //alert("sdshdhsdhshd");// initialize the plugin
         errorClass: "invalid",
@@ -214,8 +228,16 @@ $(document).ready(function () {
             },
             need:{
               required: true,  
+            },
+            "files[]": {
+                filesize: 20 * 1024 * 1024 // 20 MB
             }
         },
+         messages: {
+            "files[]": {
+                filesize: "Each uploaded file must be less than 20 MB."
+            }
+        }
     });
 
 });

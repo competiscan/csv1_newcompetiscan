@@ -20,7 +20,7 @@ $_SESSION['sess_client_id']='';
 $_SESSION['sso_cleint_secret']='';
 $_SESSION['sso_domain_name']='';
 if(isset($_REQUEST['sso_company']) and $_REQUEST['sso_company']!=''){
-	$sql_query="SELECT * FROM cscan_sso_authorisation WHERE sso_company_name='".$_REQUEST['sso_company']."' and sso_type='uat'";
+	$sql_query="SELECT * FROM cscan_sso_authorisation_uat WHERE sso_company_name='".$_REQUEST['sso_company']."'";
 	$result_sso = $DRW->query($sql_query,$DRW_read);
 	$count    = $DRW->num_rows($result_sso);
 	
@@ -31,9 +31,8 @@ if(isset($_REQUEST['sso_company']) and $_REQUEST['sso_company']!=''){
 		$sso_cleint_secret=$_SESSION['sso_cleint_secret']=$data_sso[4];
 		$sso_domain_name=$_SESSION['sso_domain_name']=$data_sso[5];
 		$state_param=$sso_cleint_id;
-		// echo "https://smalclient.competiscan.com/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=https%3A%2F%2Fcompetiscan.com%2Fsso_auth_main.php";
-		// die;
-		header("Location: $sso_domain_name/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=https%3A%2F%2Fcompetiscan.com%2Fsso_auth_main.php&state=$state_param");
+		//header("Location: $sso_domain_name/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=https%3A%2F%2Fcompetiscan.com%2Fsso_auth_main.php&state=$state_param");
+		header("Location: $sso_domain_name/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=https://competiscan.com/sso_auth_uat.php&state=$state_param");
 		exit();
 	}else{
 		$successMessage=1;

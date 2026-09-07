@@ -204,12 +204,13 @@ $adjacents = "2";
  
  $postdataTrend["page_number"]=(int)$page_no;
  $postdataTrend["page_size"]=20;
+ $postdataTrend["userID"]=$_SESSION['sess_userID'];
  $resultCount="";
 //  echo "<pre>";
 //  print_r($postdataTrend);
 //  echo "<pre>";
  if(!empty($postdataTrend)){
-     $postdata=json_encode($postdataTrend);
+     $postdata=json_encode($postdataTrend); 
      $ApiTrendSearch=TREND_REPORT_API_UAT_URL.'trend_search_client';
      $GetTrendData = callAPI('POST', $ApiTrendSearch, $postdata);
      $ResTrendData = json_decode($GetTrendData, true);

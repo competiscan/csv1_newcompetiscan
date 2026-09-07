@@ -2,9 +2,9 @@
 require_once('includes/globalSession.php');
 require_once('includes/checklogin.php');
 require_once 'product_doc_tracker.php';
-echo "<pre>";
-print_r($_REQUEST);
-echo "<pre>"; 
+// echo "<pre>";
+// print_r($_REQUEST);
+// echo "<pre>"; 
 /*######## Start for Page permission ########*/ 
 if(!defined('ENV')){
     define('ENV',getenv('SERVER_NAME'));
@@ -176,6 +176,8 @@ if(isset($_REQUEST['faux_check'])) $faux_check = (int)$_REQUEST['faux_check'];
 else $faux_check = 0;
 
 ############# end for the Faux Credit Checkbox ##############
+if(isset($_REQUEST['tip_on_card'])) $tip_on_card = (int)$_REQUEST['tip_on_card'];
+else $tip_on_card = 0;
 
 
 if(isset($_REQUEST['FeeProductType']) && $enhance==1) $FeeProductType = $_REQUEST['FeeProductType'];
@@ -408,7 +410,11 @@ if(isset($_REQUEST['domainName'])) $sender_domain_name = $_REQUEST['domainName']
 else $sender_domain_name = array();
 //echo $sender_domain_name."##############################3";
 /* ####  EndFor FICO, Vantage, CreditVision Score #### */
-
+#################TIP ON CARD########################
+$update_tip_on_card_values=",tip_on_card='".$tip_on_card."'";
+$tip_on_cardInto =   ',tip_on_card';
+$tip_on_cardValues=",$tip_on_card";
+#################TIP ON CARD########################
 if(isset($_POST['send'])){
     /*$apiURL='https://dev02.competiscan.com:5406/search';
     $data_value='dts_val=credit card&sortby=added_to_database, desc&tiebreaker=product_id, asc';
@@ -461,7 +467,7 @@ if(isset($_POST['send'])){
 		fa_id_mult,tl_id_mult,siteCatID_mult,pubTypeID_mult,approved_date,electronicID_mult,DMA_ID_mult,businessContent_mult,delmethid_mult,deliveryTypeId,postageId,presortedId,packageTypeId,affinity_association,prescription,AffinityCategoryID_mult,search_panelist_date,is_affinion,is_military,search_competi_id,
 		ApplicationType_mult,is_multicultural,search_rules,IntroPricing_mult,is_rewards,RewardsProgramEmphasis_mult,is_incentive,responseMechID_mult,multiculturalmarkets_mult,CardNetwork_mult,FeeProduct,external_link,socialmedia_adtype,FeeProductType,approved_date_to,
 		ca_related,is_mover,scsc_primary,OptOutFirmOffer,searchKey2,search_type_and,riders_mult,is_hphsa,subSubCategoryID,Income_Producing_Assets_Segment_Code_mult,cg_id,is_citi,is_CreditCardMentioned,spanelist_filter,edc_id_mult,AffinitySubCategoryID_mult,
-		ERateType_mult,EOfferPrice_mult,ETermLength_mult,is_ECancelFee,IssueTypeID_mult,pcountry,is_Reloadable,creditUnion,is_mobile,value_score,publication_name,fico_score,credit_vision_score,vantage_score $insertMortgageInto$faux_checkInto$minmaxmortgageinfo) 
+		ERateType_mult,EOfferPrice_mult,ETermLength_mult,is_ECancelFee,IssueTypeID_mult,pcountry,is_Reloadable,creditUnion,is_mobile,value_score,publication_name,fico_score,credit_vision_score,vantage_score $insertMortgageInto$faux_checkInto$tip_on_cardInto$minmaxmortgageinfo) 
 		VALUES ('".$_SESSION['sess_userID']."','".$_SESSION['sess_userType']."',
 		'".$DRW->real_escape_string($skey)."','".$DRW->real_escape_string($search_type)."','".$DRW->real_escape_string($search_option)."',
 		'".$DRW->real_escape_string(implode(',',$mChannelID))."','".$DRW->real_escape_string(implode(',',$sectorID))."','".$DRW->real_escape_string(implode(',',$mPanelID))."',
@@ -479,7 +485,7 @@ if(isset($_POST['send'])){
 		'".$DRW->real_escape_string($affinity_association)."',$prescriptionval,'".$DRW->real_escape_string(implode(',',$AffinityCategoryIDval))."',$search_panelist_date,$is_affinion,$is_military,'".$DRW->real_escape_string($search_competi_id)."',
 		'".$DRW->real_escape_string(implode(',',$ApplicationType_mult))."',$is_multicultural,'".$DRW->real_escape_string(implode(',',$search_rulesArray))."','".$DRW->real_escape_string(implode(',',$IntroPricing_mult))."',$is_rewards,'".$DRW->real_escape_string(implode(',',$RewardsProgramEmphasis_mult))."',$is_incentive,'".$DRW->real_escape_string(implode(',',$responseMechID_mult))."','".$DRW->real_escape_string(implode(',',$multiculturalmarkets_mult))."','".$DRW->real_escape_string(implode(',',$CardNetwork_mult))."',$FeeProduct,'".$DRW->real_escape_string($external_link)."','".$DRW->real_escape_string($socialmedia_adtype)."','".$DRW->real_escape_string(implode(',',$FeeProductType))."','".$DRW->real_escape_string($approved_date_to)."',
 		$ca_related,$is_mover,$scsc_primary,$OptOutFirmOffer,'".$DRW->real_escape_string($skey2)."',$search_type_and,'".$DRW->real_escape_string(implode(',',$riders_mult))."',$is_hphsa,'".$DRW->real_escape_string(implode(',',$subSubCategoryID))."','".$DRW->real_escape_string(implode(',',$Income_Producing_Assets_Segment_Code))."','".$DRW->real_escape_string($cg_id)."',$is_citi,$is_CreditCardMentioned,'".$DRW->real_escape_string($spanelist_filter)."','".$DRW->real_escape_string(implode(',',$edc_id))."','".$DRW->real_escape_string(implode(',',$AffinitySubCategoryIDval))."',
-		'".$DRW->real_escape_string(implode(',',$ERateType_mult))."','".$DRW->real_escape_string(implode(',',$EOfferPrice_mult))."','".$DRW->real_escape_string(implode(',',$ETermLength_mult))."',$is_ECancelFee,'".$DRW->real_escape_string(implode(',',$IssueTypeID_mult))."','".$DRW->real_escape_string($pcountry)."',$is_Reloadable,$creditUnion,$ismobile,'".$DRW->real_escape_string(implode(',',$value_score))."','".$DRW->real_escape_string($publication_name)."','".$DRW->real_escape_string(implode(',',$fico_score))."','".$DRW->real_escape_string(implode(',',$credit_vision_score))."','".$DRW->real_escape_string(implode(',',$vantage_score))."',sender_domain_name='".$DRW->real_escape_string(implode(',',$sender_domain_name))."' $insertMortgageValues$faux_checkValues$minmaxmortgageval)";
+		'".$DRW->real_escape_string(implode(',',$ERateType_mult))."','".$DRW->real_escape_string(implode(',',$EOfferPrice_mult))."','".$DRW->real_escape_string(implode(',',$ETermLength_mult))."',$is_ECancelFee,'".$DRW->real_escape_string(implode(',',$IssueTypeID_mult))."','".$DRW->real_escape_string($pcountry)."',$is_Reloadable,$creditUnion,$ismobile,'".$DRW->real_escape_string(implode(',',$value_score))."','".$DRW->real_escape_string($publication_name)."','".$DRW->real_escape_string(implode(',',$fico_score))."','".$DRW->real_escape_string(implode(',',$credit_vision_score))."','".$DRW->real_escape_string(implode(',',$vantage_score))."',sender_domain_name='".$DRW->real_escape_string(implode(',',$sender_domain_name))."' $insertMortgageValues$faux_checkValues$tip_on_cardValues$minmaxmortgageval)";
 		//echo "EEEEEEEEEEEEEEEEEEEEEEEEEEEEE".$last_search_sql;exit;
                 $DRW->query($last_search_sql,$DRW_main);
 		$search_id = (float)$DRW->insert_id($DRW_main);
@@ -504,7 +510,7 @@ if(isset($_POST['send'])){
 		multiculturalmarkets_mult='".$DRW->real_escape_string(implode(',',$multiculturalmarkets_mult))."',CardNetwork_mult='".$DRW->real_escape_string(implode(',',$CardNetwork_mult))."',FeeProduct=$FeeProduct,external_link='".$DRW->real_escape_string($external_link)."',socialmedia_adtype='".$DRW->real_escape_string($socialmedia_adtype)."',FeeProductType='".$DRW->real_escape_string(implode(',',$FeeProductType))."',approved_date_to='".$DRW->real_escape_string($approved_date_to)."',
 		ca_related=$ca_related,is_mover=$is_mover,scsc_primary=$scsc_primary,OptOutFirmOffer=$OptOutFirmOffer,searchKey2='".$DRW->real_escape_string($skey2)."',search_type_and=$search_type_and,riders_mult='".$DRW->real_escape_string(implode(',',$riders_mult))."',is_hphsa=$is_hphsa,subSubCategoryID='".$DRW->real_escape_string(implode(',',$subSubCategoryID))."',Income_Producing_Assets_Segment_Code_mult='".$DRW->real_escape_string(implode(',',$Income_Producing_Assets_Segment_Code))."',cg_id='".$DRW->real_escape_string($cg_id)."',is_citi=$is_citi,is_CreditCardMentioned=$is_CreditCardMentioned,
 		spanelist_filter='".$DRW->real_escape_string($spanelist_filter)."',edc_id_mult='".$DRW->real_escape_string(implode(',',$edc_id))."',AffinitySubCategoryID_mult='".$DRW->real_escape_string(implode(',',$AffinitySubCategoryIDval))."',ERateType_mult='".$DRW->real_escape_string(implode(',',$ERateType_mult))."',EOfferPrice_mult='".$DRW->real_escape_string(implode(',',$EOfferPrice_mult))."',ETermLength_mult='".$DRW->real_escape_string(implode(',',$ETermLength_mult))."',is_ECancelFee=$is_ECancelFee,
-		IssueTypeID_mult='".$DRW->real_escape_string(implode(',',$IssueTypeID_mult))."',pcountry='".$DRW->real_escape_string($pcountry)."',is_Reloadable=$is_Reloadable,creditUnion=$creditUnion,is_mobile=$ismobile,value_score='".$DRW->real_escape_string(implode(',',$value_score))."',publication_name='".$DRW->real_escape_string($publication_name)."',fico_score='".$DRW->real_escape_string(implode(',',$fico_score))."',credit_vision_score='".$DRW->real_escape_string(implode(',',$credit_vision_score))."',vantage_score='".$DRW->real_escape_string(implode(',',$vantage_score))."',sender_domain_name='".$DRW->real_escape_string($sender_domain_name)."' ".$updateMortgage.$updateFauxvalues.$updateminmaxmortgageval.
+		IssueTypeID_mult='".$DRW->real_escape_string(implode(',',$IssueTypeID_mult))."',pcountry='".$DRW->real_escape_string($pcountry)."',is_Reloadable=$is_Reloadable,creditUnion=$creditUnion,is_mobile=$ismobile,value_score='".$DRW->real_escape_string(implode(',',$value_score))."',publication_name='".$DRW->real_escape_string($publication_name)."',fico_score='".$DRW->real_escape_string(implode(',',$fico_score))."',credit_vision_score='".$DRW->real_escape_string(implode(',',$credit_vision_score))."',vantage_score='".$DRW->real_escape_string(implode(',',$vantage_score))."',sender_domain_name='".$DRW->real_escape_string($sender_domain_name)."' ".$updateMortgage.$updateFauxvalues.$update_tip_on_card_values.$updateminmaxmortgageval.
 		"WHERE ID='$search_id' AND userID='".$_SESSION['sess_userID']."'";
 		//echo $last_search_sql;
                 
@@ -1048,6 +1054,11 @@ if(isset($_POST['send'])){
 			$postdata['sender_domain']= str_replace (" or ",",",$dataSearchCheck['sender_domain_name']);
 			
 		}
+		#################TIP ON CARD########################
+		if($dataSearchCheck['tip_on_card']!='0'){
+			$postdata['tip_on_card']=$dataSearchCheck['tip_on_card'];
+		}
+		#################TIP ON CARD########################
 		$postdata['product_status']="1";
 		$API_URL_SAVE_SEARCH=ELASTIC_SAVE_SEARCH_UAT;
 		$chcsv2 = curl_init($API_URL_SAVE_SEARCH);
@@ -1130,7 +1141,7 @@ elseif($search_id!=0){
 			addedToDatabase,month1,month2,sort,company,productName,incentive,categoryID,mTypeID,subCategoryID,cardStatus,personalization,
 			gender,age,state,worksiteVoluntary,agentCommunicationID,groupSize,offerOrigin,enhance,saved,searchview,compaignLanguage,affinityAssociation,searchName,income_mult,fa_id_mult,tl_id_mult,siteCatID_mult,pubTypeID_mult,approved_date,electronicID_mult,DMA_ID_mult,businessContent_mult,delmethid_mult,
 			affinity_association,prescription,AffinityCategoryID_mult,search_panelist_date,is_affinion,is_military,search_competi_id,ApplicationType_mult,is_multicultural,search_rules,IntroPricing_mult,is_rewards,RewardsProgramEmphasis_mult,is_incentive,responseMechID_mult,multiculturalmarkets_mult,CardNetwork_mult,FeeProduct,external_link,FeeProductType,approved_date_to,
-			ca_related,is_mover,scsc_primary,OptOutFirmOffer,searchKey2,search_type_and,riders_mult,is_hphsa,subSubCategoryID,Income_Producing_Assets_Segment_Code_mult,cg_id,is_citi,is_CreditCardMentioned,spanelist_filter,edc_id_mult,AffinitySubCategoryID_mult,ERateType_mult,EOfferPrice_mult,ETermLength_mult,is_ECancelFee,IssueTypeID_mult,pcountry,is_Reloadable,creditUnion,is_mobile,value_score$searchMortgageKey$faux_checkInto$minmaxmortgageinfo$socialmedia_adtypeinfo,publication_name,deliveryTypeId,postageId,presortedId,packageTypeId,fico_score,credit_vision_score,vantage_score,sender_domain_name
+			ca_related,is_mover,scsc_primary,OptOutFirmOffer,searchKey2,search_type_and,riders_mult,is_hphsa,subSubCategoryID,Income_Producing_Assets_Segment_Code_mult,cg_id,is_citi,is_CreditCardMentioned,spanelist_filter,edc_id_mult,AffinitySubCategoryID_mult,ERateType_mult,EOfferPrice_mult,ETermLength_mult,is_ECancelFee,IssueTypeID_mult,pcountry,is_Reloadable,creditUnion,is_mobile,value_score$searchMortgageKey$faux_checkInto$minmaxmortgageinfo$socialmedia_adtypeinfo,publication_name,deliveryTypeId,postageId,presortedId,packageTypeId,fico_score,credit_vision_score,vantage_score,sender_domain_name,tip_on_card
 			FROM cscan_search WHERE ID='".$search_id."' AND userID='".$_SESSION['sess_userID']."'";
 	//,is_mobile
        // exit;
@@ -1267,7 +1278,7 @@ elseif($search_id!=0){
         $credit_vision_score = explode(',',$data[104]);
         $vantage_score = explode(',',$data[105]);
 		$sender_domain_name = $data[106];        
-        
+        $tip_on_card = $data[107];
         ############################## End Fico/Credit Vision, Vantage Score fields ##############
         
 	foreach($search_rulesArray as $sr){
@@ -1822,8 +1833,7 @@ else{
 //$displayArray[$dap][$dai]['show'] = true;
 $displayArray[$dap][$dai]['title'] = 'Sender Domain Name :';
 $displayArray[$dap][$dai]['value'] = '<div id="domaintext">
-
-<input type="text" name="domainName" size="45" class="input_box" value="'.htmlspecialchars(is_array($sender_domain_name), ENT_QUOTES).'" onchange="checkLookup(\'domainlist\');" /><br />
+<input type="text" name="domainName" size="45" class="input_box" value="'.htmlspecialchars($sender_domain_name, ENT_QUOTES).'" onchange="checkLookup(\'domainlist\');" /><br />
 [<a href="#" onclick="showLook(\'seltext4\',\'showhide4\',\'domainlist\',document.forms.searchForm.domainName); return false;" id="showhide4" class="HyperLink">Show Lookup</a>]</div>
 <div id="seltext4" style="border:solid 1px #000000;padding:4px;display:none;float:left;background-color:#E8E8FF;"><iframe name="domainlist" src="sender_domain_iframe.php?parent_field=domainName" width="290" height="100" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>
 </div>';
@@ -2110,7 +2120,7 @@ if(!in_array('DMA_CODE',$_SESSION['sess_search_exclude'])){
 	$displayArray[$dap][$dai]['value'] .= ">Any</option>";
 	$javascript .= "\n";
 	$dmacodeArray = array();
-	$query_ac ="select code,description from cscan_dma_code ORDER BY code";
+	$query_ac ="select code,description from cscan_DMA_CODE ORDER BY code";
 	$result_ac = $DRW->query($query_ac,$DRW_read);
 	while($row_ac = $DRW->fetch_row($result_ac)){
 		$selvalue = $row_ac[0];
@@ -2275,7 +2285,7 @@ if (!is21FilterOn()) {
             $displayArray[$dap][$dai]['value'] .= " selected=\"selected\"";
         }
         $displayArray[$dap][$dai]['value'] .= ">Any</option>";
-        $query_ac = "select code,description from cscan_income_producing_assets_segment_code order by code";
+        $query_ac = "select code,description from cscan_Income_Producing_Assets_Segment_Code order by code";
         $result_ac = $DRW->query($query_ac, $DRW_read);
         while ($row_ac = $DRW->fetch_row($result_ac)) {
             $selvalue = $row_ac[0];
@@ -2313,7 +2323,7 @@ if (!is21FilterOn()) {
             $displayArray[$dap][$dai]['value'] .= " selected=\"selected\"";
         }
         $displayArray[$dap][$dai]['value'] .= ">Any</option>";
-        $query_ac = "select code,VSfH_average from cscan_valuescore_for_household";
+        $query_ac = "select code,VSfH_average from cscan_ValueScore_for_Household";
         $result_ac = $DRW->query($query_ac, $DRW_read);
         while ($row_ac = $DRW->fetch_row($result_ac)) {
             $selvalue = $row_ac[0];
@@ -2799,8 +2809,17 @@ if(!in_array('FeeProduct',$_SESSION['sess_search_exclude'])){
 	}
 	$displayArray[$dap][$dai]['value'] .= ' />';
 	$dai++;
-        ############# end for the Faux Credit Checkbox ##############
-        
+    ############# end for the Faux Credit Checkbox ##############
+     ############################################
+	$displayArray[$dap][$dai]['show'] = true;
+	$displayArray[$dap][$dai]['title'] = 'Tip On Card :';
+	$displayArray[$dap][$dai]['value'] = '<input type="checkbox" id="tip_on_card" name="tip_on_card" value="1"';
+	if($tip_on_card>0) {
+		$displayArray[$dap][$dai]['value'] .= ' checked="checked"';
+	}
+	$displayArray[$dap][$dai]['value'] .= ' />';
+	$dai++;
+	############################################# 
 	$displayArray[$dap][$dai]['show'] = true;
 	$displayArray[$dap][$dai]['title'] = 'Ancillary Products :';
 	$displayArray[$dap][$dai]['value'] = '<select name="FeeProductType[]" multiple="multiple" size="3" class="combo_box">';

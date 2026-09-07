@@ -5,16 +5,16 @@ $PAGE_HEADING = "Suggestions";
 $TITLE = "Competiscan $PAGE_HEADING";
 $HEAD = '<script src="includes/jquery.js" type="text/javascript"></script><script src="includes/jquery.validate.min.js" type="text/javascript"></script>';
 include 'header_top.php';
-require_once('Mail.php');
-require_once('Mail/mime.php');
-$crlf = "\n";
+// require_once('Mail.php');
+// require_once('Mail/mime.php');
+// $crlf = "\n";
 
-$params = array(
-    'username'=>'',
-    'password'=>'',
-    'persist'=>true,
-);
-$mail =& Mail::factory('smtp',$params);
+// $params = array(
+//     'username'=>'',
+//     'password'=>'',
+//     'persist'=>true,
+// );
+// $mail =& Mail::factory('smtp',$params);
 
 $msg = '';
 $success = 0;
@@ -22,86 +22,75 @@ $timestamp = time();
 $sendkey_prev = date('Ymd',$timestamp - (24 * 60 * 60))."<br/>";
 $sendkey = date('Ymd',$timestamp); 
 $error='';
+//echo $_SESSION['sess_access_token'];
+function callAPI($method, $url, $data = null){
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+
+    if (!empty($data)) {
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    }
+
+    curl_setopt($curl, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer '.$_SESSION['sess_access_token'],
+        'User-Agent: Mozilla/5.0'
+    ]);
+//echo $_SESSION['sess_access_token'];die;
+    $result = curl_exec($curl);
+    if (curl_errno($curl)) {
+        echo 'cURL Error: ' . curl_error($curl);
+    }
+    curl_close($curl);
+    return $result;
+}
 if(isset($_SESSION['sess_username'])) {
 	$user_email = $_SESSION['sess_username'];
 }
 else {
 	$user_email = '';
 }
-if(isset($_POST['send'])) {
-    if (isset($_POST['name']) && $_POST['name']=="") {
-         $error = "<br />Please enter your name";
-    }
-    if(!empty($_POST['name']) AND !preg_match("/^(?![0-9()]+$)[a-zA-Z0-9() ]{2,}$/",trim($_POST['name']))){
-       $error .= "<br />Please enter a valid name"; 
-    }
-    if (isset($_POST['phone']) && $_POST['phone']=="") {
-         $error .= "<br />Please enter your phone number";
-    }
-    $onlyDigits=!preg_match('/^[0-9\-\(\)\/\+\s]*$/',$_POST['phone']);
-    $length = strlen($onlyDigits);
-    if (!empty($_POST['phone']) AND $onlyDigits) {
-        $error .= "<br />Please enter a valid phone number";
-    }
-    if (isset($_POST['suggestion']) && $_POST['suggestion']=="") {
-         $error .= "<br />Please enter your suggestion.";
-    }
-    if ( isset($_POST['captcha']) && ($_POST['captcha']=="") ){
-        $error .= "<br />Please enter captcha code.";
-    }
-    if ( isset($_POST['captcha']) && ($_POST['captcha']!="") ){
-        if(strcasecmp($_SESSION['captcha'], $_POST['captcha']) != 0){
-          $error .= "<br />Entered captcha code does not match!.";  
-        }
-    }
-    if ($error) {
-    echo $result = '<div class="alert alert-danger"><strong>There were error(s) in your form:</strong>'.$error.'</div>';
-    }
-    //if($_POST['send']==$sendkey || $_POST['send']==$sendkey_prev){
-     if(isset($_POST['sendbutton']) && $_POST['sendbutton']=='Send' && $error=="" && strcasecmp($_SESSION['captcha'], $_POST['captcha'])== 0){
-            $mailTo = $EMAIL_Suggestion;
-            $email = $user_email;
-            $message = $_POST['suggestion'];
-            $name = $_POST['name']." ({$_POST['phone']})";
-            $save_name  = $_POST['name'];
-            $save_phone = $_POST['phone'];
-            $save_message    = $_POST['suggestion'];
-            $htmlmessage = nl2br(htmlspecialchars($message));
-            $user_message = <<< MAILBODY
-<html>
-  <body>
-    <strong>From: $email</strong></br></br>
-    <strong>$htmlmessage</strong>
-  </body>
-</html>>
-MAILBODY;
-$sql = "INSERT INTO cscan_suggestion_mail (name,email,phone,suggestion) VALUES ('".$DRW->real_escape_string($save_name)."','".$DRW->real_escape_string($email)."','".$DRW->real_escape_string($save_phone)."','".$DRW->real_escape_string($save_message)."')";
-$DRW->query($sql,$DRW_main);
-$subject = "Suggestion From $name";
-$headers  = "MIME-Version: 1.0\n";
-$headers .= "Content-Type: text/html; charset=iso-8859-1\n";
-$headers .= "From: $email\n";
-//$mailTo='devendra.tiwari@nmgtechnologies.com,pradeep.chaurasia@nmgtechnologies.com';
-                
-    $hdrs = array('From'=>"\"Competiscan\" <share@competiscan.com>",'To'=>$mailTo,'Subject'=>$subject);
-    $mime = new Mail_mime($crlf);
-    $mime->setHTMLBody($user_message);
-    $body = $mime->get();
-    $headers = $mime->headers($hdrs);
-    $send = $mail->send($mailTo, $headers, $body);
-    //$send=1;
-        if($send){
-          $success = 1;
-          $msg = 'Your suggestion has been sent successfully.';
-          $_POST = array();
-        }else{
-          $success = 0;
-           $msg = 'Your suggestion has not been submitted due to some temporary error';  
-        }
+ if ( isset($_POST['captcha']) && ($_POST['captcha']!="") ){
+    if(strcasecmp($_SESSION['captcha'], $_POST['captcha']) != 0){
+        $error .= "<br />Entered captcha code does not match!.";  
     }
 }
-?>
-<?php
+ if ($error) {
+    echo $result = '<div class="alert alert-danger"><strong>There were error(s) in your form:</strong>'.$error.'</div>';
+}
+if(isset($_POST['sendbutton']) && $_POST['sendbutton']=='Send' && strcasecmp($_SESSION['captcha'], $_POST['captcha'])== 0){
+    $email = $user_email;
+    $name = $_POST['name'];
+    $save_name  = $_POST['name'];
+    $save_phone = $_POST['phone'];
+    $save_message    = $_POST['suggestion'];
+    $postsuggesstiondata = [
+        'name' => $name,
+        'phone' => $save_phone,
+        'suggestion' => $save_message
+    ];
+    //echo "dsdsdsd".$_SESSION['sess_access_token']; die;
+    $postdata = json_encode($postsuggesstiondata);
+    $apisuggesstionurl = SUGGESTION_API_URL_UAT.'suggestion_mail';
+    $getsuggesstiondata = callAPI('POST', $apisuggesstionurl, $postdata);
+    $ressuggesstiondata = json_decode($getsuggesstiondata, true);
+    if(isset($ressuggesstiondata['status']) && $ressuggesstiondata['status'] == 'success' && isset($ressuggesstiondata['statusCode']) && $ressuggesstiondata['statusCode'] == 200 ) {
+        $success = 1;
+        $msg = 'Your suggestion has been sent successfully.';
+        $_POST = array();
+    } else {
+        $success = 0;
+        $apimsg = isset($ressuggesstiondata['message']) ? $ressuggesstiondata['message'] : $ressuggesstiondata['message'];
+        $msg=$apimsg;
+        //$msg = 'Your suggestion has not been submitted due to some temporary error';
+    }
+    // echo "<pre>";
+    // print_r($ressuggesstiondata);
+    // echo "</pre>";
+}
+
 if($success == 0) {
     if($msg!='') {
            echo '<div id ="msg_failed" class="alert alert-danger">'.$msg.'</div>';    

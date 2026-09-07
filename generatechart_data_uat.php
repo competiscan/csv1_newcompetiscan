@@ -27,8 +27,8 @@ foreach ($datachartArray as $item) {
     $key = $item["name"];
     $value = $item["value"];
     if($key=='ssid'){
-        $chartDataArray['sid']=(int)$value; 
-        //$chartDataArray['sid']=122089; 
+        //$chartDataArray['sid']=(int)$value; 
+        $chartDataArray['sid']=$sess_api_searchID;
         
     }
     if($key=='page'){
@@ -61,53 +61,56 @@ foreach ($datachartArray as $item) {
     if($key=='graph_choice'){
         $chartDataArray['fields']=array(
            "secondCompany",
-            "credit_vision_range",
-            "vantage_range",
-            "fico_range",
-            "affinityAssociation",
-            "affinityAssociationName",
-            "affinityAssociationCategory",
-            "entryID",
-            "company",
-            "age",
-            "riders",
-            "AnnualFee_178",
-            "Tier1AnnualFee_178",
-            "Tier2AnnualFee_178",
-            "mChannelID",
-            "delmethid",
-            "mTypeID",
-            "added_to_database",
-            "state",
-            "incentive_signon",
-            "BankingRewardsProgramEmphasis_87",
-            "BankingRewardsProgram_87",
-            "PurchaseIntroductoryAPR_178",
-            "BalanceTransferIntroductoryAPR_178",
-            "PZM_CODE",
-            "PZM_FLAG",
-            "is_prescreen",
-            "MLApplicationType_6",
-            "IntroductoryAPR_6",
-            "ApplicationType_178",
-            "ppdate",
-            "income",
-            "mPanelID",
-            "sectorID",
-            "categoryID",
-            "productName",
-            "RewardsProgram",
-            "RewardsProgramEmphasis",
-            "subCategoryID",
-            "ValueScore_for_Household",
-            "ppmv",
-            "mailpieces",
-            "realtime_mailvolume",
-            "ppeve",
-            "mailspend",
-            "spend_impression",
-            "PrimarysubCategoryID",
-            "AffinityCategoryID",
+        "PrimarysubCategoryID",
+        "credit_vision_range",
+        "fico_range",
+        "vantage_range",
+        "affinityAssociation",
+        "affinityAssociationName",
+        "affinityAssociationCategory",
+        "entryID",
+        "company",
+        "age",
+        "income",
+        "riders",
+        "AnnualFee_178",
+        "Tier1AnnualFee_178",
+        "Tier2AnnualFee_178",
+        "mChannelID",
+        "delmethid",
+        "mTypeID",
+        "added_to_database",
+        "state",
+        "incentive_signon",
+        "BankingRewardsProgramEmphasis_87",
+        "PurchaseIntroductoryAPR_178",
+        "BalanceTransferIntroductoryAPR_178",
+        "PZM_CODE",
+        "PZM_FLAG",
+        "is_prescreen",
+        "MLApplicationType_6",
+        "IntroductoryAPR_6",
+        "ApplicationType_178",
+        "ppdate",
+        "mPanelID",
+        "sectorID",
+        "categoryID",
+        "productName",
+        "RewardsProgram",
+        "RewardsProgramEmphasis",
+        "subCategoryID",
+        "ValueScore_for_Household",
+        "ppmv",
+        "mailpieces",
+        "realtime_mailvolume",
+        "ppeve",
+        "mailspend",
+        "spend_impression",
+        "agentCommunicationID",
+        "AffinityCategoryID",
+        "BankingRewardsProgram_87",
+        "RewardsProgramEmphasis_178",
+        "mailvolume",
         );
         if($value==25){
             $chartDataArray['data_field']='Affinity/Association'; 
@@ -338,9 +341,9 @@ foreach ($datachartArray as $item) {
  //echo json_encode($chartDataArray);
 
 if($_REQUEST['action']=='display_chart'){
-    $API_CHART_URL = APIURL_CHART_PROD."plot-".$api_end_point;
+    $API_CHART_URL = APIURL_CHART_UAT."plot-".$api_end_point;
     $posted_jsondata=$chartDataArray; 
-    $posted_jsondata=json_encode($chartDataArray);
+    $posted_jsondata=json_encode($chartDataArray); 
     if(!empty($posted_jsondata)){
     $ch_chart = curl_init($API_CHART_URL); 
     curl_setopt($ch_chart, CURLOPT_POST, 1);

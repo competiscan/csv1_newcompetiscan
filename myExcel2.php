@@ -116,7 +116,7 @@ if ($basket_id < 0) {
 		
 		if(!in_array('DMA_ID',$_SESSION['sess_search_exclude'])){
 			echo '<tr><td valign="top">Metropolitan Area :</td><td><select name="DMA_ID[]" multiple="multiple" size="3" class="combo_box">';
-			$query_ac ="SELECT dmaid,dmaname FROM cscan_dma ORDER BY dmaname";
+			$query_ac ="SELECT dmaid,dmaname FROM cscan_DMA ORDER BY dmaname";
 			$result_ac = $DRW->query($query_ac,$DRW_read);
 			while($row_ac = $DRW->fetch_row($result_ac)){
 				$selvalue = $row_ac[0];
