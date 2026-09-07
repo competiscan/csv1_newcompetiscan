@@ -23,9 +23,9 @@ if(!empty($_POST['byadmin'])){
     ################# Start for Anotation Tool Link Permission################
     $_SESSION['sess_anotation_tool_link'] = array();
 	$_SESSION['sess_ai_analysis_link'] = array();
-    $uid    =   $_POST['userID'];
+    echo $uid    =   $_POST['userID'];
     
-    $sqlsel = sprintf("SELECT userID,emailAddress,password FROM cscan_users WHERE active='y' AND userID='".$uid."'" );
+    echo $sqlsel = sprintf("SELECT userID,emailAddress,password FROM cscan_users WHERE active='y' AND userID='".$uid."'" );
 	
     $resultsel              = $DRW->query($sqlsel,$DRW_read);
     $resultselrow              = $DRW->fetch_assoc($resultsel);
