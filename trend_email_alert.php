@@ -142,7 +142,7 @@ if($DRW->num_rows($savedQuery) > 0) {
                         
                         $display_search_key.= " <b>To Date:</b> ".$row['to_date'];
                 }
-                //if($row['country']!=''){
+               $countryName ="All";
                 if($row['country']==1){
                     $countryName ="UNITED STATES";
                     }
