@@ -3,7 +3,7 @@ $ALLOW_GROUPS = array(1);
 require_once("../auth_auth.php");
 include 'top.php';
 require_once '../includes/functions.php';
-//require_once 'TemplateMailer.php';
+require_once 'TemplateMailer.php';
 function callAPI($method, $url, $data){
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
