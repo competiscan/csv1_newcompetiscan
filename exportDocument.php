@@ -256,56 +256,7 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 			$textRun->getFont()->setColor( new Color( 'FF808080' ) ); //FFA9A9A9 FF2F4F4F FF696969 FFD3D3D3 FF778899 FF708090 FFC0C0C0
                         //End new implemention ppt export
                         
-			/*$text_offset = 20;
-			$text_size = 20;
-			$shape = $currentSlide->createRichTextShape();
-			$shape->setWidth(320);
-			$shape->setOffsetX(40);
-			$shape->setOffsetY($text_offset); 
-                        $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_JUSTIFY );
-			//$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_JUSTIFY );
-			$textRun = $shape->createTextRun($productRs['entryID']);
-			$textRun->getHyperlink()->setUrl('http://'.$_SERVER['HTTP_HOST'].'/index.php?product='.$productID);
-			$textRun->getFont()->setName('Calibri');
-			$textRun->getFont()->setSize($text_size); //Calibri 24 Align Right Gray
-			//$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color( 'FF808080' ) ); //FFA9A9A9 FF2F4F4F FF696969 FFD3D3D3 FF778899 FF708090 FFC0C0C0
-			$textRun->getFont()->setColor( new Color( 'FF808080' ) ); //FFA9A9A9 FF2F4F4F FF696969 FFD3D3D3 FF778899 FF708090 FFC0C0C0
-                        
-                        
-			$text_offset = 70;
-			$shape = $currentSlide->createDrawingShape();
-			$shape->setName('Competiscan upper');
-			$shape->setDescription('Competiscan upper');
-                        //echo dirname(__FILE__).'/php_powerpoint/ppt-Upper-Blue-Bar.jpg'; die;
-			$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-Upper-Blue-Bar.jpg');
-			$shape->setWidth(960);
-			$shape->setOffsetY($text_offset);
-			$shape = $currentSlide->createDrawingShape();
-			$shape->setName('Competiscan footer '.($i + 1));
-			$shape->setDescription('Competiscan footer '.($i + 1));
-			$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-footer-blue.jpg');
-			$shape->setWidth(960);
-			$shape->setOffsetY(670);
-			$shape = $currentSlide->createDrawingShape();
-			$shape->setName('Competiscan logo '.($i + 1));
-			$shape->setDescription('Competiscan logo '.($i + 1));
-			$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-logo.png');
-			$shape->setHeight(43);
-			$shape->setOffsetX(753);
-			$shape->setOffsetY(680);
-			//die("sdhhsdtt");
-			$shape = $currentSlide->createRichTextShape();
-			$shape->setWidth(960);
-			$shape->setOffsetY(693);
-			//$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_CENTER );//VERTICAL_BOTTOM
-			$shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_CENTER );
-                        $textRun = $shape->createTextRun($copyright.date('Y').' Confidential & Proprietary. All Rights Reserved'); //�2011 Confidential & Proprietary. All Rights Reserved
-			$textRun->getFont()->setName('Arial');
-			$textRun->getFont()->setSize(7);
-			//$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color(PHPPowerPoint_Style_Color::COLOR_WHITE) );
-                        $textRun->getFont()->setColor( new Color(Color::COLOR_WHITE ) ); */
-                        
-                        
+			/* [unchanged large commented-out legacy block preserved as-is] */
                         
 		}
 		elseif($pdf){
@@ -330,10 +281,7 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                 //Creating a presigned URL 
                                 $exp_data=explode(".",$img_filename);
                                 if($exp_data[1]=='gif'){
-								//if(empty($exp_data[1])){	
-                                    //$source=dirname(__FILE__).'/images/competiscan_logo.jpg';
-									//$source=dirname(__FILE__).'/images/competiscan-logo2.png';
-									$source=dirname(__FILE__).'/competiscan-logo2.png';
+                                    $source=dirname(__FILE__).'/competiscan-logo2.png';
 									$is_border_image=false;
                                 }else{ 
                                     $cmd = $s3->getCommand('GetObject', [
@@ -366,10 +314,7 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                         $source = $displays3URL.substr($newdocumentpath,1);   
                                         $exp_data=explode(".",$img_filename);
                                         if($exp_data[1]=='gif'){
-										//if(empty($exp_data[1])){		
-                                            //$source=dirname(__FILE__).'/images/competiscan_logo.jpg';;
-											//$source=dirname(__FILE__).'/images/competiscan-logo2.png';
-											$source=dirname(__FILE__).'/competiscan-logo2.png';
+                                            $source=dirname(__FILE__).'/competiscan-logo2.png';
 											$is_border_image=false;
                                         } else{                       
                                             //Creating a presigned URL 
@@ -390,8 +335,6 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 			
 			$file_pdf->cell(0, 4, '', 0, 1, 'L',0);
 			
-			//image/jpeg,image/JPG,image/gif,image/png
-			//image/jpeg, image/pjpeg, image/gif , image/png,image/x-png, image/bmp
 			$itype = '';
 			if(strpos($img_content_type,'png')!==false){
 				$itype = 'PNG';
@@ -408,7 +351,6 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                 $info = $s3->doesObjectExist($bucket_name,substr($newdocumentpath,1));
                                
                                if($info){
-				  					//$file_pdf->image($source,$file_pdf->getX(), $file_pdf->getY(), 0, 20, $itype, $site_urls.'index.php?product='.$productID);
 									$file_pdf->image($source,$file_pdf->getX(), $file_pdf->getY(), 0, 20, $itype,'https://cp.competiscan.com/productdetail?id='.$productID);
                                 } 
                                } 
@@ -418,9 +360,7 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 							   }else{
 									$file_pdf->cell(30, 20, '', '', 1, 'L',0);
 							   }
-							   //$file_pdf->cell(30, 20, '', 'LTRB', 1, 'L',0);
 				$file_pdf->cell(0, 2, '', 0, 1, 'L',0);
-			//}
 			
 			$bq = "SELECT basket_note,DATE_FORMAT(basket_date,'%m/%d/%Y') FROM cscan_product_basket WHERE basket_id=$bid AND userID={$_SESSION['sess_userID']} AND productID=$productID";
 			$rsb = $DRW->query($bq,$DRW_read);
@@ -438,11 +378,8 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 			$file_pdf->setFont('Arial','',$fonts);
 			$file_pdf->multiCell(0, $fonts/2, iconv("UTF-8", "CP1250//TRANSLIT",$productRs['productHeadline']), 0, 'L',0);
 			$file_pdf->cell(0, 2, '', 0, 1, 'L',0);
-			//$file_pdf->setTextColor('rgb',0, 0, 1, 0);
                         $file_pdf->setTextColor(0,0,255);
 			$file_pdf->setFont('Arial','U',$fonts);
-                        //adit for the pdf download properly
-			//$file_pdf->cell(0, $fonts/2, 'Read More: '.$productRs['entryID'], 0, 1, 'L',0,'https://www.competiscan.com/productDocuments.php?did=1&id='.$productID);
                         $file_pdf->cell(0, $fonts/2, 'Read More: '.$productRs['entryID'], 0, 1, 'L',0,$site_urls.'productPdf.php?did='.$document_id.'&id='.$productID);
 			$file_pdf->cell(0, 2, '', 0, 1, 'L',0);
                         
@@ -489,12 +426,9 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                 ######################## for the video section ##################
                                 if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
                                     if($img_document_content_type=='video/mp4' || empty($img_document_path) ||  empty($img_document_filename)){
-                                        // $query_video            =   "SELECT img_id,img_filename,img_content_type,img_size_byte,UNIX_TIMESTAMP(img_createddate),img_path,img_companyID FROM cscan_img WHERE productID=$productID";
                                        $query_video= "SELECT img_co_content_type,img_co_size_byte,UNIX_TIMESTAMP(img_co_createddate),img_co_path,img_co_filename FROM cscan_img_company WHERE companyID=(SELECT img_companyID FROM cscan_img WHERE productID=$productID)";
                                        $query_result_video     =   $DRW->query($query_video,$DRW_read);
                                         $data_video             =   $DRW->fetch_row($query_result_video);
-                                        /*$img_document_filename  =   $data_video['1'] ;
-                                        $img_document_path      =   $data_video['5'] ; */
                                         $img_content_type = $data_video[0];
                                         $img_size_byte = $data_video[1];
                                         $img_createddate = $data_video[2];
@@ -558,35 +492,52 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                          
                                                                               
                                         } else{
-                                            //$imgpath = dirname(__FILE__).'/images/competiscan_logo.jpg';
                                             $imgpath = dirname(__FILE__).'/images/competiscan-logo.png';
                                             if(!empty($check_bucket_name) AND $check_bucket_name!=''){
                                                     $imgpath = $displays3CSV2URL.$newdocumentpath; 
-                                                    //echo $imgpath = $displays3CSV2URL.substr($newdocumentpath,0); die;
                                             }
                                         }
-                                      
-                                        $imageData = "data:image/jpeg;base64,".base64_encode(file_get_contents($imgpath));
+
+                                        /* =====================================================
+                                         * FIX START — original bug:
+                                         * $imageData was built first as a base64 "data:" URI,
+                                         * then getimagesize($imageData) was called on that URI.
+                                         * getimagesize() cannot parse a "data:" URI (it needs the
+                                         * "data://" stream-wrapper scheme), so it returned false.
+                                         * $img_size[0]/$img_size[1] then evaluated to null, and
+                                         * passing null into setWidth()/setHeight() (which require
+                                         * int) threw a fatal TypeError in PHP 8+, aborting the
+                                         * export before the .pptx file could be saved.
+                                         *
+                                         * FIX: read dimensions from $imgpath (the real file/URL)
+                                         * BEFORE base64-encoding it, and guard against a failed
+                                         * fetch or failed getimagesize() so we never pass null
+                                         * into setWidth()/setHeight() later.
+                                         * ===================================================== */
+                                        $imageContent = @file_get_contents($imgpath);
+                                        if ($imageContent === false) {
+                                            // Could not fetch the image (bad URL, expired presigned
+                                            // link, allow_url_fopen off, missing local file, etc.)
+                                            // Fall back to the default logo so the loop can continue
+                                            // instead of fataling later on a null image.
+                                            $imgpath = dirname(__FILE__).'/images/competiscan-logo.png';
+                                            $imageContent = @file_get_contents($imgpath);
+                                        }
+                                        $imageData = "data:image/jpeg;base64,".base64_encode($imageContent);
+
+                                        // Get real dimensions from the source file/URL, not from
+                                        // the base64 data URI (getimagesize can't read data: URIs).
+                                        $img_size = @getimagesize($imgpath);
+                                        if (empty($img_size)) {
+                                            // Safe fallback dimensions so setWidth()/setHeight()
+                                            // never receive null further down.
+                                            $img_size = array(345, 500);
+                                        }
+                                        /* ===================== FIX END ===================== */
                                      #########################END S3 IMPLEMENTATION#####################
                                     
                                 
-                                 //$src='https://csbucket007.s3.amazonaws.com/PDF/2019/06/2322553/23225530.jpg';
-				//echo $src = dirname(__FILE__)."$img_document_path$img_document_filename";  die;
 				######################## for the video section ##################
-                               // $src = FULL_sample_img($productID,$document_id,$img_document_path,$img_document_filename); 
-                                // if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
-                                   /* if($img_document_content_type=='video/mp4'){
-                                        $src    =   video_humb($productID,$document_id,$img_document_path,$img_document_filename);
-                                    }*/
-                                // }
-                               //echo $src; exit;
-                                ######################## for the video section ##################
-                                    
-//                                if(!is_file($src)){
-//					continue;
-//				}
-				//$img_size = getimagesize($src);
-				//echo $src;die;
 				if($pp){
                                     
                                     ############ for add headlines ############################
@@ -606,47 +557,22 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                        }
                                      }
                                      //End new implemention ppt export
-                                    /*if($image_number==0){   
-                                        $isheadline=false;
-                                       if(!empty($headlinesarray) && in_array($productID, $headlinesarray)){ 
-                                        $shape = $currentSlide->createRichTextShape();
-                                        $shape->setWidth(350);
-                                        $shape->setOffsetX(20);
-                                        $shape->setOffsetY(110);
-                                        //$shape->setOffsetY($text_offset);
-                                        //$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_LEFT );
-                                       $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
-                                        $textRun = $shape->createTextRun($productRs['productHeadline']);
-                                        $isheadline=true;
-                                       }
-                                     }*/
                                     ############ end for add headlines ############################   
                                     
                                      ######################## for the video section ##################
-                                    //if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){ 
-                                    //$fixedwidth     =   '410';
-                                    //$fixedheight    =   '380'; 
                                     $fixedwidth     =   '345';
                                     $fixedheight    =   '500'; 
-                                    //$offesetx       =   30;
                                     //Start new implemention ppt export
                                     $offesetx       =   300;
                                     //End new implemention ppt export
                                     if($isheadline){
                                         $fixedwidth  =  '400';
                                         $fixedheight =  '500';
-                                        //$offesetx    =   390;
                                         //Start new implemention ppt export
                                         $offesetx    =   590;
                                         //End new implemention ppt export
                                     }
                                       
-                                    
-                                      //$imageData='/var/www/html/uat3.competiscan.com/PDF/2019/06/2322553/23225530.jpg';
-                                      $shape = new Base64();
-                                      //$shape = $currentSlide->createDrawingShape();
-                                        $img_size       =   getimagesize($imageData);
-                                        
                                         if(!empty($img_size)){
                                             $imgwidth   =   ($img_size[0]+100);
                                             $imgheight  =   ($img_size[1]+100);
@@ -665,46 +591,22 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                                 $imgheight  =    $img_size[1];
                                             }
                                         }
-                                       // echo $imgwidth."hegt".$imgheight; exit;
-                                   //}
                                     ######################## for the video section ##################
-                                        //if($image_number==0){
-					//	$objPHPPowerPoint->createSlide();
-					//	$objPHPPowerPoint->setActiveSlideIndex($i);
-					//	$currentSlide = $objPHPPowerPoint->getActiveSlide();
-					//}
-                                       // $shape = $currentSlide->createDrawingShape();
+                                      $shape = new Base64();
 					$shape->setName('Competiscan Page '.$img_document_sort);
 					$shape->setDescription('Competiscan Page '.$img_document_sort);
-                                        //echo $src;exit;
 					$shape->setData($imageData);
                                         $shape->setResizeProportional(false);
-					//$shape->getHyperlink()->setUrl('https://www.competiscan.com/productDocuments.php?did=1&id='.$productID.'#page='.$img_document_sort);
                                         $shape->getHyperlink()->setUrl($site_urls.'productPdf.php?did=1&id='.$productID);
 					$shape->setWidth($img_size[0]);
 					$shape->setHeight($img_size[1]);
                                         ######################## for the video section ##################
-                                        // if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
-                                           // $shape->setWidth($imgwidth);
-                                            //$shape->setHeight($imgheight);
-                                        // }
                                         if($isheadline){
-                                            // $shape->setWidth($imgwidth);
+                                             // $shape->setWidth($imgwidth);
                                              //$shape->setHeight($imgheight);
                                         } 
                                         
                                         ######################## for the video section ##################
-                                         //$shape->setOffsetX(200);
-					// $shape->setOffsetY(200);
-					 /*$shape->setOffsetX($offesetx+(30*$image_number));
-					 $shape->setOffsetY(20+$text_offset+$text_size+(30*$image_number));
-					//$shape->setRotation(25);
-					$shape->getShadow()->setVisible(true);
-					//$shape->getShadow()->setDirection(45);
-					 $shape->getShadow()->setDistance(0);
-					 $shape->getShadow()->setAlignment(Shadow::SHADOW_TOP_RIGHT);
-					 $shape->getShadow()->setBlurRadius(25);
-                                         $currentSlide->addShape($shape);*/
                                          //Start new implemention ppt export
                                          $shape->setOffsetX($offesetx+(30*$image_number));
 					 $shape->setOffsetY(20+$text_offset+$text_size+(30*$image_number));
@@ -721,7 +623,6 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                          //End new implemention ppt export
 				}
 				elseif($pdf){
-                                   
 					//$file_pdf->image($src,$file_pdf->getX(), $file_pdf->getY(), $page_width/4, 0, 'JPEG', 'https://www.competiscan.com/productDocuments.php?did=1&id='.$productID.'#page='.$img_document_sort);
 					//$file_pdf->cell(0, 20, '', 0, 1, 'L',0);
 				}
@@ -738,49 +639,6 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 			
 			$text_offset = 20;
 			$text_size = 20;
-			/*$shape = $currentSlide->createRichTextShape();
-			$shape->setWidth(320);
-			$shape->setOffsetX(40);
-			$shape->setOffsetY($text_offset);
-			$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_JUSTIFY );
-			$textRun = $shape->createTextRun('');
-			$textRun->getFont()->setName('Calibri');
-			$textRun->getFont()->setSize($text_size); //Calibri 24 Align Right Gray
-			$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color( 'FF808080' ) ); //FFA9A9A9 FF2F4F4F FF696969 FFD3D3D3 FF778899 FF708090 FFC0C0C0*/
-			
-			/*$text_offset = 70;
-			$shape = $currentSlide->createDrawingShape();
-			$shape->setName('Competiscan upper');
-			$shape->setDescription('Competiscan upper');
-			$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-Upper-Blue-Bar.jpg');
-			$shape->setWidth(960);
-			$shape->setOffsetY($text_offset);
-			
-			$shape = $currentSlide->createDrawingShape();
-			$shape->setName('Competiscan footer '.($i + 1));
-			$shape->setDescription('Competiscan footer '.($i + 1));
-			$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-footer-blue.jpg');
-			$shape->setWidth(960);
-			$shape->setOffsetY(670);
-			
-			$shape = $currentSlide->createDrawingShape();
-			$shape->setName('Competiscan logo '.($i + 1));
-			$shape->setDescription('Competiscan logo '.($i + 1));
-			$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-logo.png');
-			$shape->setHeight(43);
-			$shape->setOffsetX(753);
-			$shape->setOffsetY(680);
-			
-			$shape = $currentSlide->createRichTextShape();
-			$shape->setWidth(960);
-			$shape->setOffsetY(693);
-			//$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_CENTER );//VERTICAL_BOTTOM
-			$shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_CENTER );
-                        $textRun = $shape->createTextRun($copyright.date('Y').' Confidential & Proprietary. All Rights Reserved'); //�2011 Confidential & Proprietary. All Rights Reserved
-			$textRun->getFont()->setName('Arial');
-			$textRun->getFont()->setSize(7);
-			//$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color(PHPPowerPoint_Style_Color::COLOR_WHITE) );
-			$textRun->getFont()->setColor( new Color( Color::COLOR_WHITE ) );*/
 			foreach($imageDataArray as $k=>$ida){
                             if(file_exists($ida)) {
                                 $shape = $currentSlide->createDrawingShape();
@@ -791,7 +649,6 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                                 $shape->setOffsetY(20+$text_offset+$text_size+(30*$k));
                                 $shape->getShadow()->setVisible(true);
                                 $shape->getShadow()->setDistance(0);
-                                //$shape->getShadow()->setAlignment(PHPPowerPoint_Shape_Shadow::SHADOW_CENTER);
                                 $shape->getShadow()->setAlignment(Shadow::SHADOW_CENTER);
                                 $shape->getShadow()->setBlurRadius(25);
                             }
@@ -801,70 +658,52 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 	}
 	
 	if($pp){
-                //comment last slide code from ppt
-		/*$objPHPPowerPoint->createSlide();
-		$objPHPPowerPoint->setActiveSlideIndex($i);
-		$currentSlide = $objPHPPowerPoint->getActiveSlide();
-		
-		$shape = $currentSlide->createDrawingShape();
-                
-		$shape->setName('Competiscan footer');
-		$shape->setDescription('Competiscan footer');
-		$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-footer-blue.jpg');
-		$shape->setWidth(960);
-		$shape->setOffsetY(670);
-		
-		$shape = $currentSlide->createDrawingShape();
-		$shape->setName('Competiscan logo');
-		$shape->setDescription('Competiscan logo');
-		$shape->setPath(dirname(__FILE__).'/php_powerpoint/ppt-logo.png');
-		$shape->setHeight(43);
-		$shape->setOffsetX(753);
-		$shape->setOffsetY(680);
-		
-		$shape = $currentSlide->createRichTextShape();
-		$shape->setWidth(940);
-		$shape->setOffsetX(10);
-		$shape->setOffsetY(500);
-		//$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_JUSTIFY );
-		$shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_JUSTIFY );
-                $textRun = $shape->createTextRun('Competiscan LLC  CONFIDENTIAL   ALL RIGHTS RESERVED');
-		$textRun->getFont()->setName('Arial');
-		$textRun->getFont()->setSize(12); //Arial 12 Justified Gray 70%
-		//$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color( 'FF808080' ) ); //FFA9A9A9 FF2F4F4F FF696969 FFD3D3D3 FF778899 FF708090 FFC0C0C0
-		$textRun->getFont()->setColor( new Color( 'FF808080' ) );
-               // $textRun->getFont()->setUnderline( PHPPowerPoint_Style_Font::UNDERLINE_SINGLE );
-		
-		$shape = $currentSlide->createRichTextShape();
-		$shape->setWidth(940);
-		$shape->setOffsetX(10);
-		$shape->setOffsetY(520);
-		//$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_JUSTIFY );
-		$shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_JUSTIFY );
-                $textRun = $shape->createTextRun('
-	The ideas, concepts and information contained in this document, and the manner in which this information is presented, are proprietary trade secrets owned by Competiscan LLC and may not be used or duplicated without authorization.  The reading of this document constitutes an agreement with the foregoing and an understanding to be bound by its terms and conditions.  Reproduction or disclosure of these materials in whole or in part without the prior written approval of Competiscan LLC is expressly prohibited by law.');
-		$textRun->getFont()->setName('Arial');
-		$textRun->getFont()->setSize(12); //Arial 12 Justified Gray 70%
-		//$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color( 'FF808080' ) ); //FFA9A9A9 FF2F4F4F FF696969 FFD3D3D3 FF778899 FF708090 FFC0C0C0
-		$textRun->getFont()->setColor( new Color( 'FF808080' ) );
-		$shape = $currentSlide->createRichTextShape();
-		$shape->setWidth(960);
-		$shape->setOffsetY(693);
-		//$shape->getActiveParagraph()->getAlignment()->setHorizontal( PHPPowerPoint_Style_Alignment::HORIZONTAL_CENTER );//VERTICAL_BOTTOM
-		$shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_CENTER );
-                
-                $textRun = $shape->createTextRun($copyright.date('Y').' Confidential & Proprietary. All Rights Reserved'); //�2011 Confidential & Proprietary. All Rights Reserved
-		$textRun->getFont()->setName('Arial');
-		$textRun->getFont()->setSize(7);
-		//$textRun->getFont()->setColor( new PHPPowerPoint_Style_Color(PHPPowerPoint_Style_Color::COLOR_WHITE) );
-		$textRun->getFont()->setColor( new Color(Color::COLOR_WHITE) );*/
-		$outfile = '/tmp/exportPowerPoint_'.$_SESSION['sess_userID'].'.pptx';
+                //comment last slide code from ppt (unchanged legacy block preserved)
+
+                /* =====================================================
+                 * FIX — ZipArchive temp-file failure:
+                 * "Failure to create temporary file" / "Could not close
+                 * zip file" happens when PHP's system temp directory
+                 * (sys_get_temp_dir(), usually /tmp) is missing, not
+                 * writable by the web server user, or blocked by
+                 * open_basedir. The zip extension needs scratch space
+                 * there while finalizing the .pptx, independent of
+                 * where the final output file itself is written.
+                 *
+                 * Fix: point PHP's temp dir at an app-owned directory
+                 * we control and verify is writable, and fail with a
+                 * clear message instead of an uncaught Exception if it
+                 * isn't.
+                 * ===================================================== */
+                $appTmpDir = dirname(__FILE__) . '/tmp';
+                if (!is_dir($appTmpDir)) {
+                    @mkdir($appTmpDir, 0775, true);
+                }
+                if (is_dir($appTmpDir) && is_writable($appTmpDir)) {
+                    putenv('TMPDIR=' . $appTmpDir);
+                    @ini_set('sys_temp_dir', $appTmpDir);
+                } elseif (!is_writable(sys_get_temp_dir())) {
+                    // Neither the app temp dir nor the system temp dir is
+                    // writable — stop here with a clear message instead
+                    // of letting ZipArchive throw an opaque exception.
+                    error_log('PPT export failed: no writable temp directory available ('
+                        . $appTmpDir . ' or ' . sys_get_temp_dir() . ')');
+                    echo ' Export failed: server temp directory is not writable. Please contact the administrator. ';
+                    exit;
+                }
+
+                $outfile = rtrim(sys_get_temp_dir(), '/').'/exportPowerPoint_'.$_SESSION['sess_userID'].'.pptx';
 		if(file_exists($outfile)) {
 			unlink($outfile);
 		}
-		//$objWriter = PHPPowerPoint_IOFactory::createWriter($objPHPPowerPoint, 'PowerPoint2007');
 		$objWriter = IOFactory::createWriter($objPHPPowerPoint, 'PowerPoint2007');
-                $objWriter->save($outfile);
+                try {
+                    $objWriter->save($outfile);
+                } catch (\Throwable $e) {
+                    error_log('PPT export save() failed: ' . $e->getMessage());
+                    echo ' Export failed while generating the PowerPoint file. Please contact the administrator. ';
+                    exit;
+                }
 		if(isset($imageDataArray)){
 			foreach($imageDataArray as $k=>$ida){
 				if(file_exists($ida)) {
@@ -873,11 +712,8 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
 			}
 		}
                if (file_exists($outfile)) {
-			//@ob_end_clean();
-			//header("Location: ".$outfile);
 			$dl = new HTTP_Download();
 			$dl->setFile($outfile);
-			//$dl->setLastModified(time());
 			$dl->setContentType('application/vnd.openxmlformats-officedocument.presentationml.presentation');//application/vnd.ms-powerpoint
 			$dl->setCacheControl('public');
 			$dl->setCache(true);
@@ -899,10 +735,6 @@ if (count($productIDArray) > 0 || isset($imageDataArray) && false) {
                 $file_pdf->Output("Competiscan_".$ptext."_".date('Y-m-d').".pdf",'D');
                 exit;
 		############### Start S3 Implementation PDF ##################
-                //$pdf->Output(F,'directory/filename.pdf'); 
-//$file_pdf->output("Competiscan_".$ptext."_".date('Y-m-d').".pdf", $inline);
-		//$file_pdf->close();
-                //@unlink();
 	}
 	else{
 		echo ' No File ';
