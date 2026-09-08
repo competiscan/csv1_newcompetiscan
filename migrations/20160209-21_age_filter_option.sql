@@ -1,0 +1,1 @@
+INSERT INTO `cscan_age_product` (`age_pID`, `age_pname`, `age_pmin`, `age_pmax`, `age_psort`)VALUES (9, '21-29', 21, 29, 2);

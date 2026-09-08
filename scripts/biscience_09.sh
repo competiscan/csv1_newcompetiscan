@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /srv/httpd/competiscan.com/html/scripts/
+pgrep -f biscience_execute_09.sh || /bin/sh biscience_execute_09.sh

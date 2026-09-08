@@ -1,0 +1,28 @@
+/*
+Theme Name: Competiscan Custom
+Theme URI: https://www.competiscan.com/
+Author: NMG Technologies
+Description: Hand-built custom theme converted 1:1 from the Competiscan static HTML build. No page builders, no ACF, no theme generators — native WordPress template files only. Actual styles live in assets/css/style.css and assets/css/responsive.css, which are copied verbatim from the HTML source.
+Version: 1.0.0
+Requires at least: 5.9
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: competiscan-custom
+Tags: custom-menu, featured-images, translation-ready
+*/
+
+/*
+ * This file intentionally contains no rules.
+ *
+ * WordPress requires style.css purely to identify the theme. The real
+ * stylesheets are the untouched originals from the HTML build:
+ *
+ *   assets/css/style.css       (enqueued as competiscan-style)
+ *   assets/css/responsive.css  (enqueued as competiscan-responsive)
+ *
+ * They are copied byte-for-byte from the source, and because they live in
+ * assets/css/ their relative url(../images/...) references resolve against
+ * assets/images/ with no edits. Do not move them without re-checking those paths.
+ */

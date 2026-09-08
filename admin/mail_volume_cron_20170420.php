@@ -1,0 +1,74 @@
+#!/usr/bin/php
+<?php date_default_timezone_set('America/Chicago');
+require_once("../includes/ehLog_set.php");
+$ehL->start(__FILE__);
+ini_set("memory_limit","-1");
+set_time_limit(0);
+require_once("../includes/dbcon.php");
+$DRW->databaseReadWrite_die = 1;
+require_once '../includes/functions.php';
+require_once '../includes/MailVolumeCalculator.php';
+
+$mvcalc = new MailVolumeCalculator();
+
+$factor = 1.88;
+
+//$result = $DRW->query("SELECT MIN(addedToDatabase) FROM cscan_product_detail WHERE productStatus=1 AND addedToDatabase>'1900-01-01 00:00:00'",$DRW_read);
+//$data = $DRW->fetch_row($result);
+//if($data[0]!='') {
+//	$start_year = (int)substr($data[0],0,4);
+//}
+//else {
+	$start_year = 2009;
+//}	
+$to_year = (int)date('Y');
+$month_name = array('01'=>"January",'02'=>"February",'03'=>"March",'04'=>"April",'05'=>"May",'06'=>"June",'07'=>"July",'08'=>"August",'09'=>"September",'10'=>"October",'11'=>"November",'12'=>"December");
+
+$dopost = false;
+$time = time();
+$H = (int)date('H',$time);
+if($H==11){ //3,7,11,15,19
+	$doall = true;
+	$start_month = 0;
+}
+else{
+	$doall = false;
+	$newts = strtotime('-4 months');
+	$start_year = date('Y',$newts);
+	$start_month = date('n',$newts);
+}
+if($H==19){
+	$dopost = true;
+}
+
+if($doall){
+	$mvcalc->doPreMailVolume();
+}	
+for($i=$start_year;$i<=$to_year;$i++){
+	foreach($month_name as $key=>$value){
+		if($i==$start_year && intval($key)<$start_month){
+			continue;
+		}
+		
+		$calc_date = $i.'-'.$key;
+		$calc_date_range1 = $calc_date.'-01 00:00:00';
+		$ctime = strtotime($calc_date_range1);
+		$ctime += 2851200; //33 days
+		$calc_date_range2 = date('Y-m',$ctime).'-01 00:00:00';
+		$sql_c = "SELECT SQL_NO_CACHE COUNT(*) FROM cscan_panelists_product WHERE ppdate>='$calc_date_range1' AND ppdate<'$calc_date_range2' AND ppaddeddate>DATE_SUB(CURDATE(),INTERVAL 5 DAY)";
+		$result_c = $DRW->query($sql_c,$DRW_read);
+		$row_c = $DRW->fetch_row($result_c);
+		if(empty($row_c[0])){
+			//$ehL->write('Skip '.$calc_date);
+			continue;
+		}
+		
+		$mvcalc->doMailVolume($i,$key,$factor);
+	}
+}
+if($doall || $dopost){
+	$mvcalc->doPostMailVolume();
+}
+
+$ehL->stop();
+?>
