@@ -1,0 +1,53 @@
+.wp-faq-schema-item {
+	border: 1px solid #ccd0d4;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+.wp-faq-schema-item.close {
+	padding-bottom: 0;
+}
+
+.wp-faq-schema-item .wp-faq-schema-header {
+	border-bottom: 1px solid #ccd0d4;
+	padding: 10px;
+	margin: -10px;
+	margin-bottom: 0;
+	cursor: pointer;
+	position: relative;
+}
+
+.wp-faq-schema-item.close .wp-faq-schema-header {
+	border-bottom: none;
+}
+
+.wp-faq-schema.close {
+	display: none;
+}
+
+.wp-faq-schema-delete {
+	float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 100%;
+	background-color: transparent;
+	border: none;
+	color: #888888;
+}
+.wp-faq-schema-delete:hover {
+	color: #f74040;
+	cursor: pointer;
+}
+
+.wfs-export-message span {
+	display: inline-block;
+    background-color: #fff;
+    padding: 8px 20px;
+    margin-top: 10px;
+    border-left: 2px solid green;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.wfs-export-message span.error {
+    border-left-color: red;
+}

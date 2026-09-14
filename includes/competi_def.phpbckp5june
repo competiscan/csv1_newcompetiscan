@@ -1,0 +1,255 @@
+<?php
+date_default_timezone_set('America/Chicago');
+
+$show_errors =false;
+$show_errors =true;
+if($show_errors){
+		error_reporting( E_ALL ^ E_DEPRECATED );
+			ini_set('display_errors',1);
+			$DRW_die = 1;
+}
+else{
+		$DRW_die = 0;
+}
+ $ips = array();
+ //$ips['floating_writer'] = 'newprod-rds.cluster-cyvqwrvzthv4.us-east-1.rds.amazonaws.com';
+
+ //$ips['competi_competidb'] = 'newreplica.cyvqwrvzthv4.us-east-1.rds.amazonaws.com';
+//$ips['floating_writer'] = 'CompetiscanV2DB.local';
+$ips['floating_writer'] = 'historical-database-uat.proxy-cmm7qqaqgcgs.us-west-2.rds.amazonaws.com';
+
+//$ips['competi_competidb'] = '52.44.133.155';
+//$ips['competi_competidb'] = '34.224.108.197';
+// $SPHINX_server = '172.19.32.114';
+ $SPHINX_ids = array();
+ $SPHINX_ids = array('src_prod'=>1,'src_prod2'=>2,'src_prod_e'=>3,'partitions'=>10);
+
+ $force_db = '';
+
+
+ $office_ips = array();
+
+ $DRW_die = 0;
+ $ports = array();
+ $ports['main_db'] = 3306; 
+ $ports['main_sphinx'] = 9312; 
+
+
+$SPHINX_server = '';
+
+//if((strstr($_SERVER['PHP_SELF'],'imap.php')==true) || (strstr($_SERVER['PHP_SELF'],'imap_test.php')==true) || (strstr($_SERVER['PHP_SELF'], 'cron_job_content_site.php') == true)){
+   //$SPHINX_server = '172.19.40.197';
+  // $SPHINX_server = '172.19.32.114';
+//}else{
+   //$SPHINX_server = '172.19.32.114';
+  // $SPHINX_server = '172.19.40.197';
+//}
+
+//$SPHINX_server = '172.19.32.114';
+$SPHINX_server = '172.19.40.197';
+
+
+ $DRW_connections = array();
+ $conn_hostname=$ips['floating_writer'];
+
+// $conn_username = "prodadmin"; 
+// $conn_password = "Xohv3iewotezu8ah"; 
+ $conn_username = "auroraprod2admin";
+ $conn_password ="2VqvG2J4C1UmSDe4mEYRQneQ2";
+ $connread_username = "auroraprod2admin";
+ $connread_password = "2VqvG2J4C1UmSDe4mEYRQneQ2";
+ $conn_database = "competi_competidb"; 
+ $DRW_main = 'main';
+
+
+ $DRW_read = $DRW_main;
+ //$DRW_connections[$DRW_main] = array($conn_hostname,$conn_username,$conn_password,$conn_database,false);
+
+ //$DRW_read =$ips['competi_competidb'];
+ 
+$DRW_connections[$DRW_main] = array($conn_hostname,$conn_username,$conn_password,$conn_database,false);
+
+// $DRW_connections[$DRW_read] = array($DRW_read,$connread_username,$connread_password,$conn_database,true);
+
+############# for the 2nd slave database server ######################
+
+ $connread2_username = "auroraprod2admin";
+ $connread2_password = "2VqvG2J4C1UmSDe4mEYRQneQ2";
+ $connread2_database = "competi_competidb";
+ $DRW_read2 = 'historical-database-uat.proxy-cmm7qqaqgcgs.us-west-2.rds.amazonaws.com';
+ 
+ // for set the read2 and read same
+ $DRW_read2 =$DRW_read;
+
+ 
+
+$DRW_read2 =$DRW_read=$DRW_main;
+
+ //$DRW_connections[$DRW_read2] = array($DRW_read2,$connread2_username,$connread2_password,$connread2_database,true);
+
+############ end for the 2nd slave database server ####################
+
+
+ if(!empty($_SERVER['HTTP_HOST'])){ 
+	 	$host = strtolower($_SERVER['HTTP_HOST']);
+ }
+ else{
+	 	$host = '';
+ }
+
+
+
+ $exp = explode('.',php_uname('n'));
+ $idrole = $exp[0];
+// if(empty($force_db)){
+//	 	if( strpos($host,$ips['floating_writer'])!==false){
+//				$force_db = 'competi_competidb';
+//							
+//						$conn_hostname = $ips['floating_writer'];
+//						$DRW_connections[$DRW_main] = array($conn_hostname,$conn_username,$conn_password,$conn_database,true);
+//							}
+//			if(strpos($host,$ips['competi_competidb'])!==false){
+//						$force_db = 'competi_competidb';
+//								$DRW_read = $force_db;
+//							$conn_hostname = $ips['competi_competidb'];
+//							$DRW_connections[$DRW_read] = array($conn_hostname,$conn_username,$conn_password,$conn_database,true);
+//								}
+//			
+ //}
+
+
+ $SPHINX_port = 9312;
+
+
+ $crm_conn_hostname= $ips['floating_writer'];
+ $crm_conn_port = $ports['main_db'];
+// $crm_conn_username = "prodadmin"; 
+// $crm_conn_password = "Xohv3iewotezu8ah"; 
+ $crm_conn_username = "cpompetiadmin";
+ $crm_conn_password = "DkJ`jAJgPLd#d7HV{<{c";
+ $crm_conn_database = "competiscan_crmpro"; 
+ $DRW_crm = 'crm';
+# $DRW_connections[$DRW_crm] = array($crm_conn_hostname,$crm_conn_username,$crm_conn_password,$crm_conn_database,false,$crm_conn_port);
+
+// This is for digital Mobile
+
+ $digital_conn_hostname= "172.19.39.188";
+ $digital_conn_port = "3306";
+ $digital_conn_username = "root";
+ $digital_conn_password = "N@sJDfujUEutlnl@2asf@43";
+ $digital_conn_database = "mobile_digital";
+ $DRW_digital = 'digital';
+ #$DRW_connections[$DRW_digital] = array($digital_conn_hostname,$digital_conn_username,$digital_conn_password,$digital_conn_database,false,$digital_conn_port);
+
+
+
+
+
+ $SPHINX_port = 9312;
+ //$SPHINX_server = '172.19.32.114'; 
+ $DRW_main='main';
+ $SPHINX_ids = array();
+ $SPHINX_ids[$DRW_main] = array('name'=>'prod','src'=>1,'src2'=>2,'src_e'=>3); 
+ $SPHINX_src = $SPHINX_ids[$DRW_main]['src'];
+ $SPHINX_src2 = $SPHINX_ids[$DRW_main]['src2'];
+ $SPHINX_src_e = $SPHINX_ids[$DRW_main]['src_e'];
+ $SPHINX_name = $SPHINX_ids[$DRW_main]['name'];
+
+
+
+
+
+ if($force_db=='floating_writer_demo'){
+	 	error_reporting( E_ALL ^ E_DEPRECATED );
+			ini_set('display_errors',1);
+			$DRW_die = 1;
+ }
+
+
+ $FCKEDITORNAME = 'FCKeditor2_6_6';
+ $COOKIEDOMAIN = preg_replace('/^www(.+)/','$1',$host);
+ if(strpos($COOKIEDOMAIN, '.')!==0) {
+	 	$COOKIEDOMAIN = '.'.$COOKIEDOMAIN;
+ }
+ if(!empty($_SERVER['PHP_SELF'])){
+	 	$COOKIEPATH = dirname($_SERVER['PHP_SELF']);
+			if(substr($COOKIEPATH,-1,1)!='/') {
+						$COOKIEPATH .= '/';
+							}
+ }
+ else{
+	 	$COOKIEPATH = '';
+ }
+
+
+
+############### s3 for s3 credential ###################
+//echo $host;
+
+if(!defined('ENV')){
+        define('ENV',getenv('SERVER_NAME'));
+}
+if(ENV=='localhost'){
+        $serverbaseurl  =       $_SERVER['DOCUMENT_ROOT'].'/psv1.competiscan.com';
+}else{
+        $serverbaseurl  =       $_SERVER['DOCUMENT_ROOT'];
+}
+$serverbaseurl  =       '/srv/httpd/competiscan.com/html';
+
+//$serverbaseurl        =       '/var/www/html/competiscan.com';
+
+require $serverbaseurl.'/aws-api/aws-vendor/autoload.php';   
+   use Aws\S3\S3Client; 
+   use Aws\S3\MultipartUploader;
+   use Aws\Exception\MultipartUploadException;
+   $credentials = new Aws\Credentials\Credentials('AKIAIKJCVVD3YLAMLERQ', 'SgZJKTMj0Otse6/akg1wIY8Pdt05PX3v/V70aild');
+  // $credentials = new Aws\Credentials\Credentials('AKIAREQHN3EAZQBSPVHY', 'Dlc0s+znP+mKoiMNYtvJxCS+gKb2bSTbmD3eCwgr');
+        
+   $s3 = new Aws\S3\S3Client([
+    'version'     => 'latest',
+    'region'      => 'us-east-1',
+    'credentials' => $credentials
+]);
+$bucket_name = 'csbucket007'; 
+
+
+/*
+   require $serverbaseurl.'/aws-api/aws-vendor/autoload.php';
+   use Aws\S3\S3Client;
+   use Aws\S3\MultipartUploader;
+   use Aws\Exception\MultipartUploadException;
+   use Aws\Exception\AwsException;
+   //$credentials = new Aws\Credentials\Credentials('AKIAREQHN3EAZQBSPVHY', 'Dlc0s+znP+mKoiMNYtvJxCS+gKb2bSTbmD3eCwgr');
+
+   $s3 = new Aws\S3\S3Client([
+    'version'     => 'latest',
+    'region'      => 'us-east-1',
+    'profile'     =>'competiscan-files'
+   // 'credentials' => $credentials
+]);
+//echo   $serverbaseurl.'/aws-api/aws-vendor/autoload.php';
+//print_r($s3);
+   //exit;
+ */
+$bucket_name = 'competiscan-files';
+$s3URL = 'https://s3.amazonaws.com/';
+$displays3URL = 'https://files.competiscan.com/';
+$s3FileUrl='https://e6vze45r56.execute-api.us-east-1.amazonaws.com/Stage/';
+if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
+    $IAM_KEY_TR = 'AKIAIKJCVVD3YLAMLERQ';
+    $IAM_SECRET_TR = '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';
+    $bucket_name_tr = 'nmgtesttranscribe';
+    $bucket_name_od_tr='nmg-image-rekognition';
+    
+} else{
+    $IAM_KEY_TR = 'AKIAREQHN3EAZQBSPVHY';
+    $IAM_SECRET_TR = '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';
+    $bucket_name_tr= $bucket_name_od_tr= 'competiscan-files';  
+   
+}
+############### end for s3 credential ##################
+$anotationToolDataUrl = 'https://ml-anotation.competiscan.com/v2/muid-data/';
+$anotationToolDataAnalysisURL='https://ml-anotation.competiscan.com/v2/data-analysis/';
+$displays3CSV2URL='https://files.v2.competiscan.com/';
+?>
+
