@@ -37,6 +37,19 @@
 }
 .cs-ctm ::placeholder { color: rgb(165,173,180); opacity: 1; }
 
+/* Really Simple CAPTCHA field added to the contact + white-paper forms: the
+   generated code image on the left, the answer input inline on the right.
+   contact.css is enqueued site-wide, so this covers all the forms; the input
+   inherits each form's branded field style via .wpcf7-form-control. */
+.cs-captcha-row { margin: 0 0 16px; }
+/* CF7 wraps the captcha fields in a <p> with a <br> between the image and the
+   answer input; flex the <p> and drop the break so they sit inline. */
+.cs-captcha-row > p { display: flex; align-items: center; gap: 16px; margin: 0; }
+.cs-captcha-row br { display: none; }
+.cs-captcha-row img.wpcf7-captchac { display: block; height: 44px; width: auto; flex: 0 0 auto; }
+.cs-captcha-row .wpcf7-form-control-wrap { flex: 1 1 auto; min-width: 0; }
+.cs-captcha-row input.wpcf7-captchar { width: 100%; margin: 0 !important; }
+
 .cs-ctm .wpcf7-submit {
   width: 100%; margin-top: 4px; padding: 15px 26px; border: none; border-radius: 10px;
   background: rgb(0,75,129); color: rgb(255,255,255); font-family: inherit; font-size: 16px;

@@ -147,6 +147,29 @@ function competiscan_arrow_svg() {
 	return '<svg width="14" height="10" viewBox="0 0 16 12" fill="none"><path d="M1 6H15M15 6L10 1M15 6L10 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
 
+/**
+ * Featured-article thumbnail URL for the current (or given) post.
+ *
+ * Returns the post's WordPress Featured Image (managed from the admin). When a
+ * post has no Featured Image set, it falls back to the shared "No Image"
+ * placeholder — never a hardcoded per-article image. Single source of truth used
+ * by every article card so the behaviour is identical everywhere.
+ *
+ * @param int|null $post_id Post ID; defaults to the current post in the loop.
+ * @param string   $size    Image size. Default 'large'.
+ * @return string Image URL.
+ */
+function competiscan_article_thumbnail_url( $post_id = null, $size = 'large' ) {
+	$post_id = $post_id ? (int) $post_id : get_the_ID();
+	$url     = $post_id ? get_the_post_thumbnail_url( $post_id, $size ) : '';
+
+	if ( ! $url ) {
+		$url = get_template_directory_uri() . '/assets/images/no-image.png';
+	}
+
+	return $url;
+}
+
 require_once get_template_directory() . '/inc/class-competiscan-nav-walker.php';
 require_once get_template_directory() . '/inc/class-competiscan-mobile-nav-walker.php';
 require_once get_template_directory() . '/inc/nav-fallbacks.php';
