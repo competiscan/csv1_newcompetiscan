@@ -2152,7 +2152,7 @@ a .badge-new {
 }
 .free-subscribe .newsletter-form .noptin-form-field-wrapper {
   margin: 0;
-  padding: 0;
+  padding: 0; max-width: 100%;
 }
 .free-subscribe .newsletter-form .noptin-form-field-email,
 .free-subscribe .newsletter-form .noptin-form-notice {
@@ -2573,7 +2573,7 @@ a.link-arrow {
   color: #004b81;
 }
 form.newsletter-form input {
-  border-radius: 7px;
+  border-radius: 7px; max-width: 100% !important;
 }
 .industry-list .for_mobile {
   display: none;
@@ -2625,7 +2625,7 @@ span.copy-right{width: 35px; height: 35px; display: inline-flex;}
     header.site-header .btn {
     line-height: normal;
 }
-body.home .hero-media:before {
+/*body.home .hero-media:before {
     position: absolute;
     left: 0;
     bottom: -43px;
@@ -2634,4 +2634,24 @@ body.home .hero-media:before {
     border-radius: 8px;
     background: rgb(203, 227, 242);
     content: "";
+}*/
+.float-card.card-consumer a {
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
 }
+.cs-captcha-row {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 16px;
+    padding: 2px 16px 2px 5px;
+    border: 1px solid rgb(214, 226, 234);
+    border-radius: 10px;
+    background: rgb(255, 255, 255);
+    font-family: inherit;
+    font-size: 16px;
+    color: rgb(0, 30, 51);
+    transition: border-color 0.14s ease, box-shadow 0.14s ease; 
+}
+.cs-captcha-row input, .cs-captcha-row input:focus, .cs-captcha-row input:hover{border:0 !important ; outline: none !important;box-shadow: none !important}
+.cs-captcha-row p{display:flex;}

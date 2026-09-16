@@ -54,6 +54,68 @@ function competiscan_contact_form_id() {
 }
 
 /**
+ * The CF7 forms that get the Really Simple CAPTCHA image field: the "Get In Touch"
+ * contact form plus both white-paper lead forms (Market Intelligence Database + AI
+ * Toolkit).
+ *
+ * @return int[]
+ */
+function competiscan_captcha_form_ids() {
+	$ids = array();
+	if ( function_exists( 'competiscan_contact_form_id' ) ) {
+		$ids[] = (int) competiscan_contact_form_id();
+	}
+	if ( function_exists( 'competiscan_whitepaper_form_id' ) ) {
+		$ids[] = (int) competiscan_whitepaper_form_id();
+	}
+	if ( function_exists( 'competiscan_aitk_whitepaper_form_id' ) ) {
+		$ids[] = (int) competiscan_aitk_whitepaper_form_id();
+	}
+	return array_values( array_filter( array_unique( $ids ) ) );
+}
+
+/**
+ * Add a Really Simple CAPTCHA image field to the targeted CF7 forms so they are
+ * protected against bots with no external keys required.
+ *
+ * Injected at load time via CF7's own properties filter — the stored forms are never
+ * modified (the team can still edit them in the admin), and removing this function
+ * removes the captcha. Skips a form that already has a captcha. CF7's captcha module
+ * validates the [captchar] answer against the [captchac] image before the mail is
+ * sent (uses the active Really Simple CAPTCHA plugin for image generation).
+ *
+ * @param array  $properties   The CF7 form properties.
+ * @param object $contact_form The WPCF7_ContactForm instance.
+ * @return array
+ */
+function competiscan_add_captcha_to_forms( $properties, $contact_form ) {
+	if ( ! is_object( $contact_form ) || ! method_exists( $contact_form, 'id' ) ) {
+		return $properties;
+	}
+	if ( ! in_array( (int) $contact_form->id(), competiscan_captcha_form_ids(), true ) ) {
+		return $properties;
+	}
+	if ( empty( $properties['form'] ) || false !== strpos( $properties['form'], 'captchac' ) ) {
+		return $properties;
+	}
+
+	$captcha =
+		'<div class="cs-captcha-row">' . "\n" .
+		'  [captchac cs-captcha size:120x40]' . "\n" .
+		'  [captchar cs-captcha placeholder "Enter the code above"]' . "\n" .
+		"</div>\n\n";
+
+	if ( false !== strpos( $properties['form'], '[submit' ) ) {
+		$properties['form'] = preg_replace( '/(\[submit)/', $captcha . '$1', $properties['form'], 1 );
+	} else {
+		$properties['form'] .= "\n" . $captcha;
+	}
+
+	return $properties;
+}
+add_filter( 'wpcf7_contact_form_properties', 'competiscan_add_captcha_to_forms', 10, 2 );
+
+/**
  * The white-paper lead form used in the Market Intelligence Database page.
  *
  * @return int

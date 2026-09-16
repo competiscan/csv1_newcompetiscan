@@ -100,11 +100,10 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
             while ( $competiscan_insights->have_posts() ) :
               $competiscan_insights->the_post();
               $competiscan_i++;
-              $competiscan_thumb = get_the_post_thumbnail_url( get_the_ID(), 'large' );
-              if ( ! $competiscan_thumb ) {
-                $competiscan_thumb = get_template_directory_uri() . '/assets/images/pic-' . ( ( ( $competiscan_i - 1 ) % 9 ) + 1 ) . '.png';
-              }
-              $competiscan_cats = get_the_category();
+              // Featured Image (managed in the admin) with the shared "No Image"
+              // placeholder fallback — no hardcoded per-article images.
+              $competiscan_thumb = competiscan_article_thumbnail_url();
+              $competiscan_cats  = get_the_category();
               $competiscan_tag  = ! empty( $competiscan_cats ) ? $competiscan_cats[0]->name : __( 'Articles', 'competiscan-custom' );
               ?>
           <article class="article-card">

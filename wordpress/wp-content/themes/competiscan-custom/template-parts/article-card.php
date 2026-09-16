@@ -2,8 +2,9 @@
 /**
  * One article card, as used by the Insights grid, archives and search results.
  *
- * Expects to run inside the loop. Falls back to pic-1.png when a post has no
- * featured image so the grid never renders a hole.
+ * Expects to run inside the loop. The thumbnail is the post's WordPress Featured
+ * Image (managed from the admin), falling back to the shared "No Image"
+ * placeholder — see competiscan_article_thumbnail_url().
  *
  * @package Competiscan_Custom
  */
@@ -12,9 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$thumb = has_post_thumbnail()
-	? get_the_post_thumbnail_url( get_the_ID(), 'large' )
-	: get_template_directory_uri() . '/assets/images/pic-1.png';
+$thumb = competiscan_article_thumbnail_url();
 
 // The pill label: first category name, matching the "Articles" tag in the source.
 $terms = get_the_category();
