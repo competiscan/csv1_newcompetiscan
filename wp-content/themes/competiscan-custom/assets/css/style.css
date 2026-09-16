@@ -2503,7 +2503,7 @@ a .badge-new {
   object-fit: contain;
 }
 
-/* Sections are transparent — the single page backdrop comes from body. */
+
 .industrie-section,
 .tracking {
   position: relative;
