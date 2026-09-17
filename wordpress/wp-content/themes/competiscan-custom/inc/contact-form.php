@@ -165,8 +165,8 @@ function competiscan_create_whitepaper_form() {
 	$props['form']                       = $form_body;
 	$props['mail']['active']             = true;
 	$props['mail']['subject']            = 'White Paper Request: [your-first-name] [your-last-name]';
-	$props['mail']['sender']             = 'competiscan <preeti.mittal@nmgtechnologies.com>';
-	$props['mail']['recipient']          = 'preeti.mittal@nmgtechnologies.com';
+	$props['mail']['sender']             = 'competiscan <jyoti.rani@nmgtechnologies.com>';
+	$props['mail']['recipient']          = 'contactus@competiscan.com';
 	$props['mail']['additional_headers'] = 'Reply-To: [your-email]';
 	$props['mail']['body']               = "White paper requested: Turning Credit Card Onboarding into Continuous Growth\n\nFrom: [your-first-name] [your-last-name]\nEmail: [your-email]\nCompany: [your-company]\nRole: [your-role]\nIndustry: [your-industry]";
 
@@ -265,8 +265,8 @@ function competiscan_create_aitk_whitepaper_form() {
 	$props['form']                       = $body;
 	$props['mail']['active']             = true;
 	$props['mail']['subject']            = 'AI Toolkit Case Study Request: [firstname]';
-	$props['mail']['sender']             = 'competiscan <preeti.mittal@nmgtechnologies.com>';
-	$props['mail']['recipient']          = 'preeti.mittal@nmgtechnologies.com';
+	$props['mail']['sender']             = 'competiscan <jyoti.rani@nmgtechnologies.com>';
+	$props['mail']['recipient']          = 'contactus@competiscan.com';
 	$props['mail']['additional_headers'] = 'Reply-To: [email]';
 	$props['mail']['body']               = "AI Toolkit case study requested: Design best practices from Spring 2026's highest-volume mailers\n\nName: [firstname]\nEmail: [email]\nCompany: [company]";
 
