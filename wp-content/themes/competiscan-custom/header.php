@@ -43,11 +43,24 @@
     ?>
 
     <div class="header-actions">
-      <?php
-      $competiscan_login_page = get_page_by_path( 'client-login' );
-      $competiscan_login_url  = $competiscan_login_page ? get_permalink( $competiscan_login_page ) : home_url( '/client-login/' );
-      ?>
-      <a href="https://demo1.competiscan.com/login.php"  class="btn btn-outline">Client Login</a>
+      <?php if ( ! empty( $_SESSION['user_id'] ) ) : ?>
+        <!-- Logged In -->
+        <div class="nav-dropdown">
+          <button class="nav-dropdown__toggle" aria-haspopup="true" aria-expanded="false">
+            Profile
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="nav-dropdown__menu">
+            <a href="https://demo1.competiscan.com/change_password.php">Change Password</a>
+            <a href="https://demo1.competiscan.com/logout.php">Logout</a>
+          </div>
+        </div>
+      <?php else : ?>
+        <!-- Logged Out -->
+        <a href="https://demo1.competiscan.com/login.php" class="btn btn-outline">Client Login</a>
+      <?php endif; ?>
       <a href="#" class="btn btn-primary">Contact Us</a>
       <button class="hamburger" aria-label="Open menu"><span></span></button>
     </div>
@@ -76,11 +89,12 @@
   );
   ?>
   <div class="header-actions">
-    <?php
-    $competiscan_login_page = get_page_by_path( 'client-login' );
-    $competiscan_login_url  = $competiscan_login_page ? get_permalink( $competiscan_login_page ) : home_url( '/client-login/' );
-    ?>
-    <a href="https://demo1.competiscan.com/login.php"  class="btn btn-outline">Client Login</a>
-    <a href="#" class="btn btn-primary">Contact Us</a>    
+    <?php if ( ! empty( $_SESSION['user_id'] ) ) : ?>
+      <a href="https://demo.competiscan.com/change_password.php" class="btn btn-outline">Change Password</a>
+      <a href="https://demo.competiscan.com/logout.php" class="btn btn-outline">Logout</a>
+    <?php else : ?>
+      <a href="https://demo1.competiscan.com/login.php" class="btn btn-outline">Client Login</a>
+    <?php endif; ?>
+    <a href="#" class="btn btn-primary">Contact Us</a>
   </div>
 </div>

@@ -44,6 +44,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  /* ---------- Header "Profile" dropdown (client-login state) ---------- */
+  document.querySelectorAll('.nav-dropdown').forEach(function (dd) {
+    var toggle = dd.querySelector('.nav-dropdown__toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var isOpen = dd.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('.nav-dropdown.open').forEach(function (dd) {
+      if (!dd.contains(e.target)) {
+        dd.classList.remove('open');
+        var t = dd.querySelector('.nav-dropdown__toggle');
+        if (t) t.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.nav-dropdown.open').forEach(function (dd) {
+      dd.classList.remove('open');
+      var t = dd.querySelector('.nav-dropdown__toggle');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  });
+
   /* ---------- FAQ accordion ----------
      Moved to the shared, event-delegated handler in assets/js/faq.js so it works
      on every page (and with multiple FAQ sections). Not handled here to avoid

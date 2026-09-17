@@ -271,7 +271,6 @@ cursor: default;
     transform: translate(-50%, -50%) rotate(-45deg);
   }
 
-  /*  .mobile-nav-item{border-bottom:1px solid rgba(255,255,255,.12);}*/
   .mobile-nav-link {
     display: flex;
     align-items: center;
@@ -729,7 +728,6 @@ cursor: default;
 
   .tracking-slider .slick-slide {
     width: calc(100vw - 110px) !important;
-    /*margin-right:-20px;*/
   }
   .tracking-cards {
     position: relative;

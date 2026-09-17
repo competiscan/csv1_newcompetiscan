@@ -12,6 +12,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'COMPETISCAN_VERSION', '1.0.0' );
 
 /**
+ * Start a PHP session early so the header can read the client-login state
+ * ($_SESSION['user_id']) set by the Competiscan demo auth flow.
+ */
+function competiscan_start_session() {
+	if ( ! session_id() && ! headers_sent() ) {
+		session_start();
+	}
+}
+add_action( 'init', 'competiscan_start_session', 1 );
+
+/**
+ * TEMPORARY — localhost-only preview toggle for the header client-login state.
+ * Visit any page with ?cs_login=1 to fake a logged-in session (shows the Profile
+ * dropdown) or ?cs_login=0 to clear it (shows Client Login). Only runs on
+ * localhost/127.0.0.1 so it can never affect the live site. Remove before launch.
+ */
+function competiscan_dev_login_toggle() {
+	$host = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '';
+	$is_local = ( strpos( $host, 'localhost' ) !== false || strpos( $host, '127.0.0.1' ) !== false );
+	if ( ! $is_local || ! isset( $_GET['cs_login'] ) ) {
+		return;
+	}
+	if ( '1' === $_GET['cs_login'] ) {
+		$_SESSION['user_id'] = 999; // fake demo user
+	} else {
+		unset( $_SESSION['user_id'] );
+	}
+}
+add_action( 'init', 'competiscan_dev_login_toggle', 2 );
+
+/**
  * Theme supports and menu locations.
  */
 function competiscan_setup() {
