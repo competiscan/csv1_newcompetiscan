@@ -16,9 +16,21 @@ define( 'COMPETISCAN_VERSION', '1.0.0' );
  * ($_SESSION['user_id']) set by the Competiscan demo auth flow.
  */
 function competiscan_start_session() {
-	if ( ! session_id() && ! headers_sent() ) {
-		session_start();
+	if ( PHP_SESSION_ACTIVE === session_status() || headers_sent() ) {
+		return;
 	}
+	// Use a domain-wide cookie path so WordPress reads the SAME PHP session that
+	// the demo login app (login.php, same domain) started — otherwise a session
+	// created under a sub-path wouldn't expose $_SESSION['user_id'] to the header.
+	$params = session_get_cookie_params();
+	session_set_cookie_params(
+		0,
+		'/',
+		$params['domain'],
+		! empty( $_SERVER['HTTPS'] ),
+		true
+	);
+	session_start();
 }
 add_action( 'init', 'competiscan_start_session', 1 );
 
