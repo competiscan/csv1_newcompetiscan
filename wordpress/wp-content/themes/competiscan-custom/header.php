@@ -53,13 +53,14 @@
             </svg>
           </button>
           <div class="nav-dropdown__menu">
-            <a href="https://demo1.competiscan.com/change_password.php">Change Password</a>
-            <a href="https://demo1.competiscan.com/logout.php">Logout</a>
+            <a href="<?php echo esc_url( home_url( '/fullsearch.php?searchview=2' ) ); ?>">Power Search</a>
+            <a href="<?php echo esc_url( home_url( '/change_password.php' ) ); ?>">Change Password</a>
+            <a href="<?php echo esc_url( home_url( '/logout.php' ) ); ?>">Logout</a>
           </div>
         </div>
       <?php else : ?>
         <!-- Logged Out -->
-        <a href="https://demo1.competiscan.com/login.php" class="btn btn-outline">Client Login</a>
+        <a href="<?php echo esc_url( home_url( '/login.php' ) ); ?>" class="btn btn-outline">Client Login</a>
       <?php endif; ?>
       <a href="#" class="btn btn-primary">Contact Us</a>
       <button class="hamburger" aria-label="Open menu"><span></span></button>
@@ -89,11 +90,12 @@
   );
   ?>
   <div class="header-actions">
-    <?php if ( ! empty( $_SESSION['sess_username'] ) ) : ?>
-      <a href="https://demo.competiscan.com/change_password.php" class="btn btn-outline">Change Password</a>
-      <a href="https://demo.competiscan.com/logout.php" class="btn btn-outline">Logout</a>
+   <?php if ( ! empty( $_SESSION['sess_username'] ) ) : ?>
+      <a href="<?php echo esc_url( home_url( '/fullsearch.php?searchview=2' ) ); ?>">Power Search</a>
+      <a href="<?php echo esc_url( home_url( '/change_password.php' ) ); ?>" class="btn btn-outline">Change Password</a>
+      <a href="<?php echo esc_url( home_url( '/logout.php' ) ); ?>" class="btn btn-outline">Logout</a>
     <?php else : ?>
-      <a href="https://demo1.competiscan.com/login.php" class="btn btn-outline">Client Login</a>
+      <a href="<?php echo esc_url( home_url( '/login.php' ) ); ?>" class="btn btn-outline">Client Login</a>
     <?php endif; ?>
     <a href="#" class="btn btn-primary">Contact Us</a>
   </div>
