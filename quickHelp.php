@@ -343,7 +343,7 @@ if(!defined('ENV')){
 	}
 	else {
 		?>
-		<tr><td class="bodytext" style="height:200px;" valign="top"><a href="contactus.php" class="bottomLinks">Contact Us</a></td></tr>
+		<tr><td class="bodytext" style="height:200px;" valign="top"><a href="/#contact" class="bottomLinks">Contact Us</a></td></tr>
 		<?php
 	}
 	?>

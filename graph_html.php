@@ -90,17 +90,11 @@ else{ ?>
 	$imageDataLinks = array();
 	if(($date_choice==3 || $date_choice==2 || $date_choice==4) && $graph_choice!=14){         
 		if($bid>=0) {
-			//list($graphQuery_pre) = doQuery(0, false, '', false, $bid);
-                        list($graphQuery_pre) = doQuery_latest2(0, false, '', false, $bid);
+			list($graphQuery_pre) = doQuery_latest2(0, false, '', false, $bid);
 		}
 		else{
-			//list($graphQuery_pre) = doQuery($ssid, false, '', false);
-                        list($graphQuery_pre) = doQuery_latest2($ssid, false, '', false);
+			list($graphQuery_pre) = doQuery_latest2($ssid, false, '', false);
 		}
-		/*$graphQuery = "SELECT MIN(DATE_FORMAT(ppdate,'%Y-%m')),MAX(DATE_FORMAT(ppdate,'%Y-%m'))
-			FROM cscan_panelists_product cp 
-			JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-			WHERE ppmv>0";*/
                 ####################For display  graph chart by Dev ######################
                $graphQuery = "SELECT MIN(DATE_FORMAT(ppdate,'%Y-%m')),MAX(DATE_FORMAT(ppdate,'%Y-%m'))
 			FROM cscan_panelists_product cp 
@@ -150,6 +144,28 @@ else{ ?>
 		$SKIP_FUNCTION = true;
 		require_once('graph_img.php');
 		$imageDataArray = array();
+
+		/* =====================================================
+		 * FIX — same writable-temp-dir issue as the PPT save step:
+		 * chart images were hardcoded to /tmp, which can fail with
+		 * "Failure to create temporary file" if /tmp isn't writable
+		 * by the web server user or is blocked by open_basedir.
+		 * Resolve (and create, if needed) a temp dir we know is
+		 * writable, once, before the loop.
+		 * ===================================================== */
+		$chartTmpDir = dirname(__FILE__) . '/tmp';
+		if (!is_dir($chartTmpDir)) {
+			@mkdir($chartTmpDir, 0775, true);
+		}
+		if (!is_dir($chartTmpDir) || !is_writable($chartTmpDir)) {
+			$chartTmpDir = sys_get_temp_dir();
+		}
+		if (!is_writable($chartTmpDir)) {
+			error_log('Chart export failed: no writable temp directory available ('.$chartTmpDir.')');
+			echo ' Export failed: server temp directory is not writable. Please contact the administrator. ';
+			exit;
+		}
+
 		foreach($imageDataLinks as $k=>$idl){
 			$pieces = explode('&amp;',$idl);
 			foreach($pieces as $p){
@@ -163,11 +179,13 @@ else{ ?>
 					}
 				}
 			}
-			$savefile = '/tmp/exportPowerPointImage_'.$_SESSION['sess_userID'].'_'.$k.'.jpg';
+			$savefile = rtrim($chartTmpDir, '/').'/exportPowerPointImage_'.$_SESSION['sess_userID'].'_'.$k.'.jpg';
 			$fdata = do_graph_img(true);
-			$checkf = file_put_contents($savefile, $fdata);
+			$checkf = @file_put_contents($savefile, $fdata);
 			if($checkf!==false){
 				$imageDataArray[] = $savefile;
+			} else {
+				error_log('Chart export: failed to write chart image to '.$savefile);
 			}
 		}
 		require_once('powerpoint.php');
