@@ -90,7 +90,7 @@
   );
   ?>
   <div class="header-actions">
-    <?php if ( ! empty( $_SESSION['sess_username'] ) ) : ?>
+    <?php if (! empty( $_SESSION['sess_username'] ) ) : ?>
       <a href="<?php echo esc_url( home_url( '/fullsearch.php?searchview=2' ) ); ?>">Power Search</a>
       <a href="<?php echo esc_url( home_url( '/change_password.php' ) ); ?>" class="btn btn-outline">Change Password</a>
       <a href="<?php echo esc_url( home_url( '/logout.php' ) ); ?>" class="btn btn-outline">Logout</a>
