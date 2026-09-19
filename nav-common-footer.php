@@ -5,7 +5,7 @@
 					<!--<li class="menu-item"><a href="/services/">Services</a></li>-->
 					<?php // }?>
 					<li class="menu-item"><a href="https://demo1.competiscan.com/careers/">Careers</a></li>
-					<li class="menu-item"><a href="https://demo1.competiscan.com/insights/">Articles</a></li>
+					<li class="menu-item"><a href="https://demo1.competiscan.com/insights/">Insights</a></li>
 					<li class="menu-item"><a href="https://demo1.competiscan.com/#contact">Contact Us</a></li>
 					<?php
 					if(empty($_SESSION['sess_username'])) { // not logged in
