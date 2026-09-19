@@ -374,7 +374,6 @@ h3 {
   letter-spacing: -0.02em;
   width: 200px;
 }
-
 .main-nav {
   display: flex;
   align-items: center;
@@ -453,7 +452,7 @@ h3 {
 }
 .mega-drop-link:hover {
   background: var(--color-teal-100);
-  transform: translateY(-2px);
+  /*transform: translateY(-2px);*/
 }
 .mega-drop-link .title {
   display: flex;
@@ -472,7 +471,11 @@ h3 {
 .mega-drop-link p {
   font-size: var(--fs-xs);
   color: var(--color-text-400);
+  display: block;
+  margin: 7px 0 0;
+  font-size: 14px;
   line-height: 1.5;
+  max-width: 220px
 }
 
 /* "About Us" simple dropdown — single column, left-aligned to the label and sized

@@ -43,7 +43,7 @@
     ?>
 
     <div class="header-actions">
-      <?php if ( ! empty( $_SESSION['sess_username'] ) ) : ?>
+      <?php if ( ! empty( $_SESSION['user_id'] ) ) : ?>
         <!-- Logged In -->
         <div class="nav-dropdown">
           <button class="nav-dropdown__toggle" aria-haspopup="true" aria-expanded="false">
@@ -89,7 +89,7 @@
   );
   ?>
   <div class="header-actions">
-    <?php if ( ! empty( $_SESSION['sess_username'] ) ) : ?>
+    <?php if ( ! empty( $_SESSION['user_id'] ) ) : ?>
       <a href="https://demo.competiscan.com/change_password.php" class="btn btn-outline">Change Password</a>
       <a href="https://demo.competiscan.com/logout.php" class="btn btn-outline">Logout</a>
     <?php else : ?>
