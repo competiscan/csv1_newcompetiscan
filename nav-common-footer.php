@@ -1,12 +1,12 @@
 
-					<li class="menu-item"><a href="https://demo1.competiscan.com/about-us/">About Us</a></li>
+					<li class="menu-item"><a href="/about-us/">About Us</a></li>
 					<?php //$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 					//if(strstr($actual_link,'demo.competiscan.com')){ ?>
 					<!--<li class="menu-item"><a href="/services/">Services</a></li>-->
 					<?php // }?>
-					<li class="menu-item"><a href="https://demo1.competiscan.com/careers/">Careers</a></li>
-					<li class="menu-item"><a href="https://demo1.competiscan.com/insights/">Insights</a></li>
-					<li class="menu-item"><a href="https://demo1.competiscan.com/#contact">Contact Us</a></li>
+					<li class="menu-item"><a href="/careers/">Careers</a></li>
+					<li class="menu-item"><a href="/insights/">Insights</a></li>
+					<li class="menu-item"><a href="/#contact">Contact Us</a></li>
 					<?php
 					if(empty($_SESSION['sess_username'])) { // not logged in
 					?>
