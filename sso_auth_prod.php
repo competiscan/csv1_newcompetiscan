@@ -32,7 +32,8 @@ if(isset($_GET['code']) and $_GET['code']!=""){
    $err = curl_error($curl);
    curl_close($curl);
    if($err) {
-      echo "cURL Error #01: " . $err; die;
+      header("Location:https://competiscan.com/login_test.php"); exit;
+      //echo "cURL Error #01: " . $err; die;
    }else {
       // echo "<pre>";
       // print_r($response);
@@ -70,8 +71,7 @@ if(isset($_GET['code']) and $_GET['code']!=""){
             $rs        = $DRW->fetch_assoc($result);
             $userID    = $rs['userID'];
             $_SESSION['sess_userID']    = $userID;    
-            #header("http://localhost/competiscan.com/login_latest.php"); exit;
-            header("Location:https://competiscan.com/login_prod.php"); exit;
+            header("Location:https://competiscan.com/login_test.php"); exit;
          }
       }
       if($response['error']=='invalid_grant'){
