@@ -61,7 +61,7 @@ if(isset($_GET['code']) and $_GET['code']!="" && $sso_cleint_id!="" && $sso_doma
    $err = curl_error($curl);
    curl_close($curl);
    if($err) {
-      header("Location:https://competiscan.com/login_prod.php"); exit;
+      header("Location:https://competiscan.com/login_test.php"); exit;
       //echo "cURL Error #01: " . $err; die;
    }else {
       // echo "<pre>";
@@ -103,7 +103,7 @@ if(isset($_GET['code']) and $_GET['code']!="" && $sso_cleint_id!="" && $sso_doma
             unset($_SESSION['sso_cleint_secret']);  
             unset($_SESSION['sso_domain_name']);  
             #header("http://localhost/competiscan.com/login_test.php"); exit;
-            header("Location:https://competiscan.com/login_prod.php"); exit;
+            header("Location:https://competiscan.com/login_test.php"); exit;
          }
       }
       if($response['error']=='invalid_grant'){
