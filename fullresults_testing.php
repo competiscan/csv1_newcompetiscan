@@ -1496,7 +1496,7 @@ $buttons = '<div style="clear:both;height:5px;">&nbsp;</div><div>';
        $buttons .='</div><!--search--><!--paging-->';
 }*/
 if($search_num_of_rows > 0) {
-    $buttons .= '<div style="float:left;margin-left:0px;"><form action="myExcel1.php" method="post" name="myexceller"><input type="hidden" name="ssid" value="'.$ssid.'" /><input type="hidden" name="bid" value="'.$bid.'" /><input type="hidden" name="page" value="'.$page.'" /><input type="hidden" name="num_rec" value="'.$search_num_of_rows.'" /><input type="hidden" name="sort" value="'.$sort.'" /><input class="submitbutton" type="submit" name="myExcel" value="My Excel" /></form>';
+    $buttons .= '<div style="float:left;margin-left:0px;"><form action="myExcel2.php" method="post" name="myexceller"><input type="hidden" name="ssid" value="'.$ssid.'" /><input type="hidden" name="bid" value="'.$bid.'" /><input type="hidden" name="page" value="'.$page.'" /><input type="hidden" name="num_rec" value="'.$search_num_of_rows.'" /><input type="hidden" name="sort" value="'.$sort.'" /><input class="submitbutton" type="submit" name="myExcel" value="My Excel" /></form>';
     $buttons .='<div style="float:left;margin-left: 91px;margin-top: -36px;">';
     $buttons .='<button class="submitbutton myExcel_download">Express Download</button>
     </div>';
