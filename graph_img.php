@@ -13,328 +13,180 @@ if(!isset($SKIP_FUNCTION)){
 	do_graph_img();
 }
 
-function doGraphQuery_20190807($ssid,$graph_choice,$bid,$total_choice,$date_choice,$ym='',$ym2=''){
-	global $DRW,$DRW_read,$DRW_main;
-	$graphQuery = '';
-        $where=' Where ';
-	if($total_choice==1 || $total_choice==2){
-		if($bid>=0) {
-			//list($graphQuery) = doQuery(0, false, '', $graph_choice, $bid);
-                        list($graphQuery) = doQuery_latest2(0, false, '', $graph_choice, $bid);
-		}
-		else{
-			//list($graphQuery) = doQuery($ssid, false, '', $graph_choice);
-                        list($graphQuery) = doQuery_latest2($ssid, false, '', $graph_choice);
-		}
-	}
-	if(($total_choice>=4 && $total_choice<=10) || $date_choice==3 || $date_choice==2 || $date_choice==4){
-		if($bid>=0) {
-			//list($graphQuery_pre) = doQuery(0, false, '', false, $bid);
-                 list($graphQuery_pre) = doQuery_latest2(0, false, '', false, $bid);
-		}
-		else{
-			//list($graphQuery_pre) = doQuery($ssid, false, '', false);
-				list($graphQuery_pre) = doQuery_latest2($ssid, false, '', false);
-		}
-		$field = getDoGraph($graph_choice);
-		
-		$ppdatetext = '';
-		$dmajoin = '';
-		$appjoin = '';
-		$cpjoin = '';
-		$awhere = '';
-		$dateand = '';
-		$date_text = '';
-		$gb = '';
-		$consumer_only = false;
-		$do_bid = false;
-		
-		if($graph_choice==30){
-			$cpjoin = " JOIN cscan_panelists ON (cscan_panelists.panelist_id=cp.panelist_id) ";
-			$field = 'PZM_CODE';
-		}
-		elseif($graph_choice==31){
-			$appjoin = " LEFT JOIN cscan_panelists_appends ON (cscan_panelists_appends.panelist_id=cp.panelist_id) ";
-			$field = 'ValueScore_for_Household';
-		}
-		
-		if($date_choice==3 || $date_choice==4){//month
-			if($graph_choice==14 || (!empty($GLOBALS['chart_choice']) && $GLOBALS['chart_choice']==3)){
-				//$date_text = ",LEFT(ppdate,7)";
-                                 ####################For display  graph chart by Dev ######################
-                                $date_text = ",LEFT(addedToDatabase,7)";
-                        }
-			else{
-				$dateand = " AND ppdate>='$ym-01' AND ppdate<='$ym2-31'";
-			}
-		}
-		elseif($date_choice==2){//year
-			if($graph_choice==14 || (!empty($GLOBALS['chart_choice']) && $GLOBALS['chart_choice']==3)){
-				$date_text = ",LEFT(ppdate,4)";
-			}
-			else{
-				$dateand = " AND ppdate>='$ym-01-01' AND ppdate<='$ym2-12-31'";
-			}
-		}
-		if($ssid>0){
-			$savedQ = "SELECT addedToDatabase,month1,month2,search_panelist_date,state,gender,mPanelID,age,income_mult,DMA_ID_mult FROM cscan_search WHERE ID='".$ssid."'";
-			$rs = $DRW->query($savedQ,$DRW_read);
-			$data = $DRW->fetch_row($rs);
-			$addedToDatabase = $data[0];
-			$month1 = $data[1];
-			$month2 = $data[2];
-			$search_panelist_date = $data[3];
-			$state = trim($data[4]);
-			$gender = trim($data[5]);
-			$mPanelIDArray = explode(',',$data[6]);
-			$age = $data[7];
-			$income_mult = $data[8];
-			$DMA_ID_mult = $data[9];
-			@$DRW->free_result($rs);
-			
-			if((count($mPanelIDArray)==1 && (in_array(1,$mPanelIDArray) || in_array(2,$mPanelIDArray))) || (count($mPanelIDArray)==2 && in_array(1,$mPanelIDArray) && in_array(2,$mPanelIDArray))) {
-				$consumer_only = true;
-			}
-		}
-		else{
-			$addedToDatabase = $GLOBALS['eb_date1'];
-			$month1 = $GLOBALS['eb_date2'];
-			$month2 = $GLOBALS['eb_date3'];
-			$search_panelist_date = 0;
-			$state = $GLOBALS['eb_state'];
-			$gender = $GLOBALS['eb_gender'];
-			$age = $GLOBALS['eb_age'];
-			$income_mult = $GLOBALS['eb_income'];
-			$DMA_ID_mult = $GLOBALS['eb_DMA_ID'];
-			if(!empty($addedToDatabase) || !empty($month1) || !empty($month2) || !empty($state) || !empty($gender) || !empty($age) || !empty($income_mult) || !empty($DMA_ID_mult)){
-				$do_bid = true;
-			}
-		}
-			
-		if($month1!='' || $month2!='') {
-			$month = "$month1,$month2";
-		}
-		else {
-			$month = '';
-		}
-		if($consumer_only || $do_bid){
-			if($field=='state'){
-				$field = 'ppstateID';
-			}
-			elseif($field=='gender'){
-				$field = 'pgender';
-			}
-			elseif($field=='age'){
-				$field = 'ppageID';
-			}
-			elseif($field=='incomeID'){
-				$field = 'pincomeID';
-			}
-		}
-		if($search_panelist_date || $consumer_only || $do_bid){
-			if($addedToDatabase!='') {
-				if($addedToDatabase=='week') $ppdatetext .= ' ppdate>=CONCAT(DATE_SUB(CURDATE(),INTERVAL 7 DAY),\' 00:00:00\') AND ';
-				elseif($addedToDatabase=='2week') $ppdatetext .= ' ppdate>=CONCAT(DATE_SUB(CURDATE(),INTERVAL 14 DAY),\' 00:00:00\') AND ';
-				elseif($addedToDatabase=='1month') $ppdatetext .= ' ppdate>=CONCAT(DATE_SUB(CURDATE(),INTERVAL 1 MONTH),\' 00:00:00\') AND ';
-				elseif($addedToDatabase=='3month') $ppdatetext .= ' ppdate>=CONCAT(DATE_SUB(CURDATE(),INTERVAL 3 MONTH),\' 00:00:00\') AND ';
-				elseif($addedToDatabase=='6month') $ppdatetext .= ' ppdate>=CONCAT(DATE_SUB(CURDATE(),INTERVAL 6 MONTH),\' 00:00:00\') AND ';
-				elseif($addedToDatabase=='1year') $ppdatetext .= ' ppdate>=CONCAT(DATE_SUB(CURDATE(),INTERVAL 1 YEAR),\' 00:00:00\') AND ';
-			}
-			elseif($month!='') {
-				$monthArray = explode(',',$month);
-				$month_1 = $monthArray[0];
-				$month_2 = $monthArray[1];
-				if($month_1==''){
-					$month_1 = $month_2;
-				}
-				elseif($month_2==''){
-					$month_2 = $month_1;
-				}
-				//$ppdatetext .= " (ppdate BETWEEN '$month_1-01 00:00:00' AND '$month_2-31 23:59:59') AND ";
-                                ####################For display  graph chart by Dev ######################
-                                $ppdatetext .= " (addedToDatabase BETWEEN '$month_1-01 00:00:00' AND '$month_2-31 23:59:59')";
-			}
-			if(!empty($state)){
-				$tmpArray = explode(',',$state);
-				$ppdatetext .= " (";
-				foreach($tmpArray as $v){
-					if($v!='') {
-						$ppdatetext .= " ppstateID=".(int)$v." OR ";
-					}
-				}
-				$ppdatetext = substr($ppdatetext,0,-4);
-				$ppdatetext .= ") AND ";
-			}
-			if(!empty($gender)){
-				$ppdatetext .= " pgender='$gender' AND ";
-			}
-			$mult = array('ppageID'=>$age,'pincomeID'=>$income_mult,'dmap.code'=>$DMA_ID_mult);
-			foreach($mult as $fielder=>$val){
-				if($val!=''){
-					$tmpwhere = '';
-					$tmpArray = explode(',',$val);
-					foreach($tmpArray as $v){
-						if($v!='') {
-							if($fielder=='dmap.code'){
-								$tmpwhere .= " $fielder='".$v."' OR ";
-							}
-							else{
-								$tmpwhere .= " $fielder=".(int)$v." OR ";
-							}
-						}
-					}
-					if($fielder=='isBiz'){
-						$awhere .= $tmpwhere;
-					}
-					else{
-						if($fielder=='dmap.code'){
-							$dmajoin = ' JOIN cscan_dma_code_postalcode dmap ON (cp.pppostalcode=dmap.pppostalcode)';
-						}
-						$ppdatetext .= " (".substr($tmpwhere,0,-4).") AND ";
-					}
-				}
-			}
-			if($awhere!=''){
-				$ppdatetext .= " (".substr($awhere,0,-4).") AND ";
-			}
-		}
-		
-		if($total_choice==4 || $total_choice==8 || $total_choice==10){////
-			
-                     if($ppdatetext=='' && $dateand==''){
-                            $where='';
-                        }
-                       
-                    if($total_choice==10){
-				$ppmv_text = "t1.mChannelID='3'";
-			}
-			else{
-				//$ppmv_text = 'ppmv>0'; // AND t1.mChannelID='1'
-                                ####################For display  graph chart by Dev ######################
-                                $ppmv_text = '';
-                                 if($ppdatetext=='' && $dateand!= ""){
-                                    if(strpos($dateand,'AND')<=5)
-                                    {
-                                       $where=' where 1 ';
-                                    }
-                                } 
-                                if($ppdatetext!='' && $dateand== '' && $ppmv_text==''){
-                                    if(substr(trim($ppdatetext),-3)=='AND')
-                                    {
-                                      $ppdatetext=substr(trim($ppdatetext),0,-3);
-                                    }
-                                } 
-                                
-			}
-                          
-                   
 
-			// JOIN cscan_panelists ON (cp.panelist_id=cscan_panelists.panelist_id AND contactTypeID=2)
-			$graphQuery = "SELECT SQL_NO_CACHE COUNT($field) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				$where {$ppdatetext}$ppmv_text$dateand
-				GROUP BY $field$date_text";
-		}
-		elseif($total_choice==5 || $total_choice==9) {
-			/*$graphQuery = "SELECT SQL_NO_CACHE SUM(ppmv) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				WHERE {$ppdatetext}ppmv>0$dateand
-				GROUP BY $field$date_text";*/
-                        
-                    if($ppdatetext=='' && $dateand==''){
-                            $where='';
-                        } 
-                        if($ppdatetext=='' && $dateand!= ""){
-                          if(strpos($dateand,'AND')<=5)
-                          {
-                             $where=' where 1 ';
-                          }
-                      } 
-                      if($ppdatetext!='' && $dateand== ''){
-                          if(substr(trim($ppdatetext),-3)=='AND')
-                          {
-                            $ppdatetext=substr(trim($ppdatetext),0,-3);
-                          }
-                      } 
-                        echo "dateand=>".$ppdatetext;
-                          ####################For display  graph chart by Dev ######################      
-                         $graphQuery = "SELECT SQL_NO_CACHE SUM(ppmv) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				$where {$ppdatetext}$dateand
-				GROUP BY $field$date_text";
-                                
-			if($_SESSION['sess_userID']==9480 || $_SESSION['sess_userID']==8270){
-				$graphQuery = "SELECT SQL_NO_CACHE SUM(ppmv_w) AS field_count,$field AS field_name$date_text
-					FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-					JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-					WHERE {$ppdatetext}ppmv_w>0$dateand
-					GROUP BY $field$date_text";
-			}
-			elseif($_SESSION['sess_userID']==8089){
-				/*$graphQuery = "SELECT SQL_NO_CACHE SUM(ppmv_m) AS field_count,$field AS field_name$date_text
-					FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-					JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-					WHERE {$ppdatetext}ppmv_m>0$dateand
-					GROUP BY $field$date_text";*/
-                                 ####################For display  graph chart by Dev ######################             
-                                $graphQuery = "SELECT SQL_NO_CACHE SUM(ppmv_m) AS field_count,$field AS field_name$date_text
-					FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-					JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-					WHERE {$ppdatetext}ppmv_m>0$dateand
-					GROUP BY $field$date_text";
-			}
-		}
-		elseif($total_choice==6){
-			$graphQuery = "SELECT SQL_NO_CACHE AVG(ppfico_score) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				WHERE {$ppdatetext}ppfico_score>0$dateand
-				GROUP BY $field$date_text";
-		}
-		elseif($total_choice==7){
-			$graphQuery = "SELECT SQL_NO_CACHE AVG(ppspend) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				WHERE {$ppdatetext}ppmv>0$dateand
-				GROUP BY $field$date_text";
-		}
-		else{
-			/*$graphQuery = "SELECT SQL_NO_CACHE COUNT(DISTINCT cp.productID) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				WHERE {$ppdatetext}ppmv>0$dateand
-				GROUP BY $field$date_text";*/
-                         ####################For display  graph chart by Dev ######################
-                      
-                    if($ppdatetext=='' && $dateand==''){
-                            $where='';
-                        } 
-                        
-                      if($ppdatetext=='' && $dateand!= ""){
-                          if(strpos($dateand,'AND')<=5)
-                          {
-                             $where=' where 1 ';
-                          }
-                      } 
-                      if($ppdatetext!='' && $dateand== ''){
-                          if(substr(trim($ppdatetext),-3)=='AND')
-                          {
-                            $ppdatetext=substr(trim($ppdatetext),0,-3);
-                          }
-                      } 
-                      
-                    $graphQuery = "SELECT SQL_NO_CACHE COUNT(DISTINCT cp.productID) AS field_count,$field AS field_name$date_text
-				FROM cscan_panelists_product cp$cpjoin$dmajoin$appjoin 
-				JOIN ($graphQuery_pre) AS t1 ON(cp.productID=theproductID)
-				$where {$ppdatetext}$dateand
-				GROUP BY $field$date_text";
-		}
-	}
-	echo $graphQuery;exit;
-	return $graphQuery;
+
+/**
+ * Small compatibility layer for the old Spreadsheet_Excel_Writer API.
+ * It intentionally implements only the methods used by graph_img.php.
+ */
+class CompetiscanExcelFormat
+{
+    private $font = array();
+    private $numberFormat = null;
+
+    public function setBold($value = true)
+    {
+        $this->font['bold'] = (bool)$value;
+    }
+
+    public function setUnderline($value = 1)
+    {
+        $this->font['underline'] = ((int)$value > 0)
+            ? \PhpOffice\PhpSpreadsheet\Style\Font::UNDERLINE_SINGLE
+            : \PhpOffice\PhpSpreadsheet\Style\Font::UNDERLINE_NONE;
+    }
+
+    public function setItalic($value = true)
+    {
+        $this->font['italic'] = (bool)$value;
+    }
+
+    public function setNumFormat($format)
+    {
+        $this->numberFormat = (string)$format;
+    }
+
+    public function applyToCell($cell)
+    {
+        if(!empty($this->font)) {
+            $cell->getStyle()->getFont()->applyFromArray($this->font);
+        }
+        if($this->numberFormat !== null) {
+            $cell->getStyle()->getNumberFormat()->setFormatCode($this->numberFormat);
+        }
+    }
+}
+
+class CompetiscanExcelSheet
+{
+    private $sheet;
+
+    public function __construct($sheet)
+    {
+        $this->sheet = $sheet;
+    }
+
+    private function cell($row, $col)
+    {
+        return $this->sheet->getCellByColumnAndRow((int)$col + 1, (int)$row + 1);
+    }
+
+    private function styleCell($cell, $format)
+    {
+        if($format instanceof CompetiscanExcelFormat) {
+            $format->applyToCell($cell);
+        }
+    }
+
+    public function writeString($row, $col, $value, $format = null)
+    {
+        $cell = $this->cell($row, $col);
+        $cell->setValueExplicit((string)$value, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+        $this->styleCell($cell, $format);
+    }
+
+    public function write($row, $col, $value, $format = null)
+    {
+        $cell = $this->cell($row, $col);
+        if(is_bool($value)) {
+            $cell->setValue($value ? 1 : 0);
+        } elseif(is_numeric($value) && $value !== '') {
+            $cell->setValue((float)$value);
+        } else {
+            $cell->setValue((string)$value);
+        }
+        $this->styleCell($cell, $format);
+    }
+}
+
+class CompetiscanExcelWorkbook
+{
+    private $spreadsheet;
+    private $filename = 'Competiscan_Export.xlsx';
+    private $sheetCount = 0;
+
+    public function __construct()
+    {
+        $this->spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $this->spreadsheet->getProperties()
+            ->setCreator('Competiscan')
+            ->setLastModifiedBy('Competiscan')
+            ->setTitle('Competiscan Export');
+    }
+
+    public function setVersion($version)
+    {
+        // Spreadsheet_Excel_Writer compatibility. No action is required for XLSX.
+    }
+
+    public function addFormat()
+    {
+        return new CompetiscanExcelFormat();
+    }
+
+    private function cleanSheetTitle($title)
+    {
+        $title = trim((string)$title);
+        if($title === '') {
+            $title = 'Competiscan';
+        }
+        $title = preg_replace('/[\\\\\\/\\?\\*\\[\\]:]/', ' ', $title);
+        $title = preg_replace('/\\s+/', ' ', $title);
+        return substr($title, 0, 31);
+    }
+
+    private function uniqueSheetTitle($title)
+    {
+        $base = $this->cleanSheetTitle($title);
+        $candidate = $base;
+        $counter = 2;
+        while($this->spreadsheet->getSheetByName($candidate) !== null) {
+            $suffix = ' (' . $counter . ')';
+            $candidate = substr($base, 0, 31 - strlen($suffix)) . $suffix;
+            $counter++;
+        }
+        return $candidate;
+    }
+
+    public function addWorksheet($title)
+    {
+        $title = $this->uniqueSheetTitle($title);
+        $sheet = $this->spreadsheet->createSheet();
+        $sheet->setTitle($title);
+        $this->sheetCount++;
+
+        // PHPSpreadsheet starts with Sheet1. Remove it after the first real sheet.
+        if($this->sheetCount === 1 && $this->spreadsheet->getSheetCount() > 1) {
+            $this->spreadsheet->removeSheetByIndex(0);
+        }
+
+        return new CompetiscanExcelSheet($sheet);
+    }
+
+    public function send($filename)
+    {
+        $this->filename = basename((string)$filename);
+    }
+
+    public function close()
+    {
+        while(ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        $this->spreadsheet->setActiveSheetIndex(0);
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
+        $writer->setPreCalculateFormulas(false);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . str_replace('"', '', $this->filename) . '"');
+        header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
+        header('Pragma: public');
+        header('Expires: 0');
+
+        $writer->save('php://output');
+        exit;
+    }
 }
 
 function doGraphQuery($ssid,$graph_choice,$bid,$total_choice,$date_choice,$ym='',$ym2=''){
@@ -1305,18 +1157,42 @@ function do_graph_img($save_data=false){
 
 	if($chart_choice==3){
 		@ob_end_clean();
-		require_once 'Spreadsheet/Excel/Writer.php';
-		// Creating a workbook
-		$workbook = new Spreadsheet_Excel_Writer();
-		$workbook->setVersion(8);
+
+		/*
+		 * PHP 8.2 Excel export
+		 * ---------------------
+		 * Spreadsheet_Excel_Writer is a legacy PEAR package and is not suitable
+		 * for the current PHP runtime. The compatibility classes below keep the
+		 * existing writeString()/write()/addWorksheet() calls unchanged while
+		 * generating a modern .xlsx file through PhpSpreadsheet.
+		 */
+		$autoloadCandidates = array(
+			__DIR__ . '/vendor/autoload.php',
+			dirname(__DIR__) . '/vendor/autoload.php',
+		);
+		$autoloadLoaded = false;
+		foreach($autoloadCandidates as $autoloadFile){
+			if(is_file($autoloadFile)){
+				require_once $autoloadFile;
+				$autoloadLoaded = true;
+				break;
+			}
+		}
+		if(!$autoloadLoaded || !class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')){
+			header('Content-Type: text/plain; charset=UTF-8');
+			http_response_code(500);
+			exit('Excel export requires PhpSpreadsheet. Run: composer require phpoffice/phpspreadsheet');
+		}
+
+		$workbook = new CompetiscanExcelWorkbook();
 		$format_head = $workbook->addFormat();
 		$format_head->setBold();
 		$format_head->setUnderline(1);
-		
+
 		$format_title = $workbook->addFormat();
 		$format_title->setItalic();
 		//$format_title->setTextWrap();
-		
+
 		$format_percent = $workbook->addFormat();
 		$format_percent->setNumFormat('0.00%');
 		$format_number = $workbook->addFormat();
@@ -1826,7 +1702,7 @@ function do_graph_img($save_data=false){
 		}
 		// sending HTTP headers
                 $currenttime=time();
-		$workbook->send("Competiscan_Export_".$currenttime.'_'.date('Y-m-d').".xls");
+		$workbook->send("Competiscan_Export_".$currenttime.'_'.date('Y-m-d').".xlsx");
 		// Let's send the file
 		$workbook->close();
 	}
