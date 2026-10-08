@@ -18,6 +18,7 @@ if(!isset($SKIP_FUNCTION)){
 /**
  * Small compatibility layer for the old Spreadsheet_Excel_Writer API.
  * It intentionally implements only the methods used by graph_img.php.
+ * Compatible with PhpSpreadsheet 1.x, 2.x and 3.x.
  */
 class CompetiscanExcelFormat
 {
@@ -68,7 +69,10 @@ class CompetiscanExcelSheet
 
     private function cell($row, $col)
     {
-        return $this->sheet->getCellByColumnAndRow((int)$col + 1, (int)$row + 1);
+        // getCellByColumnAndRow() was removed in PhpSpreadsheet 2.x.
+        // Convert the numeric column index to a letter and use getCell().
+        $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex((int)$col + 1);
+        return $this->sheet->getCell($columnLetter . ((int)$row + 1));
     }
 
     private function styleCell($cell, $format)
@@ -1516,7 +1520,8 @@ function do_graph_img($save_data=false){
 						foreach($topCompany_pct as $key=>$val){
 							$ecol = 0;
 							$worksheet->writeString($erow, $ecol++, $topCompany_name[$key]);
-							if($total_choice==1 || $total_choice==8 || $total_choice==9 || $total_choice==13 || $total_choice==14 || $total_choice==15){
+							// FIX: added $total_choice==17 so Percent Real Time Mail Volume is formatted as a percentage
+							if($total_choice==1 || $total_choice==8 || $total_choice==9 || $total_choice==13 || $total_choice==14 || $total_choice==15 || $total_choice==17){
 								$total_text = $topCompany_pct[$key];
 								$worksheet->write($erow, $ecol++, $total_text,$format_percent);
 							}
@@ -1693,7 +1698,8 @@ function do_graph_img($save_data=false){
 					$worksheet->write($lastrow, $c+1, $ymt,$format_number);
 				}
 			}
-			if($total_choice==1 || $total_choice==8 || $total_choice==9 || $total_choice==17 || $total_choice==13 || $total_choice==14){
+			// FIX: added $total_choice==15 so the grand total is formatted consistently with the other cells
+			if($total_choice==1 || $total_choice==8 || $total_choice==9 || $total_choice==17 || $total_choice==13 || $total_choice==14 || $total_choice==15){
 				$worksheet->write($lastrow, count($ymTotalArray)+1, $allcategorytotal,$format_percent);
 			}
 			else{
