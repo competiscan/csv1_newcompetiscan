@@ -672,6 +672,7 @@ function do_graph_img($save_data=false){
 						$query = "SELECT PurchaseIntroductoryAPR, BalanceTransferIntroductoryAPR FROM cscan_payment_cards WHERE productID=$testname";
 						$comp_is_set = $DRW->query($query,$DRW_read);
 						$row = $DRW->fetch_row($comp_is_set);
+						if(!is_array($row)) $row = array('','');
 						$row[0] = (string)$row[0];
 						$row[1] = (string)$row[1];
 						@$DRW->free_result($comp_is_set);
@@ -703,6 +704,7 @@ function do_graph_img($save_data=false){
 						foreach($qs as $q){
 							$comp_is_set = $DRW->query($q,$DRW_read);
 							$row = $DRW->fetch_row($comp_is_set);
+							if(!is_array($row)) $row = array('','');
 							if(!empty($row[0])){
 								$a = explode(',',$row[0]);
 								foreach($a as $b){
@@ -739,6 +741,7 @@ function do_graph_img($save_data=false){
 						$query = "SELECT Tier1AnnualFee,Tier2AnnualFee,AnnualFee FROM cscan_payment_cards WHERE productID=$testname";
 						$comp_is_set = $DRW->query($query,$DRW_read);
 						$row = $DRW->fetch_row($comp_is_set);
+						if(!is_array($row)) $row = array('','');
 						$row[0] = (float)$row[0];
 						$row[1] = (float)$row[1];
 						$row[2] = (float)$row[2];
@@ -766,6 +769,7 @@ function do_graph_img($save_data=false){
 						foreach($qs as $q){
 							$comp_is_set = $DRW->query($q,$DRW_read);
 							$row = $DRW->fetch_row($comp_is_set);
+							if(!is_array($row)) $row = array('','');
 							if(!empty($row[0])){
 								$a = explode(',',$row[0]);
 								foreach($a as $b){
@@ -785,6 +789,7 @@ function do_graph_img($save_data=false){
 						$query = "SELECT scsc_subCategoryID FROM cscan_scsc_product WHERE productID=$testname AND scsc_sort=1";
 						$comp_is_set = $DRW->query($query,$DRW_read);
 						$row = $DRW->fetch_row($comp_is_set);
+						if(!is_array($row)) $row = array('','');
 						if(!empty($row[0])){
 							$testname = subCategoryName($row[0],true);
 						}
@@ -815,6 +820,7 @@ function do_graph_img($save_data=false){
 						foreach($qs as $q){
 							$comp_is_set = $DRW->query($q,$DRW_read);
 							$row = $DRW->fetch_row($comp_is_set);
+							if(!is_array($row)) $row = array('','');
 							@$DRW->free_result($comp_is_set);
 							if(!empty($row[0])){
 								$tempname = 'Pre-Screen/Opt-Out';
@@ -830,6 +836,7 @@ function do_graph_img($save_data=false){
 						foreach($qs as $q){
 							$comp_is_set = $DRW->query($q,$DRW_read);
 							$row = $DRW->fetch_row($comp_is_set);
+							if(!is_array($row)) $row = array('','');
 							@$DRW->free_result($comp_is_set);
 							if(!empty($row[0])){
 								$tempname = 'Rewards Program';
@@ -915,6 +922,7 @@ function do_graph_img($save_data=false){
 						$query = "SELECT external_link FROM cscan_product_detail WHERE productID=$testname";
 						$comp_is_set = $DRW->query($query,$DRW_read);
 						$row = $DRW->fetch_row($comp_is_set);
+						if(!is_array($row)) $row = array('','');
 						$testname = (string)$row[0];
 						@$DRW->free_result($comp_is_set);
 						
@@ -932,6 +940,7 @@ function do_graph_img($save_data=false){
 						$query = "SELECT external_link,external_fans FROM cscan_product_detail WHERE productID=$testname";
 						$comp_is_set = $DRW->query($query,$DRW_read);
 						$row = $DRW->fetch_row($comp_is_set);
+						if(!is_array($row)) $row = array('','');
 						$testname = (string)$row[0];
 						$comp_count = (int)$row[1];
 						@$DRW->free_result($comp_is_set);
@@ -950,6 +959,7 @@ function do_graph_img($save_data=false){
 						$query = "SELECT external_link,external_updates FROM cscan_product_detail WHERE productID=$testname";
 						$comp_is_set = $DRW->query($query,$DRW_read);
 						$row = $DRW->fetch_row($comp_is_set);
+						if(!is_array($row)) $row = array('','');
 						$testname = (string)$row[0];
 						$comp_count = (int)$row[1];
 						@$DRW->free_result($comp_is_set);
@@ -969,8 +979,9 @@ function do_graph_img($save_data=false){
 						FROM TempTable
 						WHERE category='".$DRW->real_escape_string($testname)."' AND ppdate='$ppdate'";
 					$comp_is_set = $DRW->query($query,$DRW_main);
-					$row = $DRW->fetch_row($comp_is_set);	
-					if($row[1] != "") {
+					$row = $DRW->fetch_row($comp_is_set);
+					// FIX: detect an existing row by is_array(), not by category != '' (category can legitimately be '')
+					if(is_array($row)) {
 						if($total_choice==6){
 							$currentsum = ($comp_count + floatval($row[0]))/2;
 						}
