@@ -1131,7 +1131,7 @@ $(document).ready(function(){
 });
 /* ###########  Communication Type Implementation ############ */
 /*############################## Start Envelope/Postage Data Fields################*/
-function doEnvelopePostageData(){ 
+/*function doEnvelopePostageData(){ 
     mchid = document.forms.searchForm['mChannelID[]'].value;
     if(mchid==1){
     delmethid = document.forms.searchForm['delmethid_mult[]'].value;
@@ -1161,5 +1161,48 @@ function doEnvelopePostageData(){
       
     }
     
+}*/
+
+function doEnvelopePostageData() {
+    const form = document.forms.searchForm;
+
+    if (!form) {
+        return;
+    }
+
+    const channelField = form.elements['mChannelID[]'];
+    const deliveryMethodField = document.getElementById('delivery_mehod');
+
+    if (!channelField || !deliveryMethodField) {
+        return;
+    }
+
+    // Handle single or multiple channel selections.
+    const selectedChannels = channelField.multiple
+        ? Array.from(channelField.selectedOptions, option => option.value)
+        : [channelField.value];
+
+    const isDirectMail = selectedChannels.includes('1');
+
+    // Check all selected delivery methods.
+    const selectedMethods = Array.from(
+        deliveryMethodField.selectedOptions,
+        option => option.value
+    );
+
+    const showDeliveryFields = isDirectMail &&
+        selectedMethods.some(value => ['1', '3', '7'].includes(value));
+
+    // Show or hide all related fields safely.
+    document.querySelectorAll('.deliverytype_class').forEach(function (element) {
+        element.style.display = showDeliveryFields ? 'block' : 'none';
+    });
+}
+
+// Initialize field visibility after the page loads.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', doEnvelopePostageData);
+} else {
+    doEnvelopePostageData();
 }
 /* ############################## End Envelope/Postage Data Fields################ */
