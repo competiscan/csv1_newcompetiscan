@@ -3423,7 +3423,7 @@ $displayArray[$dap][$dai]['value'] .= ">Any</option>";
 foreach($presortedArray as $selvalue=>$seltext) {
 	$displayArray[$dap][$dai]['value'] .= "<option value=\"$selvalue\"";
 	//if($selvalue==$presortedId) {
-        if(in_array($selvalue,$postageId)) {
+        if(in_array($selvalue,$presortedId)) {
 		$displayArray[$dap][$dai]['value'] .= " selected=\"selected\"";
 	}
 	$displayArray[$dap][$dai]['value'] .= ">".htmlspecialchars($seltext)."</option>";
