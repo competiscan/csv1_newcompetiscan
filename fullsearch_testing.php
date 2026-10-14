@@ -3331,7 +3331,7 @@ $dai++;
 ############################## Start Envelope/Postage Data Fields################
 $javascript .= "enhArray[1]['{$dap}_{$dai}'] = '1';\n";
 $javascript .= "enhArray[4]['{$dap}_{$dai}'] = '1,3,7';\n";
-if((in_array(1,$mChannelID)) && (in_array(1,$delmethid_mult) || in_array(3,$delmethid_mult) || in_array(7,$delmethid_mult))){
+if(in_array(1,$mChannelID) && (in_array(1,$delmethid_mult) || in_array(3,$delmethid_mult) || in_array(7,$delmethid_mult))){
    
     $displayArray[$dap][$dai]['show'] = true;
 }
@@ -3422,7 +3422,7 @@ $displayArray[$dap][$dai]['value'] .= ">Any</option>";
 foreach($presortedArray as $selvalue=>$seltext) {
 	$displayArray[$dap][$dai]['value'] .= "<option value=\"$selvalue\"";
 	//if($selvalue==$presortedId) {
-        if(in_array($selvalue,$postageId)) {
+        if(in_array($selvalue,$presortedId)) {
 		$displayArray[$dap][$dai]['value'] .= " selected=\"selected\"";
 	}
 	$displayArray[$dap][$dai]['value'] .= ">".htmlspecialchars($seltext)."</option>";
