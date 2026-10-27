@@ -192,7 +192,19 @@ if (isset($_POST['login']) || isset($_POST['verify_opt_seession']) || (isset($_G
 						$cookieArray = array($username,$password,$IPAddress,$_SESSION['sess_userID'],$secretcode,$time);
 						$cookieArray = array_map('urlencode',$cookieArray);
 						$COOKIEDOMAIN='.competiscan.com';
-						setcookie('competiscaner',implode(":",$cookieArray),$time+(3600*1),$COOKIEPATH,$COOKIEDOMAIN,true, true,'SameSite=Lax');
+						setcookie(
+							'competiscaner',
+							implode(":", $cookieArray),
+							[
+								'expires'  => $time + 3600,
+								'path'     => $COOKIEPATH,
+								'domain'   => $COOKIEDOMAIN,
+								'secure'   => true,
+								'httponly' => true,
+								'samesite' => 'Lax'
+							]
+						);
+						//setcookie('competiscaner',implode(":",$cookieArray),$time+(3600*1),$COOKIEPATH,$COOKIEDOMAIN,true, true,'SameSite=Lax');
 						//setcookie('competiscaner',implode(":",$cookieArray),$time+(3600*1),$COOKIEPATH,$COOKIEDOMAIN);
 						//setcookie('competiscaner',implode(":",$cookieArray),$time+(86400*364),$COOKIEPATH,$COOKIEDOMAIN,true, true,'SameSite=None');
 						
