@@ -1881,7 +1881,7 @@ if($search_num_of_rows > 0) {
         <?php } ?>
         <!--Product Analysis-->
         </td>
-        <td class="bodytext" valign="top" style="border-bottom:none;"><strong>Headline:</strong><br /><a href="https://cp.competiscan.com/productdetail?id=<?php echo $productID.$pdf_key; ?>" onclick="productDescription_digital_testing(<?php echo $productID; ?>,'<?php echo singleQuoteSafe($pdf_key.'&amp;ssid='.$ssid); ?>'); return false;" class="HyperLink" title="See complete product details"><?php echo mb_convert_encoding(html_entity_decode( str_replace("\xE2\x80\x8B", "",$productHeadline),ENT_QUOTES, "UTF-8"), "HTML-ENTITIES","UTF-8"); ?></a></td>
+        <td class="bodytext" valign="top" style="border-bottom:none;"><strong>Headline:</strong><br /><a href="https://cp.uat.competiscan.com/productdetail?id=<?php echo $productID.$pdf_key; ?>" onclick="productDescription_digital_testing(<?php echo $productID; ?>,'<?php echo singleQuoteSafe($pdf_key.'&amp;ssid='.$ssid); ?>'); return false;" class="HyperLink" title="See complete product details"><?php echo mb_convert_encoding(html_entity_decode( str_replace("\xE2\x80\x8B", "",$productHeadline),ENT_QUOTES, "UTF-8"), "HTML-ENTITIES","UTF-8"); ?></a></td>
         <!--<td class="bodytext" valign="top" style="border-bottom:none;"><strong>Headline:</strong><br /><a href="productDetail.php?id=<?php echo $productID.$pdf_key.'&amp;ssid='.$ssid; ?>" onclick="productDescription_digital(<?php echo $productID; ?>,'<?php echo singleQuoteSafe($pdf_key.'&amp;ssid='.$ssid); ?>'); return false;" class="HyperLink" title="See complete product details"><?php echo mb_convert_encoding(html_entity_decode( str_replace("\xE2\x80\x8B", "",$productHeadline),ENT_QUOTES, "UTF-8"), "HTML-ENTITIES","UTF-8"); ?></a></td>-->
         <td class="bodytext" valign="top" style="border-bottom:none;"><strong>Primary Company:</strong><br /><?php echo htmlspecialchars(($company_primary) ? ($company_primary) :'Not mentioned'); ?></td>
         <td class="bodytext" valign="top" style="border-bottom:none;"><strong>EntryID:</strong><br /><?php 
@@ -2337,7 +2337,7 @@ $('.myExcel_download').click(function() {
 });*/
 function productDescription_digital_testing(ID,pdf_key) {
     //console.log(pdf_key,"###############################")
-	var win = window.open('https://cp.competiscan.com/productdetail?id='+ID,"detail","toolbar=no, menubar=no, location=no, status=yes, scrollbars=yes, resizable=yes, width=700, height=600");
+	var win = window.open('https://cp.uat.competiscan.com/productdetail?id='+ID,"detail","toolbar=no, menubar=no, location=no, status=yes, scrollbars=yes, resizable=yes, width=700, height=600");
 	win.focus();
 }
 </script>
