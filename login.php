@@ -200,7 +200,7 @@ if (isset($_POST['login']) || isset($_POST['verify_opt_seession']) || (isset($_G
 								'path'     => $COOKIEPATH,
 								'domain'   => $COOKIEDOMAIN,
 								'secure'   => true,
-								'httponly' => true,
+								'httponly' => false,
 								'samesite' => 'Lax'
 							]
 						);
