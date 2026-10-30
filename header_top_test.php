@@ -58,7 +58,8 @@ function get_client_ip_address() {
 	<title><?php echo isset($TITLE) && $TITLE ? $TITLE : 'Competiscan' ?></title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">
-	<link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,600,700|Open+Sans+Condensed:300,700,300italic' rel='stylesheet' type='text/css'>
+    <link href="css/fonts.css" rel="stylesheet" type='text/css'>
+	<!--<link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,600,700|Open+Sans+Condensed:300,700,300italic' rel='stylesheet' type='text/css'>-->
 	<link rel="shortcut icon" href="/favicon.ico" />
 	<link href="includes/competiscan_stylesheet.css?v=20100318" rel="stylesheet" type="text/css" />
 	<script src="includes/jsFunctions.js?v=20090601"></script>
