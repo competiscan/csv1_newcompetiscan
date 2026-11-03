@@ -22,28 +22,64 @@ function competiscan_start_session() {
 	// Use a domain-wide cookie path so WordPress reads the SAME PHP session that
 	// the demo login app (login.php, same domain) started — otherwise a session
 	// created under a sub-path wouldn't expose $_SESSION['user_id'] to the header.
+	//
+	// SECURITY (audit fix — Session Cookie Missing 'Secure' / 'HttpOnly'):
+	// The site sits behind CloudFront, which talks to this server over HTTP, so
+	// $_SERVER['HTTPS'] is usually empty here. The old code used that to decide
+	// the Secure flag, which turned Secure OFF and overrode php.ini. Secure is now
+	// always on (except on a local http dev host), plus HttpOnly and SameSite=Lax.
 	$params = session_get_cookie_params();
 	session_set_cookie_params(
-		0,
-		'/',
-		$params['domain'],
-		! empty( $_SERVER['HTTPS'] ),
-		true
+		array(
+			'lifetime' => 0,
+			'path'     => '/',
+			'domain'   => $params['domain'],
+			'secure'   => ! competiscan_is_local_http(),
+			'httponly' => true,
+			'samesite' => 'Lax',
+		)
 	);
 	session_start();
 }
 add_action( 'init', 'competiscan_start_session', 1 );
 
 /**
- * TEMPORARY — localhost-only preview toggle for the header client-login state.
+ * True only for a local development copy served over plain http (localhost /
+ * 127.0.0.1 with no HTTPS), where a Secure cookie would never be stored.
+ *
+ * @return bool
+ */
+function competiscan_is_local_http() {
+	$remote   = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+	$loopback = in_array( $remote, array( '127.0.0.1', '::1' ), true );
+	$https    = is_ssl()
+		|| ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === strtolower( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) )
+		|| ( isset( $_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] ) && 'https' === strtolower( $_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] ) );
+	$host     = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( preg_replace( '/:\d+$/', '', $_SERVER['HTTP_HOST'] ) ) : '';
+	$dev_host = in_array( $host, array( 'localhost', '127.0.0.1', '[::1]' ), true ) || '.localhost' === substr( $host, -10 );
+	// All three must hold, so a proxy on the server itself (loopback REMOTE_ADDR
+	// but a real domain in Host) still gets Secure cookies.
+	return $loopback && $dev_host && ! $https;
+}
+
+/**
+ * TEMPORARY — local-only preview toggle for the header client-login state.
  * Visit any page with ?cs_login=1 to fake a logged-in session (shows the Profile
- * dropdown) or ?cs_login=0 to clear it (shows Client Login). Only runs on
- * localhost/127.0.0.1 so it can never affect the live site. Remove before launch.
+ * dropdown) or ?cs_login=0 to clear it (shows Client Login).
+ *
+ * SECURITY: the old check trusted the Host header, which any visitor can set to
+ * "localhost", so anyone could fake a login (user_id 999) in the session the
+ * demo app shares. It now runs only when BOTH are true:
+ *   1. wp-config.php on the developer's machine has
+ *      define( 'COMPETISCAN_DEV_LOGIN', true );   (never add this on UAT/live)
+ *   2. the request really comes from the same machine (REMOTE_ADDR loopback).
  */
 function competiscan_dev_login_toggle() {
-	$host = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '';
-	$is_local = ( strpos( $host, 'localhost' ) !== false || strpos( $host, '127.0.0.1' ) !== false );
-	if ( ! $is_local || ! isset( $_GET['cs_login'] ) ) {
+	if ( ! defined( 'COMPETISCAN_DEV_LOGIN' ) || true !== COMPETISCAN_DEV_LOGIN ) {
+		return;
+	}
+	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+	if ( ! in_array( $remote, array( '127.0.0.1', '::1' ), true ) || ! isset( $_GET['cs_login'] ) ) {
 		return;
 	}
 	if ( '1' === $_GET['cs_login'] ) {
@@ -84,12 +120,26 @@ function competiscan_assets() {
 	$dir = get_template_directory();
 
 	// --- Styles -------------------------------------------------------------
-	wp_enqueue_style(
-		'competiscan-fonts',
-		'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
-		array(),
-		null
-	);
+	// Google Fonts CSS changes per browser, so it cannot carry an SRI hash.
+	// To close the audit finding fully, self-host Inter: put the font files and
+	// a fonts.css with the @font-face rules in assets/fonts/. As soon as
+	// assets/fonts/fonts.css exists it is used instead of Google — no other change.
+	$local_fonts = $dir . '/assets/fonts/fonts.css';
+	if ( file_exists( $local_fonts ) ) {
+		wp_enqueue_style(
+			'competiscan-fonts',
+			$uri . '/assets/fonts/fonts.css',
+			array(),
+			competiscan_asset_version( $local_fonts )
+		);
+	} else {
+		wp_enqueue_style(
+			'competiscan-fonts',
+			'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
+			array(),
+			null
+		);
+	}
 
 	wp_enqueue_style(
 		'competiscan-slick',
@@ -156,6 +206,70 @@ function competiscan_assets() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'competiscan_assets' );
+
+/**
+ * SECURITY (audit fix — Unsafe Implementation Of Subresource Integrity).
+ *
+ * Adds integrity + crossorigin to the Slick files loaded from cdnjs, so the
+ * browser refuses them if the CDN copy is ever altered. The hashes belong to
+ * slick-carousel 1.8.1 exactly (verified against the live cdnjs files): if the
+ * version in competiscan_assets() is changed, update these hashes too, or the
+ * browser will block Slick and the sliders will stop working.
+ *
+ * @return array handle => [ file marker, sha512 hash ]
+ */
+function competiscan_sri_map() {
+	return array(
+		'competiscan-slick' => array(
+			'css' => array( 'slick.min.css', 'sha512-yHknP1/AwR+yx26cB1y0cjvQUMvEa2PFzt1c9LlS4pRQ5NOTZFWbhBig+X9G9eYW/8m0/4OXNx8pxJ6z57x0dw==' ),
+			'js'  => array( 'slick.min.js', 'sha512-XtmMtDEcNz2j7ekrtHvOVR4iwwaD6o/FUJe6+Zq+HgcCsk3kj4uSQQR8weQ2QVj1o0Pk6PwYLohm206ZzNfubg==' ),
+		),
+	);
+}
+
+/**
+ * Insert the SRI attributes into the one <link>/<script> tag that loads $file.
+ * Targets only the tag containing the file name, so the inline "before" script
+ * attached to the same handle is left untouched.
+ *
+ * @param string $tag     Full HTML for the handle.
+ * @param string $element 'link' or 'script'.
+ * @param string $file    File name to match, e.g. slick.min.js.
+ * @param string $hash    sha512-… value.
+ * @return string
+ */
+function competiscan_add_sri( $tag, $element, $file, $hash ) {
+	if ( false !== strpos( $tag, 'integrity=' ) ) {
+		return $tag; // Already has it (e.g. added by a plugin).
+	}
+	$attrs = ' integrity="' . esc_attr( $hash ) . '" crossorigin="anonymous" referrerpolicy="no-referrer"';
+	return preg_replace(
+		'#<' . $element . '(?=[^>]*' . preg_quote( $file, '#' ) . ')#i',
+		'<' . $element . $attrs,
+		$tag,
+		1
+	);
+}
+
+function competiscan_style_sri( $tag, $handle ) {
+	$map = competiscan_sri_map();
+	if ( isset( $map[ $handle ]['css'] ) ) {
+		list( $file, $hash ) = $map[ $handle ]['css'];
+		$tag = competiscan_add_sri( $tag, 'link', $file, $hash );
+	}
+	return $tag;
+}
+add_filter( 'style_loader_tag', 'competiscan_style_sri', 10, 2 );
+
+function competiscan_script_sri( $tag, $handle ) {
+	$map = competiscan_sri_map();
+	if ( isset( $map[ $handle ]['js'] ) ) {
+		list( $file, $hash ) = $map[ $handle ]['js'];
+		$tag = competiscan_add_sri( $tag, 'script', $file, $hash );
+	}
+	return $tag;
+}
+add_filter( 'script_loader_tag', 'competiscan_script_sri', 10, 2 );
 
 /**
  * Cache-bust on file mtime so edits show up without manual version bumps.

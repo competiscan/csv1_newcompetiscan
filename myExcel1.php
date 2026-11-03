@@ -684,7 +684,7 @@ if($save_msg!='') {
                 $showArray2[] = array('incentive', 'Incentive');
             }
 
-			require_once('admin/additionalDetails_latest.php');
+			require_once('admin/additionalDetails.php');
 			foreach($addlArray as $o){
 				if((in_array(315,$sectorIDArray) && $o->id==315) || (in_array(90,$sectorIDArray) && ($o->id==178 || $o->id==179)) || (in_array(87,$sectorIDArray) && $o->id==87) || (in_array(6,$sectorIDArray) && $o->id==6) || (in_array(9,$sectorIDArray) && $o->id==9) || (in_array(219,$sectorIDArray) && $o->id==219) || (in_array(266,$sectorIDArray) && $o->id==266) || (in_array(559,$sectorIDArray) && $o->id==266) || (in_array(560,$sectorIDArray) && $o->id==266)){
 					while($o->getNext()){
