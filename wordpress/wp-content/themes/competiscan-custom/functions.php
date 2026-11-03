@@ -222,6 +222,7 @@ require_once get_template_directory() . '/inc/faq-fields.php';
 require_once get_template_directory() . '/inc/home-fields.php';
 require_once get_template_directory() . '/inc/pagination.php';
 require_once get_template_directory() . '/inc/insights-page.php';
+require_once get_template_directory() . '/inc/webinars.php';
 require_once get_template_directory() . '/inc/team-cpt.php';
 require_once get_template_directory() . '/inc/about-fields.php';
 require_once get_template_directory() . '/inc/about-bootstrap.php';

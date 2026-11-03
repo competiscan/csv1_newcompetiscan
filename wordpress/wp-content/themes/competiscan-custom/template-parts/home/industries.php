@@ -34,6 +34,11 @@ if ( ! $ind_btn_url ) {
 	$ind_btn_url = '#';
 }
 
+// Same convention as the hero "See it in action" button: a "#learn" or Calendly URL
+// opens the Calendly popup in the same tab (assets/js/contact.js, data-cs-calendly).
+$ind_is_calendly = ( '#learn' === $ind_btn_url || false !== strpos( (string) $ind_btn_url, 'calendly.com' ) );
+$ind_cal_attr    = $ind_is_calendly ? ' data-cs-calendly' : '';
+
 // Built-in icon files (fallback, in the original order).
 $ind_icons = array( 'banking.svg', 'house.svg', 'credit-card.svg', 'retail.svg', 'insurance.svg', 'telecoms.svg', 'plane.svg', 'more.svg' );
 
@@ -62,7 +67,7 @@ if ( ! empty( $ind_rows ) && is_array( $ind_rows ) ) {
     <div class="industries-copy">
       <h2><?php echo nl2br( esc_html( $ind_heading ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- nl2br over esc_html. ?></h2>
       <p><?php echo esc_html( $ind_desc ); ?></p>
-      <a href="<?php echo esc_url( $ind_btn_url ); ?>" class="btn btn-primary for_desktop"><?php echo esc_html( $ind_btn_label ); ?></a>
+      <a href="<?php echo esc_url( $ind_btn_url ); ?>" class="btn btn-primary for_desktop"<?php echo $ind_cal_attr; // phpcs:ignore WordPress.Security.EscapeOutput -- fixed attribute. ?>><?php echo esc_html( $ind_btn_label ); ?></a>
     </div>
     <div class="industry-list">
       <?php foreach ( $industries as $industry ) : ?>
@@ -75,7 +80,7 @@ if ( ! empty( $ind_rows ) && is_array( $ind_rows ) ) {
         <span><?php echo esc_html( $industry['label'] ); ?></span>
       </a>
       <?php endforeach; ?>
-      <a href="<?php echo esc_url( $ind_btn_url ); ?>" class="btn btn-primary for_mobile"><?php echo esc_html( $ind_btn_label ); ?></a>
+      <a href="<?php echo esc_url( $ind_btn_url ); ?>" class="btn btn-primary for_mobile"<?php echo $ind_cal_attr; // phpcs:ignore WordPress.Security.EscapeOutput -- fixed attribute. ?>><?php echo esc_html( $ind_btn_label ); ?></a>
 
     </div>
   </div>

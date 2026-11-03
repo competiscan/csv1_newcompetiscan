@@ -37,6 +37,16 @@ if ( ! empty( $competiscan_phone ) ) {
 if ( ! empty( $competiscan_email ) ) {
 	$competiscan_contact[] = '<a href="mailto:' . esc_attr( $competiscan_email ) . '">' . esc_html( $competiscan_email ) . '</a>';
 }
+
+// "Book a Meeting" — same behaviour as the hero "See it in action" button: a Calendly
+// (or #learn) URL gets data-cs-calendly, so assets/js/contact.js opens the Calendly
+// popup on the same page; the href stays the booking page as a no-JS fallback.
+$competiscan_meeting_label = $competiscan_has_acf ? trim( (string) get_field( 'footer_meeting_label', 'option' ) ) : '';
+$competiscan_meeting_url   = $competiscan_has_acf ? trim( (string) get_field( 'footer_meeting_url', 'option' ) ) : '';
+if ( '' !== $competiscan_meeting_label && '' !== $competiscan_meeting_url ) {
+	$competiscan_meeting_cal = ( '#learn' === $competiscan_meeting_url || false !== strpos( $competiscan_meeting_url, 'calendly.com' ) );
+	$competiscan_contact[]   = '<a class="footer-meeting" href="' . esc_url( $competiscan_meeting_url ) . '"' . ( $competiscan_meeting_cal ? ' data-cs-calendly' : '' ) . '>' . esc_html( $competiscan_meeting_label ) . '</a>';
+}
 ?>
 <!-- ============ FOOTER ============ -->
 <footer class="site-footer">
