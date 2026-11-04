@@ -137,32 +137,6 @@ function noptin_get_optin_form( $id ) {
 }
 
 /**
- * Retrieves the total opt-in forms count.
- *
- * @param string $type Optionally filter by opt-in type.
- * @since 1.0.6
- * @return int
- */
-function noptin_count_optin_forms( $type = '' ) {
-	global $wpdb;
-
-	$sql   = "SELECT COUNT(`ID`) FROM {$wpdb->posts} as forms";
-	$where = "WHERE `post_type`='noptin-form'";
-
-	if ( ! empty( $type ) ) {
-		$sql = "$sql LEFT JOIN {$wpdb->postmeta} as meta
-			ON meta.post_id = forms.ID
-			AND meta.meta_key = '_noptin_optin_type'
-			AND meta.meta_value = %s";
-
-		$sql    = $wpdb->prepare( $sql, $type ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$where .= " AND meta.meta_key='_noptin_optin_type'";
-	}
-
-	return $wpdb->get_var( "$sql $where;" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-}
-
-/**
  * Duplicates an optin form.
  *
  * @since 1.0.5
@@ -303,6 +277,15 @@ function prepare_noptin_form_fields( $fields ) {
 
 			if ( isset( $_custom_field['required'] ) ) {
 				$custom_field['required'] = $_custom_field['required'];
+			}
+
+			if ( array_key_exists( 'default_value', $_custom_field ) ) {
+				$custom_field['default_value'] = $_custom_field['default_value'];
+			}
+
+			if ( isset( $_custom_field['hidden'] ) && 'email' !== $custom_field['merge_tag'] ) {
+				$has_default_value      = isset( $_custom_field['default_value'] ) && '' !== trim( (string) $_custom_field['default_value'] );
+				$custom_field['hidden'] = ! empty( $_custom_field['hidden'] ) && $has_default_value;
 			}
 		}
 

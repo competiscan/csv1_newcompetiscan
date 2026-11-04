@@ -452,9 +452,12 @@ function add_noptin_subscriber( $fields ) {
 	// Set the confirmation key.
 	$subscriber->set_confirm_key( md5( wp_generate_password( 100, true, true ) . uniqid() ) );
 
+	// Saved forms can override opt-in without changing other subscription sources.
+	$double_optin_override = \Hizzle\Noptin\Forms\Form::get_double_optin_override( $subscriber->get_source() );
+
 	// Set the subscriber status.
 	if ( empty( $fields['status'] ) ) {
-		$subscriber->set_status( get_noptin_option( 'double_optin', false ) ? 'pending' : 'subscribed' );
+		$subscriber->set_status( ( $double_optin_override ?? get_noptin_option( 'double_optin', false ) ) ? 'pending' : 'subscribed' );
 	}
 
 	// Backwards compatibility (status).
@@ -473,10 +476,15 @@ function add_noptin_subscriber( $fields ) {
 		return 'An error occurred';
 	}
 
-	$_GET['noptin_key'] = $subscriber->get_confirm_key();
+	// Do not set subscribed cookie for unsubscribed users.
+	$double_optin_enabled      = $double_optin_override ?? ( noptin_has_enabled_double_optin() || (bool) get_noptin_option( 'double_optin', false ) );
+	$can_set_subscriber_cookie = $subscriber->is_active() && ( ! $double_optin_enabled || $subscriber->get_confirmed() );
+	if ( $can_set_subscriber_cookie ) {
+		$_GET['noptin_key'] = $subscriber->get_confirm_key();
+	}
 
 	// Set cookie.
-	if ( ! headers_sent() && ! apply_filters( 'noptin_disable_cookies', false ) ) {
+	if ( $can_set_subscriber_cookie && ! headers_sent() && ! apply_filters( 'noptin_disable_cookies', false ) ) {
 		setcookie( 'noptin_email_subscribed', $subscriber->get_confirm_key(), time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 
 		$cookie = get_noptin_option( 'subscribers_cookie' );
@@ -490,14 +498,57 @@ function add_noptin_subscriber( $fields ) {
 add_action( 'noptin_checkbox_integration_process_submission', 'add_noptin_subscriber' );
 
 /**
+ * Checks whether an email address uses a blocked domain or top-level domain.
+ *
+ * Domain rules (for example, example.com) also match subdomains. Rules that
+ * begin with a dot (for example, .invalid) match the end of the domain.
+ *
+ * @since 3.4.6
+ *
+ * @param string $email Email address to check.
+ * @return bool
+ */
+function noptin_is_email_domain_blocked( $email ) {
+	if ( ! is_string( $email ) || false === strpos( $email, '@' ) ) {
+		return false;
+	}
+
+	$domain  = strtolower( substr( strrchr( $email, '@' ), 1 ) );
+	$blocked = noptin_parse_list( get_noptin_option( 'blocked_email_domains', '' ) );
+
+	foreach ( $blocked as $rule ) {
+		$rule = strtolower( trim( $rule ) );
+
+		// Accept pasted domains in the common @example.com and *.example.com forms.
+		$rule = ltrim( $rule, '@' );
+		$rule = ltrim( $rule, '*' );
+
+		if ( empty( $rule ) ) {
+			continue;
+		}
+
+		if ( '.' === $rule[0] ) {
+			if ( strlen( $domain ) > strlen( $rule ) && substr( $domain, -strlen( $rule ) ) === $rule ) {
+				return true;
+			}
+		} elseif ( $domain === $rule || substr( $domain, -( strlen( $rule ) + 1 ) ) === '.' . $rule ) {
+			return true;
+		}
+	}
+
+	return (bool) apply_filters( 'noptin_is_email_domain_blocked', false, $email, $domain, $blocked );
+}
+
+/**
  * Updates a Noptin subscriber
  *
- * @param int|string|\Hizzle\Noptin\Subscribers\Subscriber $subscriber Subscriber ID, email, confirm key, or object.
+ * @param int|string|\Hizzle\Noptin\Subscribers\Subscriber $subscriber_id Subscriber ID, email, confirm key, or object.
  * @param array $to_update The subscriber fields to update.
+ * @param string|int|null $subscription_source Current subscription request source. Null keeps ordinary update behavior.
  * @access  public
  * @since   1.2.3
  */
-function update_noptin_subscriber( $subscriber_id, $to_update = array() ) {
+function update_noptin_subscriber( $subscriber_id, $to_update = array(), $subscription_source = null ) {
 
 	// Get the subscriber object.
 	$subscriber = noptin_get_subscriber( $subscriber_id );
@@ -515,11 +566,41 @@ function update_noptin_subscriber( $subscriber_id, $to_update = array() ) {
 		}
 	}
 
+	$requires_confirmation = false;
+	if ( null !== $subscription_source ) {
+		$optin_override = \Hizzle\Noptin\Forms\Form::get_double_optin_override( $subscription_source );
+
+		// A subscription request must not demote subscribed contacts or confirm pending ones.
+		if ( null !== $optin_override ) {
+			$to_update['status']    = $subscriber->get_status();
+			$to_update['confirmed'] = $subscriber->get_confirmed();
+		}
+
+		if ( 'unsubscribed' === $subscriber->get_status() ) {
+			$requires_confirmation  = true === $optin_override;
+			$to_update['status']    = $requires_confirmation ? 'pending' : 'subscribed';
+			if ( $requires_confirmation ) {
+				$to_update['confirmed'] = false;
+			}
+		}
+	}
+
 	// Set the subscriber properties.
 	$subscriber->set_props( wp_unslash( $to_update ) );
 
-	// Save the subscriber.
-	return $subscriber->save();
+	if ( null !== $subscription_source ) {
+		foreach ( prepare_noptin_subscriber_source_fields( $subscription_source, array() ) as $merge_tag => $to_add ) {
+			$subscriber->set( $merge_tag . '::add', $to_add );
+		}
+	}
+
+	// Send confirmation only after a successful resubscription save.
+	$result = $subscriber->save();
+	if ( ! is_wp_error( $result ) && $requires_confirmation ) {
+		send_new_noptin_subscriber_double_optin_email( $subscriber->get_id() );
+	}
+
+	return $result;
 }
 
 /**
@@ -793,13 +874,12 @@ function send_new_noptin_subscriber_double_optin_email( $id, $force = false ) {
 		return false;
 	}
 
-	// Abort if double opt-in is disabled.
-	$double_optin = noptin_has_enabled_double_optin() && ! use_custom_noptin_double_optin_email();
-	if ( empty( $double_optin ) && doing_action( 'noptin_subscriber_created' ) ) {
+	$subscriber = noptin_get_subscriber( $id );
+
+	// Automatic delivery follows saved subscriber state, not mutable form/global settings.
+	if ( use_custom_noptin_double_optin_email() ) {
 		return false;
 	}
-
-	$subscriber = noptin_get_subscriber( $id );
 
 	// Abort if the subscriber is missing or confirmed.
 	if ( ! $subscriber->exists() || $subscriber->get_confirmed() ) {
@@ -810,10 +890,15 @@ function send_new_noptin_subscriber_double_optin_email( $id, $force = false ) {
 		return false;
 	}
 
+	// Preference-only records can suppress confirmation for their creation request.
+	if ( ! apply_filters( 'noptin_should_send_double_optin_email', true, $subscriber, $force ) ) {
+		return false;
+	}
+
 	$defaults = get_default_noptin_subscriber_double_optin_email();
-	$content  = get_noptin_option( 'double_optin_email_body', $defaults['email_body'] );
+	$content  = get_noptin_option( 'double_optin_email_body', $defaults['email_body'], true );
 	$content .= '<p>[[button url="[[confirmation_url]]" text="[[confirmation_text]]"]]</p>';
-	$content .= get_noptin_option( 'double_optin_after_cta_text', $defaults['after_cta_text'] );
+	$content .= get_noptin_option( 'double_optin_after_cta_text', $defaults['after_cta_text'], true );
 
 	// Handle custom merge tags.
 	$url  = $subscriber->get_confirm_subscription_url();
@@ -822,7 +907,7 @@ function send_new_noptin_subscriber_double_optin_email( $id, $force = false ) {
 	$merge_tags = array(
 		'confirmation_link' => $link,
 		'confirmation_url'  => $url,
-		'confirmation_text' => get_noptin_option( 'double_optin_cta_text', $defaults['cta_text'] ),
+		'confirmation_text' => get_noptin_option( 'double_optin_cta_text', $defaults['cta_text'], true ),
 	);
 
 	foreach ( $merge_tags as $key => $value ) {
@@ -835,8 +920,8 @@ function send_new_noptin_subscriber_double_optin_email( $id, $force = false ) {
 		'type'        => 'normal',
 		'content'     => wpautop( trim( $content ) ),
 		'template'    => get_noptin_option( 'email_template', 'paste' ),
-		'heading'     => get_noptin_option( 'double_optin_hero_text', $defaults['hero_text'] ),
-		'footer_text' => get_noptin_option( 'double_optin_permission_text', $defaults['permission_text'] ),
+		'heading'     => get_noptin_option( 'double_optin_hero_text', $defaults['hero_text'], true ),
+		'footer_text' => get_noptin_option( 'double_optin_permission_text', $defaults['permission_text'], true ),
 	);
 
 	\Hizzle\Noptin\Emails\Main::init_current_email_recipient(
@@ -850,7 +935,7 @@ function send_new_noptin_subscriber_double_optin_email( $id, $force = false ) {
 
 	$generator     = new \Hizzle\Noptin\Emails\Generate\Generator();
 	$email_body    = $generator->generate( $args );
-	$email_subject = noptin_parse_email_subject_tags( get_noptin_option( 'double_optin_email_subject', $defaults['email_subject'] ) );
+	$email_subject = noptin_parse_email_subject_tags( get_noptin_option( 'double_optin_email_subject', $defaults['email_subject'], true ) );
 
 	do_action( 'noptin_unregister_temporary_merge_tags' );
 
@@ -1424,6 +1509,7 @@ function noptin_get_subscriber_statuses() {
 			'unsubscribed' => __( 'Unsubscribed', 'newsletter-optin-box' ),
 			'inactive'     => __( 'Inactive', 'newsletter-optin-box' ),
 			'bounced'      => __( 'Bounced', 'newsletter-optin-box' ),
+			'complained'   => __( 'Complained', 'newsletter-optin-box' ),
 			'blocked'      => __( 'Blocked', 'newsletter-optin-box' ),
 		)
 	);

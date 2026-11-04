@@ -53,17 +53,13 @@ class WP_PageNavi_Settings {
 	const SECTION_DISPLAY = 'wp_pagenavi_display';
 
 	/**
-	 * Hook the admin screen into WordPress.
+	 * Hook registration.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_page' ) );
-		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-
-		// Activation hooks do not fire when a plugin is updated, so the upgrade
-		// routine is also run on every admin load.
-		add_action( 'admin_init', array( 'WP_PageNavi_Options', 'maybe_upgrade' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register' ) );
 
 		add_filter( 'plugin_action_links_' . plugin_basename( WP_PAGENAVI_MAIN_FILE ), array( __CLASS__, 'action_links' ) );
 	}
@@ -76,7 +72,7 @@ class WP_PageNavi_Settings {
 	 */
 	public static function capability( $context = 'settings' ) {
 		/**
-		 * Filters the capability required to manage WP-PageNavi.
+		 * Filters the capability required to reach a WP-PageNavi screen.
 		 *
 		 * @since 3.0.0
 		 *
@@ -125,7 +121,7 @@ class WP_PageNavi_Settings {
 	 *
 	 * @return void
 	 */
-	public static function register_settings() {
+	public static function register() {
 		register_setting(
 			self::GROUP,
 			WP_PageNavi_Options::OPTION,

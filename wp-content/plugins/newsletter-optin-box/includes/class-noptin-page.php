@@ -90,10 +90,22 @@ class Noptin_Page {
 	 * @return      string
 	 */
 	public function get_request_action() {
+		$value   = trim( $this->get_request_value(), '/' );
+		$decoded = json_decode( noptin_decrypt( $value ), true );
+
+		if ( is_array( $decoded ) && array_key_exists( 'noptin_ns', $decoded ) ) {
+			$action = $decoded['noptin_ns'];
+			return is_string( $action ) && preg_match( '/^[a-z0-9_-]+$/D', $action ) ? $action : '';
+		}
+
+		// An invalid new token must never downgrade to a query-string action.
+		if ( preg_match( '/^v[0-9]+:/', $value ) ) {
+			return '';
+		}
 
 		// New format. example.com?noptin_ns=$action
 		if ( ! empty( $_GET['noptin_ns'] ) ) {
-			return sanitize_title_with_dashes( trim( urldecode( $_GET['noptin_ns'] ) ) );
+			return is_string( $_GET['noptin_ns'] ) ? sanitize_title_with_dashes( trim( urldecode( $_GET['noptin_ns'] ) ) ) : '';
 		}
 
 		// Backwards compatibility. example.com/noptin_newsletter/$action
@@ -121,7 +133,22 @@ class Noptin_Page {
 	 * @return string
 	 */
 	public function get_request_value() {
-		return isset( $_GET['nv'] ) ? sanitize_text_field( urldecode( $_REQUEST['nv'] ) ) : '';
+		return isset( $_GET['nv'] ) && is_string( $_GET['nv'] ) ? sanitize_text_field( urldecode( wp_unslash( $_GET['nv'] ) ) ) : '';
+	}
+
+	/**
+	 * Read template selection from authenticated tokens, retaining legacy query flags.
+	 *
+	 * @return bool
+	 */
+	public function use_empty_template() {
+		$value = trim( $this->get_request_value(), '/' );
+		if ( preg_match( '/^v[0-9]+:/', $value ) ) {
+			$data = json_decode( noptin_decrypt( $value ), true );
+			return '' !== $this->get_request_action() && is_array( $data ) && 1 === ( $data['nte'] ?? null );
+		}
+
+		return isset( $_GET['nte'] );
 	}
 
 	/**
@@ -133,31 +160,47 @@ class Noptin_Page {
 	 */
 	public function get_request_recipient() {
 
-		// Prepare default recipient.
-		$default = array_filter(
-			array(
-				'subscriber' => get_current_noptin_subscriber_id(),
-				'user'       => get_current_user_id(),
-			)
-		);
+		// Only the manage preferences page may use the current visitor when a
+		// recipient is missing or invalid. Other actions require a link recipient.
+		$default = array();
+		if ( 'manage_preferences' === $this->get_request_action() ) {
+			$default = array_filter(
+				array(
+					'subscriber' => get_current_noptin_subscriber_id(),
+					'user'       => get_current_user_id(),
+				)
+			);
+		}
 
 		// Fetch recipient.
 		$recipient = $this->get_request_value();
 
-		// Fallback to current user / subscriber.
+		// Use the manage-preferences fallback when no recipient was provided.
 		if ( empty( $recipient ) ) {
 			return $default;
 		}
 
 		// Remove trailing slash.
 		$recipient = trim( $recipient, '/' );
+		if ( preg_match( '/^v[0-9]+:/', $recipient ) && '' === $this->get_request_action() ) {
+			return array();
+		}
 
 		// Try to decode the recipient.
 		// New recipient format.
 		$decoded = json_decode( noptin_decrypt( $recipient ), true );
 
 		if ( ! empty( $decoded ) && is_array( $decoded ) ) {
-			return $decoded;
+			if ( array_key_exists( 'noptin_ns', $decoded ) ) {
+				if ( '' === $this->get_request_action() ) {
+					return array();
+				}
+				unset( $decoded['noptin_ns'], $decoded['nte'] );
+			}
+			return empty( $decoded ) ? $default : $decoded;
+		}
+		if ( 0 === strpos( $recipient, 'v1:' ) ) {
+			return array();
 		}
 
 		// Old format (subscribers).
@@ -216,7 +259,7 @@ class Noptin_Page {
 
 	public function listen() {
 
-		if ( empty( $_GET['noptin_ns'] ) && empty( $GLOBALS['wp']->query_vars['noptin_newsletter'] ) ) {
+		if ( ! is_noptin_actions_page() && empty( $GLOBALS['wp']->query_vars['noptin_newsletter'] ) ) {
 			return;
 		}
 
@@ -276,7 +319,7 @@ class Noptin_Page {
 		}
 
 		$template = locate_noptin_template( 'actions-page.php' );
-		if ( isset( $_GET['nte'] ) ) {
+		if ( $this->use_empty_template() ) {
 			$template = locate_noptin_template( 'actions-page-empty.php' );
 		}
 

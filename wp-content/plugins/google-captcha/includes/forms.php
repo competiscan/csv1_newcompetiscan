@@ -629,14 +629,11 @@ if ( ! function_exists( 'gglcptch_check_login_register_forms' ) ) {
 
 if ( ! function_exists( 'gglcptch_validate_password_reset_form' ) ) {
 	function gglcptch_validate_password_reset_form( $errors, $user ) {
-		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-
-			global $gglcptch_options;
-
-			if ( empty( $gglcptch_options ) ) {
-				$gglcptch_options = get_option( 'gglcptch_options' );
-			}
-
+		global $gglcptch_options;
+		if ( empty( $gglcptch_options ) ) {
+			$gglcptch_options = get_option( 'gglcptch_options' );
+		}
+		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) && 1 === $gglcptch_options['fsp_enable'] ) {
 			$result = gglcptch_validate_password( $_POST['pass1'] );
 			if ( false === $result ) {
 				$errors->add( 'error', str_replace( '{min_length}', $gglcptch_options['fsp_length'], $gglcptch_options['fsp_error_message'] ), 'gglcptch-security' );
@@ -655,7 +652,7 @@ if ( ! function_exists( 'gglcptch_validate_password' ) ) {
 			$gglcptch_options = get_option( 'gglcptch_options' );
 		}  
 	
-		$pattern = '/^[a-zA-Z\d\!\@\#\$\%\^\&\*\(\)\-\_\[\]\{\}\<\>\~\`\+\=\,\.\;\:\/\?\|\'\"\\\\]{' . $gglcptch_options['fsp_length'] . ',25}$/';
+		$pattern = '/^[a-zA-Z\d\!\@\#\$\%\^\&\*\(\)\-\_\[\]\{\}\<\>\~\`\+\=\,\.\;\:\/\?\|\'\"\\]{' . $gglcptch_options['fsp_length'] . ',}$/';
 	
 		if ( strlen( $password ) < $gglcptch_options['fsp_length'] || ! preg_match( $pattern, $password ) ) {
 			return false;

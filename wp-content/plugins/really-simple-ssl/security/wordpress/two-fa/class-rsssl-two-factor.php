@@ -19,6 +19,7 @@ use RSSSL\Security\WordPress\Two_Fa\Services\Rsssl_Two_Factor_Reset_Service;
 use RSSSL\Security\WordPress\Two_Fa\Providers\Rsssl_Provider_Loader;
 use RSSSL\Security\WordPress\Two_Fa\Providers\Rsssl_Two_Factor_Provider;
 use RSSSL\Security\WordPress\Two_Fa\Providers\Rsssl_Two_Factor_Provider_Interface;
+use RSSSL\Security\WordPress\Two_Fa\Providers\Rsssl_Two_Factor_Email;
 use RSSSL\Security\WordPress\Two_Fa\Traits\Rsssl_Email_Trait;
 use WP_Error;
 use WP_Session_Tokens;
@@ -88,6 +89,15 @@ class Rsssl_Two_Factor
     private static array $password_auth_tokens = array();
 
     /**
+     * ID of the user authenticated with an application password during the
+     * current wp_authenticate() call. Reset per call, because XML-RPC
+     * system.multicall runs several authentications in one request.
+     *
+     * @var int
+     */
+    private static int $application_password_user_id = 0;
+
+    /**
      * Set up filters and actions.
      *
      * @param object $compat A compatibility layer for plugins.
@@ -124,6 +134,7 @@ class Rsssl_Two_Factor
         add_filter('wp_login_errors', array(__CLASS__, 'maybe_add_login_error_notice'));
         add_filter('wp_login_errors', array(__CLASS__, 'rsssl_maybe_show_reset_password_notice'));
         add_action('after_password_reset', array(__CLASS__, 'rsssl_clear_password_reset_notice'));
+        add_action('login_form_rsssl_onboarding', array(__CLASS__, 'rsssl_login_form_onboarding'));
         add_action('login_form_validate_2fa', array(__CLASS__, 'rsssl_login_form_validate_2fa'));
         // Loading the styles.
         add_action('login_enqueue_scripts', array(__CLASS__, 'enqueue_onboarding_styles'));
@@ -158,8 +169,12 @@ class Rsssl_Two_Factor
 
         add_action('init', array(__CLASS__, 'rsssl_collect_auth_cookie_tokens'));
 
-        // Run only after the core wp_authenticate_username_password() check.
-        add_filter('authenticate', array(__CLASS__, 'rsssl_filter_authenticate'));
+        // Reset per wp_authenticate() call, before any core authentication handler runs.
+        add_filter('authenticate', array(__CLASS__, 'rsssl_reset_application_password_user'), 0);
+        add_action('application_password_did_authenticate', array(__CLASS__, 'rsssl_record_application_password_user'));
+
+        // Run only after the core password and application password authentication checks.
+        add_filter('authenticate', array(__CLASS__, 'rsssl_filter_authenticate'), 31);
 
         // Run as late as possible to prevent other plugins from unintentionally bypassing.
         add_filter('authenticate', array(__CLASS__, 'rsssl_filter_authenticate_block_cookies'), PHP_INT_MAX);
@@ -240,6 +255,10 @@ class Rsssl_Two_Factor
             }
 
             if (function_exists('rsssl_update_option')) {
+                // This runs on plugins_loaded, before $wp_rewrite exists, so the REST API check would fatal on rest_url().
+                if (!defined('RSSSL_SKIP_REST_API_ACCESSIBLE_CHECK')) {
+                    define('RSSSL_SKIP_REST_API_ACCESSIBLE_CHECK', true);
+                }
                 // Update the enabled roles for only email.
                 rsssl_update_option('two_fa_enabled_roles_email', $enabled_roles);
                 rsssl_update_option('two_fa_enabled_roles_totp', ['administrator']);
@@ -289,6 +308,13 @@ class Rsssl_Two_Factor
 
                 // Delete the transient to invalidate the token.
                 delete_transient('skip_two_fa_token_' . $user_id);
+
+				// The email link may not replace a stronger method.
+				$primary_provider = self::get_primary_provider_for_user( $user );
+				if ( '' !== $primary_provider && Rsssl_Two_Factor_Email::class !== $primary_provider ) {
+					wp_safe_redirect( wp_login_url() . '?login_error=token_invalid' );
+					exit;
+				}
 
                 $status = get_user_meta($user->ID, 'rsssl_two_fa_status_email', true);
 
@@ -446,6 +472,8 @@ class Rsssl_Two_Factor
     /**
      * Gets the Two-Factor Auth provider for the specified|current user.
      *
+     * When the user has more than one configured provider, the provider with the lowest priority number wins.
+     *
      * @param WP_User $user Optional. User ID, or WP_User object of the user. Defaults to current user.
      *
      * @return string
@@ -454,28 +482,22 @@ class Rsssl_Two_Factor
     public static function get_primary_provider_for_user(WP_User $user): string
     {
         $loader = Rsssl_Provider_Loader::get_loader();
+
+        // Get the providers that pass the is_enabled($user) and is_configured($user) checks
         $available_providers = $loader::get_configured_providers_for_user($user);
-        // If there's only one available provider, force that to be the primary.
+
         if (empty($available_providers)) {
             return '';
         }
 
-        if (1 === count($available_providers)) {
-            $provider = key($available_providers);
-        } else {
-            $provider = Rsssl_Provider_Loader::get_user_enabled_providers($user);
-            // Check if already a provider is active.
+		$primary = reset( $available_providers );
+		foreach ( $available_providers as $provider ) {
+			if ( $provider::PRIORITY < $primary::PRIORITY ) {
+				$primary = $provider;
+			}
+		}
 
-            // If the provider specified isn't enabled, just grab the first one that is based on the Weight.
-            $best_valued_provider = 'totp';
-            if (isset($available_providers[$best_valued_provider]) && $available_providers[$best_valued_provider]::is_enabled($user)) {
-                $provider = $best_valued_provider;
-            } else {
-                $provider = key($available_providers);
-            }
-        }
-
-        return get_class($available_providers[$provider]) ??  '';
+		return get_class( $primary );
     }
 
     /**
@@ -597,6 +619,10 @@ class Rsssl_Two_Factor
 
         switch (Rsssl_Two_Factor_Settings::get_login_action($user->ID)) {
             case 'onboarding':
+                if ( ! did_action( 'login_init' ) ) {
+                    self::redirect_to_onboarding( $user );
+                }
+
                 self::is_onboarding_complete($user);
                 exit;
             case 'expired':
@@ -608,6 +634,7 @@ class Rsssl_Two_Factor
             case 'totp':
             case 'email':
             case 'passkey':
+                self::destroy_current_session_for_user($user);
                 wp_clear_auth_cookie();
                 self::show_two_factor_login($user);
                 exit;
@@ -615,6 +642,56 @@ class Rsssl_Two_Factor
             default:
                 break;
         }
+    }
+
+    /**
+     * Render onboarding from the dedicated WordPress login request.
+     *
+     * @throws Exception If the onboarding screen template cannot be loaded.
+     */
+    public static function rsssl_login_form_onboarding(): void
+    {
+        $request_data = self::get_request_data();
+        $user_id = $request_data['user_id'];
+        $login_nonce = $request_data['login_nonce'];
+        $redirect_to = $request_data['redirect_to'];
+        $user = get_userdata( $user_id );
+
+        if ( ! $user instanceof WP_User || ! Rsssl_Two_Fa_Authentication::verify_login_nonce( $user_id, $login_nonce ) ) {
+            self::redirect_to_login_error( 'nonce_invalid', $redirect_to );
+        }
+
+        self::is_onboarding_complete( $user, $login_nonce );
+        wp_safe_redirect( wp_validate_redirect( $redirect_to, admin_url() ) );
+        exit;
+    }
+
+    /**
+     * Restart onboarding in a fresh login request so login_init runs before rendering.
+     * Clears the current authentication state, redirects, and exits.
+     *
+     * @param WP_User $user User being onboarded.
+     */
+    private static function redirect_to_onboarding( WP_User $user ): void
+    {
+        $login_nonce = self::generate_login_nonce_for_user( $user->ID );
+        $redirect_to = isset( $_REQUEST['redirect_to'] )
+            ? wp_validate_redirect( wp_unslash( $_REQUEST['redirect_to'] ), admin_url() )
+            : admin_url();
+
+        self::destroy_current_session_for_user( $user );
+        wp_clear_auth_cookie();
+        wp_safe_redirect(
+            self::login_url(
+                array(
+                    'action'               => 'rsssl_onboarding',
+                    'rsssl-wp-auth-id'     => $user->ID,
+                    'rsssl-wp-auth-nonce'  => $login_nonce,
+                    'redirect_to'          => $redirect_to,
+                )
+            )
+        );
+        exit;
     }
 
     /**
@@ -708,7 +785,36 @@ class Rsssl_Two_Factor
     }
 
     /**
+     * Clear the application-password user at the start of each wp_authenticate() call.
+     *
+     * @param WP_User|WP_Error|null $user Current authenticate filter value.
+     *
+     * @return WP_User|WP_Error|null
+     */
+    public static function rsssl_reset_application_password_user($user)
+    {
+        self::$application_password_user_id = 0;
+
+        return $user;
+    }
+
+    /**
+     * Remember which user was authenticated with an application password.
+     *
+     * @param WP_User $user The user who was authenticated.
+     *
+     * @return void
+     */
+    public static function rsssl_record_application_password_user(WP_User $user): void
+    {
+        self::$application_password_user_id = $user->ID;
+    }
+
+    /**
      * If the current user can log in via API requests such as XML-RPC and REST.
+     *
+     * Only true when this exact user was authenticated with an application
+     * password in the current wp_authenticate() call.
      *
      * @param integer $user_id User ID.
      *
@@ -716,7 +822,11 @@ class Rsssl_Two_Factor
      */
     public static function is_user_api_login_enabled(int $user_id): bool
     {
-        return (bool)apply_filters('rsssl_two_factor_user_api_login_enable', false, $user_id);
+        return (bool) apply_filters(
+            'rsssl_two_factor_user_api_login_enable',
+            self::$application_password_user_id > 0 && self::$application_password_user_id === $user_id,
+            $user_id
+        );
     }
 
     /**
@@ -1026,7 +1136,10 @@ class Rsssl_Two_Factor
 	 * @throws Exception
 	 */
 	public static function rsssl_login_form_validate_2fa(): void {
-		[$wp_auth_id, $nonce, $provider_key, $redirect_to] = self::get_request_data();
+		$request_data = self::get_request_data();
+		$wp_auth_id = $request_data['user_id'];
+		$nonce = $request_data['login_nonce'];
+		$redirect_to = $request_data['redirect_to'];
 
 		if (isset($_SERVER['REQUEST_METHOD']) && 'POST' === strtoupper((sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD']))))) {
 			$is_post_request = true;
@@ -1048,32 +1161,31 @@ class Rsssl_Two_Factor
 			self::redirect_to_login_error('nonce_invalid', $redirect_to);
 		}
 
-		$loader = Rsssl_Provider_Loader::get_loader();
-		// Get the provider
-		$providers = $loader::get_enabled_providers_for_user($user);
-		if ($provider_key && isset($providers[$provider_key])) {
-			$provider_class = get_class($providers[$provider_key]);
-		} else {
+		// Use the provider that the login page shows for this user.
+		$provider = self::get_primary_provider_for_user( $user );
+		if ( '' === $provider ) {
 			wp_die(esc_html__('Authentication provider not specified or invalid.', 'really-simple-ssl'), 403);
 		}
 
 		/** @var Rsssl_Two_Factor_Provider $provider_instance */
-		$provider_instance = $provider_class::get_instance();
+		$provider_instance = $provider::get_instance();
 
 		// Check for corrupted/empty TOTP key before attempting authentication
-		self::validate_totp_key_exists( $user, $provider_key );
+		self::validate_totp_key_exists( $user, $provider::METHOD );
 
-		// Allow the provider to re-send codes, etc.
-		if ( ( 'email' === $provider_key ) && true === $provider_instance->pre_process_authentication( $user ) ) {
+		// Send a new email code when the user asks for it.
+		if ( ( Rsssl_Two_Factor_Email::METHOD === $provider::METHOD ) && true === $provider_instance->pre_process_authentication( $user ) ) {
 			// Always generate a new nonce.
 			$new_nonce = self::generate_login_nonce_for_user($user->ID);
-			self::login_html($user, $new_nonce, $redirect_to, '', $provider_class);
+
+			// Show the email code form.
+			self::login_html($user, $new_nonce, $redirect_to, '', $provider);
 			exit;
 		}
 
 		// If the form hasn't been submitted, just display the auth form.
 		if (!$is_post_request) {
-			self::handle_not_post_request($user, $provider_class);
+			self::handle_not_post_request($user, $provider);
 			exit;
 		}
 		if (self::is_user_rate_limited($user)) {
@@ -1095,18 +1207,13 @@ class Rsssl_Two_Factor
 			do_action('rsssl_wp_login_failed', $user->user_login, $error);
 
 			// Display the login form with an error message
-			self::login_html(
-				$user,
-				$redirect_to,
-				esc_html($error->get_error_message()),
-				$provider_key
-			);
+			self::login_html( $user, $nonce, $redirect_to, esc_html( $error->get_error_message() ), $provider );
 			exit;
 		}
 		// Validate authentication
 		if (!$provider_instance->validate_authentication($user)) {
 			// Handle rate limiting and failed attempts
-			self::handle_failed_attempt($user, $provider_class, $redirect_to, $nonce);
+			self::handle_failed_attempt($user, $provider, $redirect_to, $nonce);
 			exit;
 		}
 
@@ -1164,7 +1271,7 @@ class Rsssl_Two_Factor
 		// Authenticate the user.
 		wp_set_auth_cookie($user->ID, $rememberme);
 
-		do_action('rsssl_two_factor_user_authenticated', $user);
+		do_action('rsssl_two_factor_user_authenticated', $user->user_login, $user);
 
 		$redirect_to = apply_filters('login_redirect', $redirect_to, $redirect_to, $user);
 		if (function_exists('\RSSSL\Pro\Security\WordPress\rsssl_maybe_get_expired_password_redirect')) {
@@ -1222,15 +1329,17 @@ class Rsssl_Two_Factor
     /**
      * Get the request data for two-factor authentication.
      *
-     * @return array An array containing the sanitized values of wp_auth_id, nonce, and provider.
+     * @return array Sanitized user ID, login nonce, and redirect URL.
      */
     private static function get_request_data(): array
     {
-        $wp_auth_id = self::sanitize_request_data('rsssl-wp-auth-id', 0, 'absint');
-        $nonce = self::sanitize_request_data('rsssl-wp-auth-nonce', '', 'wp_unslash');
-        $provider = self::sanitize_request_data('provider', false, 'wp_unslash');
-        $redirect_to = self::sanitize_request_data('redirect_to', '', 'wp_unslash');
-        return array($wp_auth_id, $nonce, $provider, $redirect_to);
+        return array(
+            'user_id'      => self::sanitize_request_data('rsssl-wp-auth-id', 0, 'absint'),
+            'login_nonce'  => self::sanitize_request_data('rsssl-wp-auth-nonce', '', 'wp_unslash'),
+            'redirect_to'  => isset($_REQUEST['redirect_to']) && is_string($_REQUEST['redirect_to'])
+                ? wp_validate_redirect(wp_unslash($_REQUEST['redirect_to']), admin_url())
+                : '',
+        );
     }
 
     /**
@@ -1368,16 +1477,17 @@ class Rsssl_Two_Factor
      * Check if the user has completed the onboarding process.
      *
      * @param WP_User $user The WP_User object representing the user.
+     * @param string $login_nonce Existing login nonce for redirected onboarding.
      *
      * @return void
      * @throws Exception If the onboarding screen template cannot be loaded.
      */
-    private static function is_onboarding_complete(WP_User $user): void
+    private static function is_onboarding_complete(WP_User $user, string $login_nonce = ''): void
     {
         // If the user has not completed the onboarding process, they should be shown the onboarding screen.
         $onboarding_complete = get_user_meta($user->ID, self::RSSSL_USER_META_ONBOARDING_COMPLETE, true);
         if (!$onboarding_complete) {
-            self::onboarding_user_html($user);
+            self::onboarding_user_html($user, $login_nonce);
         }
     }
 
@@ -1463,11 +1573,12 @@ class Rsssl_Two_Factor
      * Generate the HTML for the onboarding screen for a given user.
      *
      * @param WP_User $user The user object.
+     * @param string $login_nonce Existing login nonce for redirected onboarding.
      *
      * @return void
      * @throws Exception If the onboarding screen template cannot be loaded.
      */
-    private static function onboarding_user_html(WP_User $user): void
+    private static function onboarding_user_html(WP_User $user, string $login_nonce = ''): void
     {
         $passkey_onboarding = get_user_meta($user->ID, 'rsssl_two_fa_status_passkey', true) === 'open';
         // Variables needed for the template and scripts
@@ -1476,7 +1587,7 @@ class Rsssl_Two_Factor
         $provider = self::get_primary_provider_for_user($user);
         $redirect_to = isset($_REQUEST['redirect_to']) ? wp_validate_redirect(wp_unslash($_REQUEST['redirect_to']), admin_url()) : admin_url();
         $enabled_providers = $provider_loader::get_user_enabled_providers($user);
-        $login_nonce = self::generate_login_nonce_for_user($user->ID);
+        $login_nonce = $login_nonce ?: self::generate_login_nonce_for_user($user->ID);
         $is_forced = Rsssl_Two_Factor_Settings::is_user_forced_to_use_2fa($user->ID);
         $grace_period = Rsssl_Two_Factor_Settings::is_user_in_grace_period($user);
         $is_today = Rsssl_Two_Factor_Settings::is_today($user);

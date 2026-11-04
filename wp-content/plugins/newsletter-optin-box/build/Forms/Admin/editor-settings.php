@@ -23,6 +23,7 @@ foreach ( get_default_noptin_form_messages() as $message_id => $message_details 
 	$confirmation_messages[ "{$message_id}Message" ] = array(
 		'type'        => 'text',
 		'el'          => 'input',
+		'can_map'     => true,
 		'label'       => $message_details['label'],
 		'tooltip'     => $message_details['description'],
 		'placeholder' => $message_details['default'],
@@ -41,13 +42,13 @@ $editor_settings = array(
 			'id'       => 'basicSettings',
 			'children' => array(
 
-				'is_unsubscribe'  => array(
+				'is_unsubscribe'               => array(
 					'type'  => 'checkbox',
 					'el'    => 'input',
 					'label' => __( 'This is an unsubscribe form.', 'newsletter-optin-box' ),
 				),
 
-				'update_existing' => array(
+				'update_existing'              => array(
 					'type'       => 'checkbox',
 					'el'         => 'input',
 					'label'      => __( 'Update existing subscribers if they match the submitted email address.', 'newsletter-optin-box' ),
@@ -59,7 +60,25 @@ $editor_settings = array(
 					),
 				),
 
-				'inject'          => array(
+				'doubleOptin'                  => array(
+					'el'          => 'select',
+					'default'     => 'global',
+					'label'       => __( 'Double opt-in', 'newsletter-optin-box' ),
+					'description' => __( 'Choose whether new subscribers must confirm their email address. Existing pending contacts remain pending. Already-subscribed contacts stay subscribed.', 'newsletter-optin-box' ),
+					'options'     => array(
+						'global'   => __( 'Use global setting', 'newsletter-optin-box' ),
+						'required' => __( 'Require email confirmation', 'newsletter-optin-box' ),
+						'disabled' => __( 'Subscribe immediately', 'newsletter-optin-box' ),
+					),
+					'conditions'  => array(
+						array(
+							'key'   => 'is_unsubscribe',
+							'value' => false,
+						),
+					),
+				),
+
+				'inject'                       => array(
 					'el'         => 'select',
 					'conditions' => array(
 						array(
@@ -78,7 +97,7 @@ $editor_settings = array(
 				),
 
 				// What should happen after someone subscibes?
-				'subscribeAction' => array(
+				'subscribeAction'              => array(
 					'el'      => 'select',
 					'label'   => __( 'What should happen after the user subscribes', 'newsletter-optin-box' ),
 					'options' => array(
@@ -88,9 +107,10 @@ $editor_settings = array(
 				),
 
 				// Where should we redirect the user after subscription?
-				'redirectUrl'     => array(
+				'redirectUrl'                  => array(
 					'type'        => 'text',
 					'el'          => 'input',
+					'can_map'     => true,
 					'label'       => __( 'Redirect url', 'newsletter-optin-box' ),
 					'placeholder' => 'http://example.com/success',
 					'conditions'  => array(
@@ -101,6 +121,45 @@ $editor_settings = array(
 					),
 				),
 
+				'redirectAlreadySubscribed'    => array(
+					'type'       => 'checkbox',
+					'el'         => 'input',
+					'label'      => __( 'Use a different redirect for already-subscribed contacts.', 'newsletter-optin-box' ),
+					'tooltip'    => __( 'Applies to contacts who are already subscribed, even when this form updates their details. Pending contacts keep the normal redirect.', 'newsletter-optin-box' ),
+					'conditions' => array(
+						array(
+							'key'   => 'subscribeAction',
+							'value' => 'redirect',
+						),
+						array(
+							'key'   => 'is_unsubscribe',
+							'value' => false,
+						),
+					),
+				),
+
+				'alreadySubscribedRedirectUrl' => array(
+					'type'        => 'text',
+					'el'          => 'input',
+					'can_map'     => true,
+					'label'       => __( 'Already subscribed redirect URL', 'newsletter-optin-box' ),
+					'placeholder' => 'https://example.com/already-subscribed',
+					'description' => __( 'Leave blank if you do not want to redirect already-subscribed contacts.', 'newsletter-optin-box' ),
+					'conditions'  => array(
+						array(
+							'key'   => 'subscribeAction',
+							'value' => 'redirect',
+						),
+						array(
+							'key'   => 'is_unsubscribe',
+							'value' => false,
+						),
+						array(
+							'key'   => 'redirectAlreadySubscribed',
+							'value' => true,
+						),
+					),
+				),
 			),
 		),
 
@@ -405,6 +464,21 @@ $editor_settings = array(
 	'design'       => array(
 		'label'       => __( 'Design', 'newsletter-optin-box' ),
 
+		'styling'     => array(
+			'el'       => 'panel',
+			'title'    => __( 'Styling', 'newsletter-optin-box' ),
+			'id'       => 'formStyling',
+			'children' => array(
+				'disableDesignStyles' => array(
+					'el'          => 'input',
+					'type'        => 'checkbox',
+					'default'     => false,
+					'label'       => __( 'Disable Noptin design styles', 'newsletter-optin-box' ),
+					'description' => __( 'Style this form using your theme or custom CSS. Custom CSS will still apply.', 'newsletter-optin-box' ),
+				),
+			),
+		),
+
 		// Form Design.
 		'form'        => array(
 			'el'       => 'panel',
@@ -462,7 +536,7 @@ $editor_settings = array(
 						),
 						'hideLabelFromVision' => true,
 						'fields'              => array(
-							'type.type'  => array(
+							'type.type'          => array(
 								'el'         => 'select',
 								'label'      => __( 'Field Type', 'newsletter-optin-box' ),
 								'options'    => wp_list_pluck(
@@ -472,10 +546,34 @@ $editor_settings = array(
 								),
 								'label_sets' => 'type.label',
 							),
-							'type.label' => array(
+							'type.label'         => array(
 								'el'          => 'input',
 								'label'       => __( 'Frontend Label', 'newsletter-optin-box' ),
 								'description' => __( 'Leave empty to use the default label.', 'newsletter-optin-box' ),
+							),
+							'type.default_value' => array(
+								'el'          => 'input',
+								'label'       => __( 'Default value', 'newsletter-optin-box' ),
+								'can_map'     => true,
+								'description' => __( 'Optional. You can insert dynamic values from the page where the form is submitted.', 'newsletter-optin-box' ),
+							),
+							'type.hidden'        => array(
+								'el'          => 'input',
+								'type'        => 'checkbox_alt',
+								'label'       => __( 'Hidden', 'newsletter-optin-box' ),
+								'description' => __( 'Do not display this field. Its value will be calculated when the form is submitted.', 'newsletter-optin-box' ),
+								'default'     => false,
+								'conditions'  => array(
+									array(
+										'key'      => 'type.type',
+										'operator' => '!=',
+										'value'    => 'email',
+									),
+									array(
+										'key'      => 'type.default_value',
+										'operator' => '!empty',
+									),
+								),
 							),
 						),
 					),
@@ -691,6 +789,7 @@ $editor_settings = array(
 				'prefix'           => array(
 					'el'         => 'textarea',
 					'label'      => __( 'Prefix', 'newsletter-optin-box' ),
+					'can_map'    => true,
 					'conditions' => array(
 						array(
 							'key'   => 'hidePrefix',
@@ -741,6 +840,7 @@ $editor_settings = array(
 				'title'           => array(
 					'el'         => 'textarea',
 					'label'      => __( 'Heading', 'newsletter-optin-box' ),
+					'can_map'    => true,
 					'conditions' => array(
 						array(
 							'key'   => 'hideTitle',
@@ -791,6 +891,7 @@ $editor_settings = array(
 				'description'           => array(
 					'el'         => 'textarea',
 					'label'      => __( 'Sub-heading', 'newsletter-optin-box' ),
+					'can_map'    => true,
 					'conditions' => array(
 						array(
 							'key'   => 'hideDescription',
@@ -841,6 +942,7 @@ $editor_settings = array(
 				'note'           => array(
 					'el'         => 'textarea',
 					'label'      => __( 'Note', 'newsletter-optin-box' ),
+					'can_map'    => true,
 					'conditions' => array(
 						array(
 							'key'   => 'hideNote',
@@ -997,6 +1099,31 @@ $editor_settings = array(
 		'label' => __( 'Integrations', 'newsletter-optin-box' ),
 	),
 );
+
+// Hide controls whose design output is disabled, without changing their saved values.
+$noptin_design_controls = array(
+	'form'   => array( 'formWidth', 'formHeight', 'formBoxShadow', 'formBorder' ),
+	'fields' => array( 'fieldBorder', 'singleLine' ),
+	'image'  => array( 'noptinFormBgImg', 'imagePos', 'imageMainPos' ),
+	'button' => array( 'buttonPosition', 'noptinButtonRadius', 'noptinButtonShadow' ),
+);
+foreach ( array( 'prefix', 'title', 'description', 'note' ) as $noptin_text_part ) {
+	$noptin_design_controls[ $noptin_text_part ] = array( $noptin_text_part . 'Typography', $noptin_text_part . 'Advanced' );
+}
+foreach ( $noptin_design_controls as $noptin_panel => $noptin_controls ) {
+	foreach ( $noptin_controls as $noptin_control ) {
+		$editor_settings['design'][ $noptin_panel ]['children'][ $noptin_control ]['conditions'][] = array(
+			'key'      => 'disableDesignStyles',
+			'operator' => 'empty',
+		);
+	}
+}
+foreach ( array( 'form', 'colors' ) as $noptin_panel ) {
+	$editor_settings['design'][ $noptin_panel ]['conditions'][] = array(
+		'key'      => 'disableDesignStyles',
+		'operator' => 'empty',
+	);
+}
 
 // Loop through all custom fields.
 foreach ( get_noptin_multicheck_custom_fields() as $field ) {

@@ -57,7 +57,7 @@ class Fields_REST_API {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'create_custom_field' ),
-				'permission_callback' => 'current_user_can_manage_noptin',
+				'permission_callback' => array( __CLASS__, 'check_permission' ),
 				'args'                => array(
 					'label'     => array(
 						'description'       => 'The field label.',
@@ -96,12 +96,12 @@ class Fields_REST_API {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( __CLASS__, 'get_field_options' ),
-					'permission_callback' => 'current_user_can_manage_noptin',
+					'permission_callback' => array( __CLASS__, 'check_permission' ),
 				),
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( __CLASS__, 'create_field_option' ),
-					'permission_callback' => 'current_user_can_manage_noptin',
+					'permission_callback' => array( __CLASS__, 'check_permission' ),
 					'args'                => array(
 						'value' => array(
 							'description'       => 'The option value.',
@@ -129,7 +129,7 @@ class Fields_REST_API {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( __CLASS__, 'update_field_option' ),
-					'permission_callback' => 'current_user_can_manage_noptin',
+					'permission_callback' => array( __CLASS__, 'check_permission' ),
 					'args'                => array(
 						'value' => array(
 							'description'       => 'The option value.',
@@ -148,7 +148,7 @@ class Fields_REST_API {
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => array( __CLASS__, 'delete_field_option' ),
-					'permission_callback' => 'current_user_can_manage_noptin',
+					'permission_callback' => array( __CLASS__, 'check_permission' ),
 					'schema'              => '__return_empty_array',
 				),
 				'schema' => '__return_empty_array',
@@ -162,7 +162,7 @@ class Fields_REST_API {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'merge_field_options' ),
-				'permission_callback' => 'current_user_can_manage_noptin',
+				'permission_callback' => array( __CLASS__, 'check_permission' ),
 				'args'                => array(
 					'source_options' => array(
 						'description' => 'Array of option values to merge into the target value.',
@@ -182,7 +182,7 @@ class Fields_REST_API {
 	 * Checks if the current user has permission.
 	 */
 	public static function check_permission() {
-		return current_user_can_manage_noptin();
+		return current_user_can( get_noptin_collection_capability( 'subscribers' ) );
 	}
 
 	/**
@@ -539,7 +539,9 @@ class Fields_REST_API {
 		}
 
 		// 1. Update unassigned values stored in settings.
-		$unassigned = self::get_unassigned_options( $field );
+		$original_options = self::get_unassigned_options( $field );
+		$was_configured   = self::TAGS_FIELD === $field ? in_array( $value, $original_options, true ) : array_key_exists( $value, $original_options );
+		$unassigned       = $original_options;
 		if ( self::TAGS_FIELD === $field ) {
 			$unassigned = array_diff( $unassigned, array( $value ) );
 		} else {
@@ -572,9 +574,18 @@ class Fields_REST_API {
 			);
 		}
 
+		if ( false === $deleted ) {
+			self::save_field_options( $field, $original_options );
+			return new \WP_Error( 'noptin_option_delete_failed', 'Could not remove this option from subscribers.', array( 'status' => 500 ) );
+		}
+
+		if ( ! $was_configured && 0 === $deleted ) {
+			return new \WP_Error( 'noptin_option_not_found', 'This option no longer exists. Refresh the page and try again.', array( 'status' => 404 ) );
+		}
+
 		noptin_flush_subscriber_caches();
 
-		return rest_ensure_response( array( 'deleted' => (int) ( false === $deleted ? 0 : $deleted ) ) );
+		return rest_ensure_response( array( 'deleted' => (int) $deleted ) );
 	}
 
 	/**
@@ -879,7 +890,7 @@ class Fields_REST_API {
 				continue;
 			}
 
-			$options = $email->options['noptin_subscriber_options'];
+			$options = $email->options['noptin_subscriber_options'] ?? null;
 
 			if ( is_array( $options ) && isset( $options[ $field ] ) ) {
 				$needs_saving      = false;

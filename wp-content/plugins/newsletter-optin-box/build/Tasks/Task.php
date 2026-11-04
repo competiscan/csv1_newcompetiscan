@@ -336,6 +336,11 @@ class Task extends \Hizzle\Store\Record {
 	 *
 	 */
 	public function process() {
+		// Claim before hooks or side effects, including calls outside the queue runner.
+		if ( ! $this->claim() ) {
+			return;
+		}
+
 		global $current_noptin_task;
 		$old_task            = $current_noptin_task;
 		$current_noptin_task = $this;
@@ -359,6 +364,47 @@ class Task extends \Hizzle\Store\Record {
 		}
 
 		$current_noptin_task = $old_task;
+	}
+
+	/**
+	 * Atomically claims a pending task. Cached object state is not authoritative.
+	 *
+	 * @return bool Whether this worker acquired the task.
+	 */
+	protected function claim() {
+		global $wpdb;
+
+		if ( ! $this->get_id() ) {
+			return false;
+		}
+
+		$collection = $this->get_collection();
+		$now        = time();
+		$claimed    = $wpdb->update(
+			$collection->get_db_table_name(),
+			array(
+				'status'        => 'running',
+				'date_modified' => gmdate( 'Y-m-d H:i:s', $now ),
+			),
+			array(
+				'id'     => $this->get_id(),
+				'status' => 'pending',
+			),
+			array( '%s', '%s' ),
+			array( '%d', '%s' )
+		);
+
+		// Zero means another worker claimed it (or it is no longer pending).
+		// A database error must also prevent execution.
+		if ( 1 !== $claimed ) {
+			return false;
+		}
+
+		$this->set_status( 'running' );
+		$this->set_date_modified( $now );
+		$collection->clear_cache( $this );
+
+		return true;
 	}
 
 	/**
@@ -485,10 +531,10 @@ class Task extends \Hizzle\Store\Record {
 		$result = parent::save();
 
 		if ( $this->exists() && $this->get_status() === 'pending' && $this->has_expired() ) {
-			$is_deleted = $this->get_lookup_key() && strpos( $this->get_lookup_key(), 'delete' );
+			$is_deleted = false !== strpos( (string) $this->get_lookup_key(), 'delete' );
 
 			// Run delete actions right away to make use of the deleted data.
-			if ( ( ! $is_deleted && $this->get_subject() ) || ! apply_filters( 'noptin_saved_task_background_run', true ) ) {
+			if ( $is_deleted || $this->get_subject() || ! apply_filters( 'noptin_saved_task_background_run', true ) ) {
 				$this->process();
 			} elseif ( ! has_action( 'shutdown', array( $GLOBALS['noptin_tasks'], 'run_pending' ) ) ) {
 				add_action( 'shutdown', array( $GLOBALS['noptin_tasks'], 'run_pending' ), -1000 );

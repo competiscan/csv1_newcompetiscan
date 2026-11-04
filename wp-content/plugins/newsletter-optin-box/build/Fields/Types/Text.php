@@ -29,6 +29,39 @@ class Text extends Base {
 	}
 
 	/**
+	 * Store decoded plain text without markup, merge tags, or shortcodes.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return string
+	 */
+	public function sanitize_value( $value ) {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		$value = html_entity_decode( (string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$value = sanitize_text_field( wp_strip_all_tags( $value ) );
+
+		do {
+			$previous = $value;
+			// Remove complete merge tags, including tags nested in their attributes.
+			$value = preg_replace( '/\[\[(?:[^\[\]]++|(?R)|\[(?!\[)|\](?!\]))*\]\]/s', '', $value );
+			// The email parser also recognizes entity-encoded square brackets.
+			$value = preg_replace( '/&#91;&#91;.*?&#93;&#93;/s', '', $value );
+			$value = preg_replace( '/\{\{?\/?[a-zA-Z_][a-zA-Z0-9_.:-]*(?:\s+[^{}]*)?\/?\}\}?/s', '', $value );
+
+			// Discover names from the input rather than the active shortcode registry.
+			// Unknown shortcodes must not become executable when an add-on is enabled later.
+			if ( preg_match_all( '@\[/?([^<>&/\[\]\x00-\x20=]++)@', $value, $matches ) ) {
+				$value = preg_replace( '/' . get_shortcode_regex( array_unique( $matches[1] ) ) . '/s', '', $value );
+			}
+			// Removal can join fragments into another tag; strip those too.
+		} while ( $value !== $previous );
+
+		return sanitize_text_field( $value );
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function output( $args ) {
@@ -92,10 +125,7 @@ class Text extends Base {
 			$schema[ $column ]['default']  = '';
 		}
 
-		// Sanitize options.
-		if ( is_callable( array( $this, 'sanitize_value' ) ) ) {
-			$schema[ $column ]['sanitize_callback'] = array( $this, 'sanitize_value' );
-		}
+		$schema[ $column ]['sanitize_callback'] = array( $this, 'sanitize_value' );
 
 		return $schema;
 	}

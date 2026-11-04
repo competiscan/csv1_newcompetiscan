@@ -166,8 +166,14 @@ class Generator {
 		// Ensure that shortcodes are not wrapped in paragraphs.
 		$content = shortcode_unautop( $content );
 
+		// Render item lists while the email-only shortcode flag is active.
+		$content = self::handle_item_lists_shortcode( $content );
+
 		// Execute shortcodes.
-		$content = do_shortcode( $content );
+		$content = self::render_shortcodes( $content );
+
+		// Remove embeds before the HTML-to-text parser can absorb their siblings.
+		$content = $this->remove_script_tags( $content );
 
 		// Balance tags.
 		$content = force_balance_tags( $content );
@@ -329,76 +335,66 @@ class Generator {
 			return $content;
 		}
 
-		// Apply processors via filters to allow other plugins to filter/override specific processing steps if needed.
+		// Explicit priorities preserve hook positions while allowing processors between steps.
 		$processors = array(
 
 			// Inject preheader.
-			array( $this, 'inject_preheader' ),
+			10  => array( $this, 'inject_preheader' ),
 
 			// Ensure that shortcodes are not wrapped in paragraphs.
-			'shortcode_unautop',
+			20  => 'shortcode_unautop',
 
 			// Process list items.
-			__CLASS__ . '::handle_item_lists_shortcode',
+			30  => __CLASS__ . '::handle_item_lists_shortcode',
 
 			// Do merge tags.
-			'noptin_parse_email_content_tags',
+			40  => 'noptin_parse_email_content_tags',
 
 			// Execute shortcodes.
-			'do_shortcode',
+			50  => __CLASS__ . '::render_shortcodes',
 
-			// Make links clickable.
-			'make_clickable',
+			// Remove scripts and unsupported embeds before any DOM parsing.
+			55  => array( $this, 'remove_script_tags' ),
 
 			// Add class to clickable links.
-			array( $this, 'add_class_to_clickable_links' ),
+			70  => array( $this, 'add_class_to_clickable_links' ),
 
 			// Track opens.
-			array( $this, 'inject_tracking_pixel' ),
+			80  => array( $this, 'inject_tracking_pixel' ),
 
 			// Balance tags.
-			'force_balance_tags',
+			90  => 'force_balance_tags',
 
 			// Remove double http://.
-			array( $this, 'fix_links_with_double_http' ),
+			100 => array( $this, 'fix_links_with_double_http' ),
 
 			// Backup hrefs.
-			array( $this, 'backup_hrefs' ),
+			110 => array( $this, 'backup_hrefs' ),
 
 			// Inline CSS styles.
-			array( $this, 'inline_styles' ),
-
-			// Remove script tags.
-			array( $this, 'remove_script_tags' ),
+			120 => array( $this, 'inline_styles' ),
 
 			// Remove unused classes and ids.
-			array( $this, 'clean_html' ),
+			140 => array( $this, 'clean_html' ),
 
 			// Clean <style> tags.
-			array( $this, 'clean_style_tags' ),
+			150 => array( $this, 'clean_style_tags' ),
 
 			// Restore hrefs.
-			array( $this, 'restore_hrefs' ),
+			160 => array( $this, 'restore_hrefs' ),
 
 			// Add UTM parameters.
-			array( $this, 'add_utm_parameters' ),
+			170 => array( $this, 'add_utm_parameters' ),
 
 			// Make links trackable.
-			array( $this, 'make_links_trackable' ),
+			180 => array( $this, 'make_links_trackable' ),
 		);
 
 		foreach ( $processors as $priority => $processor ) {
-			// Not removed from the above array for backwards
-			// compatibility.
-			if ( 'make_clickable' === $processor ) {
-				continue;
-			}
-
 			add_filter(
 				'noptin_post_process_email_content',
 				$processor,
-				// 10, 20, etc. to allow other plugins to hook in between processors if needed.
-				( $priority + 1 ) * 10
+				$priority
 			);
 		}
 
@@ -409,7 +405,7 @@ class Generator {
 			remove_filter(
 				'noptin_post_process_email_content',
 				$processor,
-				( $priority + 1 ) * 10
+				$priority
 			);
 		}
 
@@ -417,7 +413,24 @@ class Generator {
 	}
 
 	/**
-	 * Processing step: Remove script tags.
+	 * Render email shortcodes without executing podcast players.
+	 *
+	 * @param string $content Email or post content being included in an email.
+	 * @return string
+	 */
+	public static function render_shortcodes( $content ) {
+		$content = preg_replace_callback(
+			'/' . get_shortcode_regex( array( 'powerpress' ) ) . '/s',
+			static function () {
+				return '';
+			},
+			$content
+		);
+		return do_shortcode( $content );
+	}
+
+	/**
+	 * Processing step: Remove scripts and unsupported email embeds.
 	 *
 	 * @param string $content
 	 * @return string
@@ -433,10 +446,10 @@ class Generator {
 			return $content;
 		}
 
-		// Save original shortcodes
+		// Save original shortcodes.
 		$original_shortcodes = $shortcode_tags;
 
-		// Remove all shortcodes
+		// Remove all shortcodes.
 		$shortcode_tags = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Process shortcodes that begin with noptin_ and end with _list.
@@ -446,11 +459,20 @@ class Generator {
 			}
 		}
 
-		// Process your content
-		$content = do_shortcode( $content );
+		// A distinct callback keeps nested list rendering from clearing the outer flag.
+		$allow_item_lists = static function () {
+			return true;
+		};
+		add_filter( 'noptin_render_email_item_lists', $allow_item_lists );
 
-		// Restore original shortcodes
-		$shortcode_tags = $original_shortcodes; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		try {
+			$content = do_shortcode( $content );
+		} finally {
+			remove_filter( 'noptin_render_email_item_lists', $allow_item_lists );
+
+			// Restore original shortcodes
+			$shortcode_tags = $original_shortcodes; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
 
 		return $content;
 	}
@@ -528,8 +550,8 @@ class Generator {
 		foreach ( $elements as $element ) {
 			/** @var \DOMElement $element */
 
-			// Escape attributes.
-			foreach ( $element->attributes ?? array() as $attribute ) {
+			// Snapshot attributes so removing one cannot skip the next attribute.
+			foreach ( iterator_to_array( $element->attributes ?? array() ) as $attribute ) {
 				$attr_name  = strtolower( $attribute->name );
 				$attr_value = $attribute->value;
 
@@ -965,7 +987,7 @@ class Generator {
 		$url = str_replace( '&amp;', '&', $matches[2] );
 
 		// Skip non-http(s) URLs and action page URLs.
-		if ( ! preg_match( '/^https?:\/\//i', $url ) || false !== strpos( $url, 'noptin_ns' ) ) {
+		if ( ! preg_match( '/^https?:\/\//i', $url ) || noptin_is_action_url( $url ) ) {
 			return $matches[0];
 		}
 
@@ -1090,7 +1112,7 @@ class Generator {
 		$url = str_replace( '&amp;', '&', $matches[2] );
 
 		// Skip action page URLs.
-		if ( false === strpos( $url, 'noptin_ns' ) ) {
+		if ( ! noptin_is_action_url( $url ) ) {
 			$args = array_merge(
 				$this->recipient,
 				array( 'to' => $url )
@@ -1182,14 +1204,24 @@ class Generator {
 
 		// Only track if it is permitted.
 		if ( $this->can_track() ) {
-			return preg_replace_callback(
-				'/<\/body[^>]*>/',
-				function ( $matches ) {
-					return $this->get_tracker() . $matches[0];
+			$tracker = $this->get_tracker();
+			$count   = 0;
+			$tracked = preg_replace_callback(
+				'/<\/body[^>]*>/i',
+				function ( $matches ) use ( $tracker ) {
+					return $tracker . $matches[0];
 				},
 				$content,
-				1
+				1,
+				$count
 			);
+
+			// Raw HTML can be a fragment without a closing body tag.
+			if ( 0 === $count || null === $tracked ) {
+				return $content . $tracker;
+			}
+
+			return $tracked;
 		}
 
 		return $content;

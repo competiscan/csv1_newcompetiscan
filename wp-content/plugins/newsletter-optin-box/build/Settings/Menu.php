@@ -109,20 +109,6 @@ class Menu {
 			'hizzleWPSettings',
 			array(
 				'data' => array(
-					'settings'    => self::prepare_settings(),
-					'saved'       => array_merge(
-						get_noptin_options(),
-						array(
-							'custom_fields' => array_values(
-								array_filter(
-									get_noptin_custom_fields(),
-									static function ( $field ) {
-										return empty( $field['dynamic'] );
-									}
-								)
-							),
-						)
-					),
 					'brand'       => noptin()->white_label->get_details(),
 					'option_name' => 'noptin_options',
 				),
@@ -130,6 +116,23 @@ class Menu {
 		);
 
 		wp_set_script_translations( 'hizzlewp-settings', 'newsletter-optin-box', noptin()->plugin_path . 'languages' );
+	}
+
+	/** Saved values for the editor, excluding generated subscriber fields. */
+	public static function get_saved_settings() {
+		return array_merge(
+			get_noptin_options(),
+			array(
+				'custom_fields' => array_values(
+					array_filter(
+						get_noptin_custom_fields(),
+						static function ( $field ) {
+							return empty( $field['dynamic'] );
+						}
+					)
+				),
+			)
+		);
 	}
 
 	/**
@@ -152,7 +155,7 @@ class Menu {
 				),
 				'fields'       => __( 'Custom Fields', 'newsletter-optin-box' ),
 				'integrations' => __( 'Integrations', 'newsletter-optin-box' ),
-				'messages'     => __( 'Messages', 'newsletter-optin-box' ),
+				'messages'     => __( 'Subscriber Pages', 'newsletter-optin-box' ),
 			)
 		);
 
@@ -258,19 +261,19 @@ class Menu {
 				'label'    => __( 'Brand Info', 'newsletter-optin-box' ),
 				'section'  => 'general',
 				'settings' => array(
-					'company'     => array(
+					'company'          => array(
 						'el'          => 'input',
 						'label'       => __( 'Company', 'newsletter-optin-box' ),
 						'placeholder' => get_option( 'blogname' ),
 						'tooltip'     => __( 'What is the name of your company or website?', 'newsletter-optin-box' ),
 					),
-					'logo_url'    => array(
+					'logo_url'         => array(
 						'el'      => 'input',
 						'type'    => 'image',
 						'label'   => __( 'Logo', 'newsletter-optin-box' ),
 						'tooltip' => __( 'Enter a full url to your logo. Works best with rectangular images.', 'newsletter-optin-box' ),
 					),
-					'brand_color' => array(
+					'brand_color'      => array(
 						'el'          => 'color',
 						'label'       => __( 'Brand Color', 'newsletter-optin-box' ),
 						'placeholder' => '#1a82e2',
@@ -343,6 +346,12 @@ class Menu {
 						'placeholder' => get_noptin_action_url( 'manage_preferences' ),
 						'default'     => get_noptin_action_url( 'manage_preferences' ),
 						'tooltip'     => __( 'Optional. Enter a custom URL to a page where subscribers can manage their subscriptions. Ensure the page has the [noptin_manage_subscription] shortcode.', 'newsletter-optin-box' ),
+					),
+					'blocked_email_domains'  => array(
+						'el'          => 'textarea',
+						'label'       => __( 'Blocked Email Domains', 'newsletter-optin-box' ),
+						'placeholder' => "example.com\n*.tld",
+						'description' => __( 'Prevent new subscriptions from these email domains or top-level domains. Enter one value per line; for example, example.com or *.tld. Subdomains are also blocked.', 'newsletter-optin-box' ),
 					),
 				),
 			),

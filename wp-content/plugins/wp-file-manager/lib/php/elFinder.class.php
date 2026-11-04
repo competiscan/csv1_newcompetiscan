@@ -2736,7 +2736,8 @@ class elFinder
         }
         curl_setopt($ch, CURLOPT_LOW_SPEED_LIMIT, 1);
         curl_setopt($ch, CURLOPT_LOW_SPEED_TIME, $timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_USERAGENT, $ua);
         curl_setopt($ch, CURLOPT_RESOLVE, array($info['host'] . ':' . $info['port'] . ':' . $info['ip']));
@@ -2810,7 +2811,7 @@ class elFinder
             $errno = 0;
             $errstr = "";
             $fp = fsockopen(
-                $ssl . $arr['host'],
+                $ssl . $arr['ip'],
                 $arr['port'],
                 $errno, $errstr, $connect_timeout);
             if ($fp) break;
@@ -4196,7 +4197,21 @@ class elFinder
                 } else {
                     $trigger = $triggerdone = $triggerfail = '';
                 }
-                $origin = isset($_SERVER['HTTP_ORIGIN'])? str_replace('\'', '\\\'', $_SERVER['HTTP_ORIGIN']) : '*';
+                // Never reflect an arbitrary request Origin into postMessage().
+                // The file-manager UI is same-origin with the WordPress site, so
+                // use the canonical site origin as the explicit targetOrigin.
+                $site_url_parts = wp_parse_url( site_url() );
+                $origin = '';
+                if ( ! empty( $site_url_parts['scheme'] ) && ! empty( $site_url_parts['host'] ) ) {
+                    $origin = strtolower( $site_url_parts['scheme'] ) . '://' . strtolower( $site_url_parts['host'] );
+                    if ( ! empty( $site_url_parts['port'] ) ) {
+                        $origin .= ':' . absint( $site_url_parts['port'] );
+                    }
+                }
+                $origin = str_replace( array( "'", "\\" ), array( '', "\\\\" ), $origin );
+                if ( $origin === '' ) {
+                    $origin = 'null';
+                }
                 $script .= '
 var go = function() {
     var w = window.opener || window.parent || window,

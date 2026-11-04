@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 1.7.0
  * @ignore
  */
-class Merge_Tags extends \Noptin_Dynamic_Content_Tags {
+class Merge_Tags extends \Hizzle\Noptin\Core\Dynamic_Content_Tags {
 
 	/**
 	 * Filled if the email was triggered by an automation rule.
@@ -119,6 +119,17 @@ class Merge_Tags extends \Noptin_Dynamic_Content_Tags {
 
 		$this->tags['unsubscribe_url'] = array(
 			'description' => __( 'The unsubscribe URL.', 'newsletter-optin-box' ),
+			'attributes'  => array(
+				'type' => array(
+					'el'      => 'select',
+					'label'   => __( 'Unsubscribe link', 'newsletter-optin-box' ),
+					'default' => '',
+					'options' => array_merge(
+						array( '' => __( 'All emails', 'newsletter-optin-box' ) ),
+						wp_list_pluck( (array) get_noptin_option( 'custom_unsubscribe_links', array() ), 'key', 'key' )
+					),
+				),
+			),
 			'callback'    => '\Hizzle\Noptin\Emails\Main::get_current_unsubscribe_url',
 		);
 

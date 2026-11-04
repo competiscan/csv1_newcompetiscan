@@ -69,6 +69,16 @@ class Actions {
 
 		$recipient = \Hizzle\Noptin\Emails\Main::$current_email_recipient;
 
+		if ( array_key_exists( 'unsubscribe_type', $recipient ) ) {
+			$result = Unsubscribe_Links::apply( self::get_subscriber(), $recipient['unsubscribe_type'], $recipient['email'] ?? '' );
+
+			if ( is_wp_error( $result ) ) {
+				wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => 400 ) );
+			}
+
+			return;
+		}
+
 		// Fetch the campaign id.
 		$campaign    = \Hizzle\Noptin\Emails\Main::$current_email;
 		$campaign_id = $campaign ? $campaign->id : 0;
@@ -134,10 +144,47 @@ class Actions {
 	 *
 	 * @since 3.0.0
 	 */
-	public static function handle_confirm() {
+	public static function handle_confirm( $page = null ) {
+		if ( ! $page || ! method_exists( $page, 'get_request_value' ) ) {
+			return;
+		}
 
-		// Confirm the subscriber.
-		confirm_noptin_subscriber_email( self::get_subscriber() );
+		// Identify the subscriber from the confirmation link itself. The actions
+		// page falls back to the current visitor when the link has no valid value.
+		$value      = trim( $page->get_request_value(), '/' );
+		$recipient  = json_decode( noptin_decrypt( $value ), true );
+		$subscriber = null;
+
+		if ( is_array( $recipient ) && ! empty( $recipient['email'] ) && is_email( $recipient['email'] ) ) {
+			$subscriber = noptin_get_subscriber( $recipient['email'] );
+		} elseif ( ! empty( $value ) ) {
+			// Continue to support older confirmation links containing a subscriber key.
+			$subscriber_id = get_noptin_subscriber_id_by_confirm_key( $value );
+			$subscriber    = $subscriber_id ? noptin_get_subscriber( $subscriber_id ) : null;
+		}
+
+		if ( ! $subscriber || ! $subscriber->exists() ) {
+			return;
+		}
+
+		confirm_noptin_subscriber_email( $subscriber );
+
+		// Check the saved record before granting this browser the subscriber key.
+		$subscriber = noptin_get_subscriber( $subscriber->get_id() );
+		if ( ! $subscriber->exists() || ! $subscriber->get_confirmed() || ! $subscriber->is_active() ) {
+			return;
+		}
+
+		if ( headers_sent() || apply_filters( 'noptin_disable_cookies', false ) ) {
+			return;
+		}
+
+		setcookie( 'noptin_email_subscribed', $subscriber->get_confirm_key(), time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+
+		$cookie = get_noptin_option( 'subscribers_cookie' );
+		if ( ! empty( $cookie ) && is_string( $cookie ) ) {
+			setcookie( $cookie, '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		}
 	}
 
 	/**

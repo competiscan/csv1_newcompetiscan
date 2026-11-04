@@ -3,8 +3,8 @@ Contributors: bestwebsoft
 Donate link: https://bestwebsoft.com/donate/
 Tags: anti-spam security, antispam, recaptcha, captcha, captha, Invisible reCaptcha, Invisible captcha, Invisibl reCaptcha, comment, cpatcha, google catcha, Invisible re captcha, recaptcha version3
 Requires at least: 6.5
-Tested up to: 7.0
-Stable tag: 1.87
+Tested up to: 7.1
+Stable tag: 2.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -302,6 +302,11 @@ Please make sure that the problem hasn't been discussed yet on our forum (<https
 8. reCaptcha Allow List page.
 
 == Changelog ==
+
+= V2.0 - 30.10.2026 =
+* Update : BWS Panel section was updated.
+* Update : All functionality was updated for WordPress 7.0.
+* NEW : Changed app script for adding the keys.
 
 = V1.87 - 24.04.2026 =
 * NEW : Disable view source feature added.
@@ -700,6 +705,11 @@ Please make sure that the problem hasn't been discussed yet on our forum (<https
 * NEW : Ability to add Google Captcha (reCAPTCHA) into standard forms was added.
 
 == Upgrade Notice ==
+
+= V2.0 =
+* The compatibility with new WordPress version updated.
+* New features added.
+* Bug fixed.
 
 = V1.86 =
 * The compatibility with new WordPress version updated.

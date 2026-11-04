@@ -24,6 +24,39 @@
 			} );
 		} ).trigger( 'change' );
 
+		$( 'input[name="gglcptch_recaptcha_type"]' ).change( function() {
+			if ( $( this ).is( ':checked' ) ) {
+				$( '.recaptcha_service, .google_cloud_platform' ).hide();			
+				$( '.' + $( this ).val() ).show();
+				if (  'google_cloud_platform' == $( this ).val() ) {
+					$( 'input[name="gglcptch_recaptcha_version_new"]' ).trigger( 'change' );
+				} else {
+					$( '.gglcptch_domain' ).show();
+					$( 'input[name="gglcptch_recaptcha_version"]' ).trigger( 'change' );
+				}				
+			}
+		} ).trigger( 'change' );
+
+		$( 'input[name="gglcptch_recaptcha_version_new"]' ).change( function() {
+			var versions = $( 'input[name="gglcptch_recaptcha_version_new"]' );
+			if ( 'google_cloud_platform' == $( 'input[name="gglcptch_recaptcha_type"]:checked' ).val() ) {
+				versions.each( function() {
+					if ( $( this ).is( ':checked' ) ) {
+						$( '.gglcptch_theme_' + $( this ).val() ).show();
+						$( '.gglcptch_score_' + $( this ).val() ).show();
+						$( '.gglcptch_badge_v3' ).show();
+						$( '.gglcptch_submit_' + $( this ).val() ).show();
+					} else {
+						$( '.gglcptch_theme_' + $( this ).val() ).hide();
+						$( '.gglcptch_score_' + $( this ).val() ).hide();
+						$( '.gglcptch_badge_' + $( this ).val() ).hide();
+						$( '.gglcptch_submit_' + $( this ).val() ).hide();
+					}
+					$( '.gglcptch_domain' ).hide();
+				} );
+			}
+		} ).trigger( 'change' );
+
 		$( 'input[name="gglcptch_private_key"], input[name="gglcptch_public_key"]' ).change( function() {
 			$( '.gglcptch_verified, #gglcptch-test-keys, #gglcptch-test-block' ).hide();
 		} );

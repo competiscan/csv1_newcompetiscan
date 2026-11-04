@@ -63,6 +63,20 @@ class Listener {
 	public $cached = null;
 
 	/**
+	 * Fields prepared for the current request.
+	 *
+	 * @var array|null
+	 */
+	private $prepared_fields = null;
+
+	/**
+	 * Whether the contact was subscribed before this subscription request.
+	 *
+	 * @var bool
+	 */
+	private $was_already_subscribed = false;
+
+	/**
 	 * Register relevant hooks.
 	 *
 	 * @since 1.6.2
@@ -195,18 +209,32 @@ class Listener {
 		}
 
 		// Process the form.
-		$form_action = $this->get_submitted( 'form_action', 'subscribe' );
-
-		if ( 'subscribe' === $form_action ) {
+		if ( ! $this->is_unsubscribe_form() ) {
 			$this->process_subscribe_request();
-		}
-
-		if ( 'unsubscribe' === $form_action ) {
+		} else {
 			$this->process_unsubscribe_request();
 		}
 
 		// Trigger success/error hooks and maybe redirect to a different page.
 		$this->respond();
+	}
+
+	/**
+	 * Whether the submitted form is configured to unsubscribe visitors.
+	 *
+	 * Saved form settings take precedence over the encoded shortcode config.
+	 *
+	 * @return bool
+	 */
+	private function is_unsubscribe_form() {
+		$source = $this->get_submitted( 'source' );
+
+		if ( is_numeric( $source ) && 'noptin-form' === get_post_type( (int) $source ) ) {
+			$form = new Form( (int) $source );
+			return ! empty( $form->is_unsubscribe );
+		}
+
+		return ! empty( $this->get_cached( 'is_unsubscribe' ) );
 	}
 
 	/**
@@ -232,6 +260,9 @@ class Listener {
 	 * @return array
 	 */
 	public function get_fields_for_request() {
+		if ( null !== $this->prepared_fields ) {
+			return $this->prepared_fields;
+		}
 
 		/**
 		 * Filters the fields to process for the current submission.
@@ -244,7 +275,25 @@ class Listener {
 		 * @param Listener $listener
 		 *
 		 */
-		return apply_filters( 'custom_noptin_fields_to_process', prepare_noptin_form_fields( $this->get_cached( 'fields' ) ), $this );
+		$fields = apply_filters( 'custom_noptin_fields_to_process', prepare_noptin_form_fields( $this->get_cached( 'fields' ) ), $this );
+
+		$submitted_fields = $this->get_submitted( 'noptin_fields', array() );
+		$submitted_fields = is_array( $submitted_fields ) ? $submitted_fields : array();
+
+		foreach ( $fields as $field ) {
+			$merge_tag = $field['merge_tag'];
+
+			// Hidden fields are absent from the markup, so resolve their configured
+			// value from the submitted page context at submission time.
+			if ( ! empty( $field['hidden'] ) && isset( $field['default_value'] ) && '' !== $field['default_value'] ) {
+				$submitted_fields[ $merge_tag ] = Main::$smart_tags->replace_for_submission( $field['default_value'], $this );
+			}
+		}
+
+		$this->submitted['noptin_fields'] = $submitted_fields;
+
+		$this->prepared_fields = $fields;
+		return $this->prepared_fields;
 	}
 
 	/**
@@ -274,6 +323,8 @@ class Listener {
 		// Does the subscriber exist already?
 		$subscriber_obj = noptin_get_subscriber( (int) get_noptin_subscriber_id_by_email( sanitize_email( $subscriber['email'] ) ) );
 		if ( $subscriber_obj->exists() ) {
+			$this->was_already_subscribed = 'subscribed' === $subscriber_obj->get_status();
+
 			$subscriber_id       = $subscriber_obj->get_id();
 			$this->subscriber_id = $subscriber_id;
 
@@ -284,21 +335,11 @@ class Listener {
 				return;
 			}
 
-			// If status is "unsubscribed", set it to "subscribed".
-			if ( 'unsubscribed' === $subscriber_obj->get_status() ) {
-				$subscriber['status'] = 'subscribed';
+			// The shared updater owns subscription state, source defaults, and confirmation.
+			$result = update_noptin_subscriber( $subscriber_obj, $subscriber, $source );
+			if ( is_wp_error( $result ) ) {
+				return $this->error->add( 'other_error', $result->get_error_message() );
 			}
-
-			// Update the subscriber properties.
-			$subscriber_obj->set_props( wp_unslash( $subscriber ) );
-
-			// Set default values.
-			foreach ( prepare_noptin_subscriber_source_fields( $source, array() ) as $merge_tag => $to_add ) {
-				$subscriber_obj->set( $merge_tag . '::add', $to_add );
-			}
-
-			// Save the subscriber.
-			$subscriber_obj->save();
 
 			$this->last_event = 'updated';
 
@@ -353,6 +394,13 @@ class Listener {
 		 * @since 1.6.2
 		 */
 		$subscriber = apply_filters( 'noptin_form_subscriber_details', $subscriber, $source, $this );
+
+		// Enforce saved opt-in policy for public form submissions, including hidden fields.
+		$optin_override = Form::get_double_optin_override( $source );
+		if ( null !== $optin_override ) {
+			$subscriber['status']    = $optin_override ? 'pending' : 'subscribed';
+			$subscriber['confirmed'] = false;
+		}
 
 		// Add the subscriber.
 		$subscriber_id = add_noptin_subscriber( $subscriber );
@@ -519,6 +567,11 @@ class Listener {
 
 		if ( empty( $url ) ) {
 			$url = trim( $this->get_cached( 'redirect' ) );
+		}
+
+		// An enabled override may be blank to show the response without redirecting.
+		if ( $this->was_already_subscribed && in_array( $this->last_event, array( 'already_subscribed', 'updated' ), true ) && $this->get_cached( 'redirectAlreadySubscribed' ) ) {
+			$url = trim( $this->get_cached( 'alreadySubscribedRedirectUrl' ) );
 		}
 
 		/**

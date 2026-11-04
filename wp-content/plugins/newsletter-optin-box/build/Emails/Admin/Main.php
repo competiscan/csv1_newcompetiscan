@@ -43,9 +43,6 @@ class Main {
 		add_filter( 'noptin_emails_submenu', array( __CLASS__, 'filter_emails_nav_submenus' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		add_filter( 'admin_body_class', array( __CLASS__, 'add_split_menu_body_class' ) );
-
-		// Email settings.
-		add_filter( 'noptin_get_settings', array( __CLASS__, 'email_settings' ), 10 );
 	}
 
 	/**
@@ -70,11 +67,15 @@ class Main {
 			wp_verify_nonce( $_REQUEST['noptin_email_action_nonce'], 'noptin_email_action' )
 		) {
 			$method   = 'admin_' . $_REQUEST['noptin_email_action'];
-			$campaign = new \Hizzle\Noptin\Emails\Email( intval( $_GET['noptin_campaign'] ) );
+			$campaign = new \Hizzle\Noptin\Emails\Email( intval( $_REQUEST['noptin_campaign'] ) );
 
 			// Abort if not exists.
 			if ( ! $campaign->exists() ) {
 				self::redirect_from_action_with_error( 'Invalid campaign.' );
+			}
+
+			if ( ! current_user_can_manage_noptin_campaign_type( get_post_meta( $campaign->id, 'campaign_type', true ) ?: 'newsletter' ) ) {
+				self::redirect_from_action_with_error( 'You do not have permission to manage this campaign type.' );
 			}
 
 			if ( method_exists( __CLASS__, $method ) ) {
@@ -94,7 +95,7 @@ class Main {
 	 * @since 3.0.0
 	 */
 	public static function redirect_from_action_with_error( $error ) {
-		noptin()->admin->show_error( $error );
+		\Hizzle\Noptin\Admin\Main::show_error( $error );
 		wp_safe_redirect( remove_query_arg( array( 'noptin_email_action', 'noptin_email_action_nonce', 'noptin_campaign' ) ) );
 		exit;
 	}
@@ -105,7 +106,7 @@ class Main {
 	 * @since 3.0.0
 	 */
 	public static function redirect_from_action_with_success( $success ) {
-		noptin()->admin->show_success( $success );
+		\Hizzle\Noptin\Admin\Main::show_success( $success );
 		wp_safe_redirect( remove_query_arg( array( 'noptin_email_action', 'noptin_email_action_nonce', 'noptin_campaign', 'noptin_email_recipients' ) ) );
 		exit;
 	}
@@ -132,7 +133,7 @@ class Main {
 
 		// Set status to publish to allow sending.
 		if ( 'publish' !== $campaign->status ) {
-			if ( ! current_user_can( 'publish_post', $campaign->id ) ) {
+			if ( ! $campaign->current_user_can_publish() ) {
 				self::redirect_from_action_with_error( 'You do not have permission to send this campaign.' );
 			}
 
@@ -167,7 +168,7 @@ class Main {
 	public static function admin_resend_campaign( $campaign ) {
 
 		// Check if the user can publish the campaign.
-		if ( ! current_user_can( 'publish_post', $campaign->id ) ) {
+		if ( ! $campaign->current_user_can_publish() ) {
 			self::redirect_from_action_with_error( 'You do not have permission to resend this campaign.' );
 		}
 
@@ -175,6 +176,8 @@ class Main {
 		delete_post_meta( $campaign->id, 'completed' );
 		delete_post_meta( $campaign->id, 'paused' );
 		delete_post_meta( $campaign->id, '_bulk_email_last_error' );
+		delete_post_meta( $campaign->id, '_noptin_sending_started' );
+		delete_post_meta( $campaign->id, '_noptin_last_activity' );
 		update_post_meta( $campaign->id, '_resend_to', $_REQUEST['noptin_email_recipients'] ?? 'all' );
 		update_post_meta( $campaign->id, '_resent_on', gmdate( 'Y-m-d H:i:s e', time() ) );
 		do_action( 'noptin_newsletter_campaign_published', $campaign );
@@ -191,7 +194,7 @@ class Main {
 	public static function admin_pause_campaign( $campaign ) {
 
 		// Check if the user can publish the campaign.
-		if ( ! current_user_can( 'publish_post', $campaign->id ) ) {
+		if ( ! $campaign->current_user_can_publish() ) {
 			self::redirect_from_action_with_error( 'You do not have permission to pause this campaign.' );
 		}
 
@@ -209,8 +212,8 @@ class Main {
 	 */
 	public static function admin_duplicate_campaign( $campaign ) {
 
-		// Check if the user can publish the campaign.
-		if ( ! $campaign->current_user_can_edit() ) {
+		// Duplication also copies descendants, so authorize the entire tree first.
+		if ( ! self::can_manage_campaign_tree( $campaign, 'edit' ) ) {
 			self::redirect_from_action_with_error( 'You do not have permission to duplicate this campaign.' );
 		}
 
@@ -233,7 +236,7 @@ class Main {
 		$duplicate = $campaign->duplicate( $args );
 
 		if ( $duplicate instanceof \Hizzle\Noptin\Emails\Email && $duplicate->exists() ) {
-			noptin()->admin->show_info( __( 'The campaign has been duplicated.', 'newsletter-optin-box' ) );
+			\Hizzle\Noptin\Admin\Main::show_info( __( 'The campaign has been duplicated.', 'newsletter-optin-box' ) );
 			wp_safe_redirect( $duplicate->get_edit_url() );
 			exit;
 		}
@@ -252,7 +255,7 @@ class Main {
 	public static function admin_delete_campaign( $campaign ) {
 
 		// Check if the user can delete the campaign.
-		if ( ! $campaign->current_user_can_delete() ) {
+		if ( ! self::can_manage_campaign_tree( $campaign, 'delete' ) ) {
 			self::redirect_from_action_with_error( 'You do not have permission to delete this campaign.' );
 		}
 
@@ -303,6 +306,24 @@ class Main {
 		self::redirect_from_action_with_success( __( 'The campaign has been restored.', 'newsletter-optin-box' ) );
 	}
 
+	/** Authorize descendants before a recursive duplicate or delete changes anything. */
+	private static function can_manage_campaign_tree( $campaign, $operation, &$seen = array() ) {
+		if ( isset( $seen[ $campaign->id ] ) ) {
+			return false;
+		}
+		$seen[ $campaign->id ] = true;
+		$allowed = 'delete' === $operation ? $campaign->current_user_can_delete() : $campaign->current_user_can_edit();
+		if ( ! $allowed ) {
+			return false;
+		}
+		foreach ( $campaign->get_children( 'edit' === $operation ? 'any' : 'publish' ) as $child ) {
+			if ( ! self::can_manage_campaign_tree( $child, $operation, $seen ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Filters the email collection submenus.
 	 *
@@ -313,9 +334,10 @@ class Main {
 		$email_types = array_values( \Hizzle\Noptin\Emails\Main::get_email_types() );
 		$current_cf  = isset( $_GET['noptin_email_type'] ) ? sanitize_text_field( wp_unslash( $_GET['noptin_email_type'] ) ) : '';
 		$is_emails   = 'noptin-email-campaigns' === ( $_GET['page'] ?? '' );
+		$first       = true;
 
 		foreach ( $email_types as $index => $type ) {
-			if ( 'trash' === $type->type || ! empty( $type->parent_type ) ) {
+			if ( 'trash' === $type->type || ! empty( $type->parent_type ) || ! current_user_can_manage_noptin_campaign_type( $type->type ) ) {
 				continue;
 			}
 
@@ -328,8 +350,9 @@ class Main {
 					),
 					admin_url( '/admin.php' )
 				),
-				'isPressed' => $current_cf === $type->type || ( empty( $current_cf ) && 0 === $index ),
+				'isPressed' => $current_cf === $type->type || ( empty( $current_cf ) && $first ),
 			);
+			$first                   = false;
 		}
 
 		return $submenus;
@@ -341,21 +364,24 @@ class Main {
 	public static function email_campaigns_menu() {
 		if ( noptin_should_split_emails_menu() ) {
 			$email_types = array_values( \Hizzle\Noptin\Emails\Main::get_email_types() );
+			$menu_added  = false;
 
-			foreach ( $email_types as $index => $type ) {
-				if ( 'trash' === $type->type || ! empty( $type->parent_type ) ) {
+			foreach ( $email_types as $type ) {
+				if ( 'trash' === $type->type || ! empty( $type->parent_type ) || ! current_user_can_manage_noptin_campaign_type( $type->type ) ) {
 					continue;
 				}
 
-				if ( empty( $index ) ) {
+				$capability = get_noptin_campaign_type_capability( $type->type );
+				if ( ! $menu_added ) {
 					self::$hook_suffix = add_submenu_page(
 						'noptin',
 						$type->plural_label,
 						$type->plural_label,
-						get_noptin_capability(),
+						$capability,
 						'noptin-email-campaigns',
 						array( __CLASS__, 'render_admin_page' )
 					);
+					$menu_added        = true;
 
 					continue;
 				}
@@ -364,7 +390,7 @@ class Main {
 					'noptin',
 					$type->plural_label,
 					$type->plural_label,
-					get_noptin_capability(),
+					$capability,
 					add_query_arg(
 						array(
 							'page'              => 'noptin-email-campaigns',
@@ -376,11 +402,16 @@ class Main {
 				);
 			}
 		} else {
+			$capability = get_noptin_accessible_campaign_type_capability();
+			if ( ! $capability ) {
+				return;
+			}
+
 			self::$hook_suffix = add_submenu_page(
 				'noptin',
 				esc_html__( 'Email Campaigns', 'newsletter-optin-box' ),
 				esc_html__( 'Emails', 'newsletter-optin-box' ),
-				get_noptin_capability(),
+				$capability,
 				'noptin-email-campaigns',
 				array( __CLASS__, 'render_admin_page' )
 			);
@@ -400,6 +431,11 @@ class Main {
 				'<div class="wrap"><div class="notice notice-error"><p>%s</p></div></div>',
 				esc_html__( 'Unknown email type.', 'newsletter-optin-box' )
 			);
+			return;
+		}
+
+		if ( ! current_user_can_manage_noptin_campaign_type( $query_args['noptin_email_type'] ) ) {
+			include plugin_dir_path( __FILE__ ) . 'views/permission-denied.php';
 			return;
 		}
 
@@ -425,69 +461,6 @@ class Main {
 		}
 	}
 
-	/**
-	 * Slims down a settings schema for AI consumption.
-	 * Removes noise keys and omits defaults (type=text, el=input).
-	 *
-	 * @param array $settings Raw settings schema.
-	 * @return array
-	 */
-	private static function slim_settings_for_ai( $settings ) {
-		$result = array();
-
-		foreach ( $settings as $key => $field ) {
-			if ( ! is_array( $field ) ) {
-				continue;
-			}
-
-			// Recurse into grouped fields.
-			if ( isset( $field['fields'] ) && is_array( $field['fields'] ) ) {
-				$children = self::slim_settings_for_ai( $field['fields'] );
-				if ( ! empty( $children ) ) {
-					$result[ $key ] = $children;
-				}
-				continue;
-			}
-
-			$slim = array();
-
-			$label = $field['label'] ?? $key;
-
-			if ( ! empty( $field['description'] ) ) {
-				$label .= ' (' . $field['description'] . ')';
-			}
-
-			if ( ! empty( $label ) ) {
-				$slim['label'] = $label;
-			}
-
-			// type: only include if not the default 'text'.
-			if ( ! empty( $field['type'] ) && 'text' !== $field['type'] ) {
-				$slim['type'] = $field['type'];
-			}
-
-			// el: only include if not the default 'input'.
-			if ( ! empty( $field['el'] ) && 'input' !== $field['el'] ) {
-				$slim['el'] = $field['el'];
-			}
-
-			// options.
-			if ( ! empty( $field['options'] ) && is_array( $field['options'] ) ) {
-				$slim['options'] = $field['options'];
-			}
-
-			// default.
-			if ( isset( $field['default'] ) && '' !== $field['default'] ) {
-				$slim['default'] = $field['default'];
-			}
-
-			if ( ! empty( $slim ) ) {
-				$result[ $key ] = $slim;
-			}
-		}
-
-		return $result;
-	}
 
 	/**
 	 * Loads AI script
@@ -521,93 +494,6 @@ class Main {
 		$brand_color = empty( $brand_color ) ? '#1a82e2' : $brand_color;
 
 		$ai_localization = array(
-			'email_types'         => array_filter(
-				array_map(
-					function ( $type ) {
-						// Skip email_templates and trash.
-						if ( 'email_template' === $type->type || 'trash' === $type->type ) {
-							return null;
-						}
-
-						/** @var \Hizzle\Noptin\Emails\Types\Type $type */
-						$to_return = array(
-							'label'               => $type->label,
-							'type'                => $type->type,
-							'plural_label'        => $type->plural_label,
-							'supports_recipients' => $type->supports_recipients,
-							'supports_timing'     => $type->supports_timing,
-							'supports_menu_order' => $type->supports_menu_order,
-							'contexts'            => $type->contexts,
-						);
-
-						if ( $type->supports_sub_types ) {
-							$to_return['types'] = array();
-
-							foreach ( $type->get_sub_types() as $sub_type_key => $sub_type ) {
-								if ( 0 === strpos( $sub_type_key, 'automation_rule_' ) || empty( $sub_type['category'] ) ) {
-									continue;
-								}
-
-								$to_return['types'][ $sub_type_key ] = array(
-									'label'       => $sub_type['label'],
-									'description' => $sub_type['description'],
-									'contexts'    => $sub_type['contexts'] ?? array(),
-								);
-							}
-						}
-
-						foreach ( array( 'child_type', 'parent_type' ) as $property ) {
-							if ( $type->{$property} ) {
-								$to_return[ $property ] = $type->{$property};
-							}
-						}
-
-						return $to_return;
-					},
-					\Hizzle\Noptin\Emails\Main::get_email_types()
-				)
-			),
-			'automation_triggers' => array_filter(
-				array_map(
-					function ( $trigger ) {
-						/** @var \Hizzle\Noptin\Automation_Rules\Triggers\Trigger $trigger */
-						if ( $trigger->depricated || empty( $trigger->category ) ) {
-							return null;
-						}
-
-						$entry = array(
-							'description' => $trigger->get_description(),
-						);
-						$settings = self::slim_settings_for_ai( $trigger->get_settings() );
-						if ( ! empty( $settings ) ) {
-							$entry['settings'] = $settings;
-						}
-						return $entry;
-					},
-					\Hizzle\Noptin\Automation_Rules\Triggers\Main::all()
-				)
-			),
-			'automation_actions'  => array_filter(
-				array_map(
-					function ( $action ) {
-						/** @var \Hizzle\Noptin\Automation_Rules\Actions\Action $action */
-
-						if ( $action->depricated || empty( $action->category ) ) {
-							return null;
-						}
-
-						$entry = array(
-							'description' => $action->get_description(),
-						);
-						$settings = self::slim_settings_for_ai( $action->get_settings() );
-						if ( ! empty( $settings ) ) {
-							$entry['settings'] = $settings;
-						}
-						return $entry;
-					},
-					\Hizzle\Noptin\Automation_Rules\Actions\Main::all()
-				)
-			),
 			'user'                => array(
 				'id'    => $current_user->ID,
 				'name'  => $current_user->display_name,
@@ -624,56 +510,40 @@ class Main {
 			'default_footer_text' => get_noptin_footer_text(),
 		);
 
-		$senders = array_merge(
-			array(
-				'manual_recipients' => array(
-					'label'        => __( 'Specific People', 'newsletter-optin-box' ),
-					'description'  => __( 'Enter one or more email addresses manually, separated by commas.', 'newsletter-optin-box' ),
-					'is_installed' => true,
-					'settings'     => array(
-						'disableMergeTags' => false,
-						'fields'           => array(
-							'recipients' => array(
-								'label'       => __( 'Recipient(s)', 'newsletter-optin-box' ),
-								'description' => sprintf(
-									'%s<br /> <br />%s',
-									__( 'Enter recipients (comma-separated) for this email.', 'newsletter-optin-box' ),
-									sprintf(
-										/* translators: %s: code */
-										__( 'Add %s after an email to disable send, open and click tracking for that recipient.', 'newsletter-optin-box' ),
-										'<code>--notracking</code>'
-									)
-								),
-								'type'        => 'text',
-								'placeholder' => sprintf(
-									/* translators: %s: The Example */
-									__( 'For example, %s', 'newsletter-optin-box' ),
-									'[[email]], ' . get_option( 'admin_email' ) . ' --notracking'
-								),
-							),
-						),
+		// When adding an email from a sequence page, give AI the parent sequence
+		// and its existing emails so it can create a coherent new child email.
+		$parent_id = isset( $_GET['noptin_parent_id'] ) ? absint( $_GET['noptin_parent_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $parent_id && current_user_can( 'edit_post', $parent_id ) ) {
+			$parent = noptin_get_email_campaign_object( $parent_id );
+			if ( $parent->exists() && 'sequence' === $parent->type ) {
+				$sequence_emails = get_posts(
+					array(
+						'post_type'      => 'noptin-campaign',
+						'post_parent'    => $parent_id,
+						'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private' ),
+						'posts_per_page' => -1,
+						'orderby'        => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
+						'order'          => 'ASC',
+					)
+				);
+
+				$ai_localization['current_sequence'] = array(
+					'id'     => $parent->id,
+					'name'   => $parent->name,
+					'emails' => array_map(
+						function ( $post ) {
+							$email = noptin_get_email_campaign_object( $post->ID );
+							return array(
+								'id'      => $email->id,
+								'name'    => $email->name,
+								'subject' => $email->get_subject(),
+								'content' => trim( wp_strip_all_tags( $email->content ) ),
+							);
+						},
+						$sequence_emails
 					),
-				),
-			),
-			get_noptin_email_senders( true )
-		);
-
-		$potential_senders = array();
-
-		foreach ( $senders as $key => $sender ) {
-			if ( ! is_array( $sender ) || empty( $sender['is_installed'] ) ) {
-				continue;
+				);
 			}
-
-			$potential_senders[ $key ] = array(
-				'label'       => $sender['label'] ?? $key,
-				'description' => $sender['description'] ?? '',
-				'settings'    => $sender['settings'] ?? array(),
-			);
-		}
-
-		if ( ! empty( $potential_senders ) ) {
-			$ai_localization['potential_senders'] = $potential_senders;
 		}
 
 		wp_add_inline_script(
@@ -769,13 +639,6 @@ class Main {
 		if ( file_exists( plugin_dir_path( __DIR__ ) . 'assets/js/' . $script . '.js' ) ) {
 			$config = include plugin_dir_path( __DIR__ ) . 'assets/js/' . $script . '.asset.php';
 
-			if ( 'view-campaigns' === $script && $type && $type->supports_menu_order ) {
-				// Enqueue jQuery UI core
-				wp_enqueue_script( 'jquery-ui-core' );
-
-				// Enqueue jQuery UI sortable plugin
-				wp_enqueue_script( 'jquery-ui-sortable' );
-			}
 
 			// Prepare the block editor.
 			if ( 'view-campaigns' === $script && ! $disable_ai ) {
@@ -803,98 +666,44 @@ class Main {
 				Editor::load( $edited_campaign );
 			}
 
+			if ( 'view-campaigns' === $script ) {
+				// Core Data needs post-type endpoints before resolving campaign queries.
+				// Use API middleware so the normal resolver consumes this response once.
+				$preload_data = array_reduce(
+					array( '/wp/v2/types?context=view', '/wp/v2/noptin-campaign/browser' ),
+					'rest_preload_api_request',
+					array()
+				);
+				wp_add_inline_script(
+					'wp-api-fetch',
+					sprintf(
+						'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+						wp_json_encode( $preload_data )
+					),
+					'after'
+				);
+			}
+
 			// Localize the script.
 			$data = apply_filters(
 				'noptin_email_settings_misc',
 				array(
-					'isTest'       => defined( 'NOPTIN_IS_TESTING' ),
-					'data'         => (object) ( empty( $type ) ? array() : $type->to_array() ),
-					'from_name'    => get_noptin_option( 'from_name', get_option( 'blogname' ) ),
-					'from_email'   => get_noptin_option( 'from_email', '' ),
-					'reply_to'     => get_noptin_option( 'reply_to', get_option( 'admin_email' ) ),
-					'integrations' => 'view-campaigns' === $script ? apply_filters( 'noptin_get_all_known_integrations', array() ) : array(),
-					'utm_enabled'  => get_noptin_option( 'add_utm_params', true ),
-					'utm_docs_url' => noptin_get_guide_url( 'Settings', 'sending-emails/utm-parameters/' ),
-					'assets_url'   => plugins_url( 'static/images/', __DIR__ ),
-					'brand'        => noptin()->white_label->get_details(),
-					'ai'           => array(
+					'config'            => \Hizzle\Noptin\Extensions\Catalog::config(),
+					'isTest'            => defined( 'NOPTIN_IS_TESTING' ),
+					'data'              => (object) array( 'type' => empty( $type ) ? '' : $type->type ),
+					'from_name'         => get_noptin_option( 'from_name', get_option( 'blogname' ) ),
+					'from_email'        => get_noptin_option( 'from_email', '' ),
+					'reply_to'          => get_noptin_option( 'reply_to', get_option( 'admin_email' ) ),
+					'utm_enabled'       => get_noptin_option( 'add_utm_params', true ),
+					'utm_docs_url'      => noptin_get_guide_url( 'Settings', 'sending-emails/utm-parameters/' ),
+					'assets_url'        => plugins_url( 'static/images/', __DIR__ ),
+					'brand'             => noptin()->white_label->get_details(),
+					'ai'                => array(
 						'disabled' => (bool) $disable_ai,
-					),
-					'senders'      => array_merge(
-						array(
-							'manual_recipients' => array(
-								'label'        => __( 'Specific People', 'newsletter-optin-box' ),
-								'description'  => __( 'Enter one or more email addresses manually, separated by commas.', 'newsletter-optin-box' ),
-								'image'        => array(
-									'icon' => 'businessperson',
-									'fill' => '#212121',
-								),
-								'is_active'    => true,
-								'is_installed' => true,
-								'is_local'     => true,
-								'settings'     => array(
-									'disableMergeTags' => false,
-									'fields'           => array(
-										'recipients' => array(
-											'label'       => __( 'Recipient(s)', 'newsletter-optin-box' ),
-											'description' => sprintf(
-												'%s<br /> <br />%s',
-												__( 'Enter recipients (comma-separated) for this email.', 'newsletter-optin-box' ),
-												sprintf(
-													/* translators: %s: code */
-													__( 'Add %s after an email to disable send, open and click tracking for that recipient.', 'newsletter-optin-box' ),
-													'<code>--notracking</code>'
-												)
-											),
-											'type'        => 'text',
-											'placeholder' => sprintf(
-												/* translators: %s: The Example */
-												__( 'For example, %s', 'newsletter-optin-box' ),
-												'[[email]], ' . get_option( 'admin_email' ) . ' --notracking'
-											),
-										),
-									),
-								),
-							),
-						),
-						get_noptin_email_senders( true )
 					),
 				),
 				$script
 			);
-
-			// Add available automation triggers for sequence emails.
-			if (
-				'view-campaigns' === $script &&
-				$type &&
-				'sequence' === $type->type &&
-				is_object( $data['data'] ) &&
-				! empty( $data['data']->ai ) &&
-				is_array( $data['data']->ai )
-			) {
-				$ai_triggers = array();
-
-				foreach ( \Hizzle\Noptin\Automation_Rules\Triggers\Main::all() as $trigger ) {
-					if ( ! empty( $trigger->depricated ) || empty( $trigger->category ) ) {
-						continue;
-					}
-
-					if ( ! isset( $ai_triggers[ $trigger->category ] ) ) {
-						$ai_triggers[ $trigger->category ] = array();
-					}
-
-					$ai_triggers[ $trigger->category ][] = array(
-						'id'          => $trigger->get_id(),
-						'name'        => $trigger->get_name(),
-						'description' => $trigger->get_description(),
-						'merge_tags'  => $trigger->get_known_smart_tags_for_js(),
-					);
-				}
-
-				if ( ! empty( $ai_triggers ) ) {
-					$data['data']->ai['triggers'] = $ai_triggers;
-				}
-			}
 
 			wp_add_inline_script(
 				$localize_script,
@@ -936,11 +745,26 @@ class Main {
 			if ( ! empty( $query_args['noptin_campaign'] ) ) {
 				$query_args['noptin_email_type'] = get_post_meta( intval( $query_args['noptin_campaign'] ), 'campaign_type', true );
 			} else {
-				$query_args['noptin_email_type'] = \Hizzle\Noptin\Emails\Main::get_default_email_type();
+				$query_args['noptin_email_type'] = self::get_default_accessible_email_type();
 			}
 		}
 
 		return $query_args;
+	}
+
+	/**
+	 * Returns the first top-level campaign type the current user can manage.
+	 *
+	 * @return string|false
+	 */
+	private static function get_default_accessible_email_type() {
+		foreach ( \Hizzle\Noptin\Emails\Main::get_email_types() as $type ) {
+			if ( 'trash' !== $type->type && empty( $type->parent_type ) && current_user_can_manage_noptin_campaign_type( $type->type ) ) {
+				return $type->type;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1004,10 +828,20 @@ class Main {
 		// Set the type.
 		$campaign->type = sanitize_text_field( $query_args['noptin_email_type'] );
 
+		// Carry setup options into the unsaved email, preserving their value types.
+		$options = $query_args['noptin_email_options'] ?? array();
+		if ( is_string( $options ) ) {
+			$options = json_decode( $options, true );
+		}
+		if ( is_array( $options ) ) {
+			$campaign->options = array_merge( $campaign->options, $options );
+		}
+
 		// Set the sub type.
 		if ( ! empty( $query_args['noptin_email_sub_type'] ) ) {
 			$campaign->options[ $campaign->type . '_type' ] = sanitize_text_field( $query_args['noptin_email_sub_type'] );
 		}
+
 
 		// Set the sender.
 		if ( ! empty( $query_args['noptin_email_sender'] ) ) {
@@ -1084,7 +918,8 @@ class Main {
 					'label'    => __( 'General', 'newsletter-optin-box' ),
 					'section'  => 'emails',
 					'settings' => array(
-						'reply_to'         => array(
+
+						'reply_to'               => array(
 							'el'      => 'input',
 							'section' => 'emails',
 							'type'    => 'email',
@@ -1093,7 +928,7 @@ class Main {
 							'tooltip' => __( 'Where should subscribers reply to in case they need to get in touch with you?', 'newsletter-optin-box' ),
 						),
 
-						'from_email'       => array(
+						'from_email'             => array(
 							'el'      => 'input',
 							'section' => 'emails',
 							'type'    => 'email',
@@ -1101,7 +936,7 @@ class Main {
 							'tooltip' => __( 'How the sender email appears in outgoing emails. Leave this field blank if you are not able to send any emails.', 'newsletter-optin-box' ),
 						),
 
-						'from_name'        => array(
+						'from_name'              => array(
 							'el'          => 'input',
 							'section'     => 'emails',
 							'label'       => __( '"From" Name', 'newsletter-optin-box' ),
@@ -1110,7 +945,7 @@ class Main {
 							'tooltip'     => __( 'How the sender name appears in outgoing emails', 'newsletter-optin-box' ),
 						),
 
-						'delete_campaigns' => array(
+						'delete_campaigns'       => array(
 							'el'               => 'input',
 							'type'             => 'number',
 							'section'          => 'emails',
@@ -1122,6 +957,24 @@ class Main {
 								'prefix' => __( 'After', 'newsletter-optin-box' ),
 								'suffix' => array( __( 'day', 'newsletter-optin-box' ), __( 'days', 'newsletter-optin-box' ) ),
 							),
+						),
+
+						'disable_staging_emails' => array(
+							'el'          => 'input',
+							'type'        => 'checkbox_alt',
+							'section'     => 'emails',
+							'label'       => __( 'Disable emails on staging sites', 'newsletter-optin-box' ),
+							'description' => 'Prevent Noptin from delivering emails when the WordPress environment type is set to staging. Emails are recorded as sent so campaigns and automations can continue normally.',
+							'default'     => true,
+						),
+
+						'email_plain_text_alternative' => array(
+							'el'          => 'input',
+							'type'        => 'checkbox_alt',
+							'section'     => 'emails',
+							'label'       => __( 'Include a plain-text version with HTML emails', 'newsletter-optin-box' ),
+							'description' => __( 'Automatically generate a plain-text alternative when Noptin sends an HTML email.', 'newsletter-optin-box' ),
+							'default'     => false,
 						),
 					),
 				),
