@@ -196,7 +196,7 @@ if (isset($_POST['login']) || isset($_POST['verify_opt_seession']) || (isset($_G
 							'competiscaner',
 							implode(":", $cookieArray),
 							[
-								'expires'  => $time + 3600,
+								'expires'  => $time + (86400 * 364),
 								'path'     => $COOKIEPATH,
 								'domain'   => $COOKIEDOMAIN,
 								'secure'   => true,
