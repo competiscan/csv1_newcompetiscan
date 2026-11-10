@@ -243,8 +243,8 @@ $('.tracking-slider').slick({
 
 /* Duplicate the partner logos so the marquee loops seamlessly.
    Guarded: .marquee-row only exists on the home page. */
-const row = document.querySelector('.marquee-row');
-if (row) row.innerHTML += row.innerHTML;
+// const row = document.querySelector('.marquee-row');
+// if (row) row.innerHTML += row.innerHTML;
 });
 
 
