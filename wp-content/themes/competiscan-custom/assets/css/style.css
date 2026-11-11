@@ -2678,3 +2678,15 @@ span.copy-right{width: 35px; height: 35px; display: inline-flex;}
 .cs-captcha-row input, .cs-captcha-row input:focus, .cs-captcha-row input:hover{border:0 !important ; outline: none !important;box-shadow: none !important}
 .cs-captcha-row p{display:flex;}
 form p br {display: none;}
+.footer-top p a.footer-meeting {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-top p a.footer-meeting::after {
+  content: none; /* no second (animated) underline on hover */
+}
+.footer-top p a.footer-meeting:hover {
+    color: rgba(232, 119, 82, 1);
+    text-decoration: none;
+}

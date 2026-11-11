@@ -51,6 +51,9 @@ class Main {
 		// Initialize the manage preferences class.
 		Manage_Preferences::init();
 
+		// Custom unsubscribe links.
+		Unsubscribe_Links::init();
+
 		// Initialize the bounce handler.
 		Bounce_Handler::init();
 
@@ -113,7 +116,19 @@ class Main {
 			return $should_fire;
 		}
 
-		$ignore = array( 'activity', 'date_modified', 'date_created', 'confirm_key' );
+		$ignore = array(
+			'activity',
+			'date_modified',
+			'date_created',
+			'confirm_key',
+			'total_emails_sent',
+			'total_emails_opened',
+			'total_links_clicked',
+			'last_email_sent_date',
+			'last_email_opened_date',
+			'last_email_clicked_date',
+			'email_engagement_score',
+		);
 
 		// Abort if all keys in the changes are in the ignore list.
 		if ( empty( array_diff( $changed_keys, $ignore ) ) ) {
@@ -177,7 +192,7 @@ class Main {
 			'noptin',
 			esc_html__( 'Email Subscribers', 'newsletter-optin-box' ),
 			esc_html__( 'Subscribers', 'newsletter-optin-box' ),
-			get_noptin_capability(),
+			get_noptin_collection_capability( 'subscribers' ),
 			'noptin-subscribers',
 			$is_field_page ? __CLASS__ . '::render_field_page' : '\Hizzle\WordPress\ScriptManager::render_collection'
 		);
@@ -195,7 +210,7 @@ class Main {
 	 * Renders the fields admin page.
 	 */
 	public static function render_field_page() {
-		if ( ! current_user_can_manage_noptin() ) {
+		if ( ! current_user_can( get_noptin_collection_capability( 'subscribers' ) ) ) {
 			return;
 		}
 
@@ -317,11 +332,13 @@ class Main {
 	 */
 	public static function filter_admin_tools( $tools ) {
 		$tools['send_confirmation_emails'] = array(
-			'name'    => __( 'Send Confirmation Emails', 'newsletter-optin-box' ),
-			'button'  => __( 'Send', 'newsletter-optin-box' ),
-			'desc'    => __( 'Send confirmation emails to all unconfirmed subscribers.', 'newsletter-optin-box' ),
-			'url'     => wp_nonce_url( add_query_arg( 'noptin_admin_action', 'noptin_send_confirmation_emails' ), 'noptin-send-confirmation-emails' ),
-			'confirm' => __( 'Are you sure you want to send confirmation emails to all unconfirmed subscribers?', 'newsletter-optin-box' ),
+			'type'        => 'background',
+			'title'       => __( 'Send Confirmation Emails', 'newsletter-optin-box' ),
+			'description' => __( 'Send confirmation emails to all unconfirmed subscribers.', 'newsletter-optin-box' ),
+			'icon'        => 'email-alt',
+			'ajax_action' => 'noptin_send_confirmation_emails',
+			'button'      => array( 'text' => __( 'Send', 'newsletter-optin-box' ) ),
+			'confirm'     => __( 'Are you sure you want to send confirmation emails to all unconfirmed subscribers?', 'newsletter-optin-box' ),
 		);
 
 		return $tools;
@@ -331,16 +348,6 @@ class Main {
 	 * Sends confirmation emails to unconfirmed subscribers.
 	 */
 	public static function send_confirmation_emails() {
-
-		// Only admins should be able to do this.
-		if ( ! current_user_can_manage_noptin() || empty( $_GET['_wpnonce'] ) ) {
-			return;
-		}
-
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'noptin-send-confirmation-emails' ) ) {
-			return;
-		}
-
 		// Fetch unconfirmed subscribers.
 		$subscribers = noptin_get_subscribers(
 			array(
@@ -351,8 +358,7 @@ class Main {
 		);
 
 		if ( empty( $subscribers ) ) {
-			noptin()->admin->show_success( 'No unconfirmed subscribers found.' );
-			return;
+			\Hizzle\Noptin\Admin\Tools::send_response( true, 'No unconfirmed subscribers found.' );
 		}
 
 		// Schedule sending of confirmation emails.
@@ -365,12 +371,12 @@ class Main {
 			);
 		}
 
-		noptin()->admin->show_success(
-			sprintf(
-				'Scheduled sending of confirmation emails to %s unconfirmed subscribers.',
-				count( $subscribers )
-			)
+		$message = sprintf(
+			'Scheduled sending of confirmation emails to %s unconfirmed subscribers.',
+			count( $subscribers )
 		);
+
+		\Hizzle\Noptin\Admin\Tools::send_response( true, $message );
 	}
 
 	/**

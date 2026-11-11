@@ -120,7 +120,7 @@ class Email {
 
 		// Fetch campaign data. See: https://core.trac.wordpress.org/ticket/60314.
 		$data        = get_post_meta( $post->ID, 'campaign_data' );
-		$data        = wp_is_numeric_array( $data ) ? $data[0] : $data;
+		$data        = wp_is_numeric_array( $data ) ? ( $data[0] ?? false ) : $data;
 		$resave      = false;
 		$is_revision = wp_is_post_revision( $post->ID );
 
@@ -130,7 +130,7 @@ class Email {
 
 			if ( $parent ) {
 				$data = get_post_meta( $parent, 'campaign_data' );
-				$data = wp_is_numeric_array( $data ) ? $data[0] : $data;
+				$data = wp_is_numeric_array( $data ) ? ( $data[0] ?? false ) : $data;
 			}
 		}
 
@@ -390,7 +390,7 @@ class Email {
 	 * @return string
 	 */
 	public function get_sub_type() {
-		$sub_type = $this->get( $this->type . '_type' );
+		$sub_type = $this->options[ $this->type . '_type' ] ?? '';
 
 		if ( ! empty( $sub_type ) ) {
 			$sub_type = apply_filters( 'noptin_' . $this->type . '_email_sub_type_' . $sub_type, $sub_type, $this );
@@ -517,6 +517,11 @@ class Email {
 		if ( $this->is_mass_mail() && 'newsletter' !== $this->type ) {
 			do_action( 'noptin_before_send_email', $this, Main::$current_email_recipient );
 
+			// Track collection results for this email only. WordPress action counts are
+			// cumulative for the entire request, which can contain several scheduled emails.
+			$empty_collections_before_render     = did_action( 'noptin_collection_list_empty' );
+			$not_empty_collections_before_render = did_action( 'noptin_collection_list_not_empty' );
+
 			// Prepare campaign args.
 			$type            = $this->get_email_type();
 			$suffix          = empty( $GLOBALS['noptin_current_title_tag'] ) ? date_i18n( get_option( 'date_format' ) ) : noptin_parse_email_subject_tags( $GLOBALS['noptin_current_title_tag'] );
@@ -582,7 +587,10 @@ class Email {
 				return new \WP_Error( 'noptin_email_skipped', $GLOBALS['noptin_email_force_skip']['message'] );
 			}
 
-			if ( 1 < did_action( 'noptin_collection_list_empty' ) && ! did_action( 'noptin_collection_list_not_empty' ) ) {
+			$empty_collections     = did_action( 'noptin_collection_list_empty' ) - $empty_collections_before_render;
+			$not_empty_collections = did_action( 'noptin_collection_list_not_empty' ) - $not_empty_collections_before_render;
+
+			if ( 0 < $empty_collections && 0 === $not_empty_collections ) {
 				$should_break = apply_filters( 'noptin_email_skip_if_all_items_empty', (bool) $this->get( 'skip_if_all_items_empty' ), $this );
 
 				if ( $should_break ) {
@@ -860,7 +868,14 @@ class Email {
 
 		$prepared = array();
 		foreach ( $attachments as $attachment ) {
-			$attachment = $this->parse_attachment_file_path( trim( $attachment ) );
+			$attachment = trim( noptin_parse_email_subject_tags( trim( $attachment ) ) );
+
+			// Skip merge tags that resolve to an empty value.
+			if ( '' === $attachment ) {
+				continue;
+			}
+
+			$attachment = $this->parse_attachment_file_path( $attachment );
 
 			// Add if its not a remote file.
 			if ( ! $attachment['remote_file'] ) {
@@ -1341,6 +1356,8 @@ class Email {
 	 */
 	public function duplicate( $override = array() ) {
 		$args = $this->to_array();
+		// Copies, including sequence children, require explicit activation.
+		$args['status'] = 'draft';
 
 		// Remove id.
 		unset( $args['id'] );
@@ -1360,7 +1377,7 @@ class Email {
 
 		// Duplicate any children.
 		if ( $this->supports( 'child_type' ) ) {
-			foreach ( $this->get_children() as $child ) {
+			foreach ( $this->get_children( 'any' ) as $child ) {
 				$child->duplicate( array( 'parent_id' => $duplicate->id ) );
 			}
 		}
@@ -1371,9 +1388,10 @@ class Email {
 	/**
 	 * Fetches the children of this email.
 	 *
+	 * @param string $post_status Child status, or any to include draft copies.
 	 * @return Email[]
 	 */
-	public function get_children() {
+	public function get_children( $post_status = 'publish' ) {
 
 		// Abort if id is not set.
 		if ( ! $this->exists() ) {
@@ -1384,6 +1402,7 @@ class Email {
 			array(
 				'post_type'   => 'noptin-campaign',
 				'post_parent' => $this->id,
+				'post_status' => $post_status,
 				'numberposts' => -1,
 			)
 		);
@@ -1592,10 +1611,10 @@ class Email {
 
 		// Return true if not yet saved.
 		if ( ! $this->exists() ) {
-			return Main::current_user_can_create_new_campaign();
+			return Main::current_user_can_create_new_campaign( $this->type );
 		}
 
-		return current_user_can( 'edit_post', $this->id );
+		return current_user_can( 'edit_post', $this->id ) && current_user_can_manage_noptin_campaign_type( get_post_meta( $this->id, 'campaign_type', true ) ?: 'newsletter' );
 	}
 
 	/**
@@ -1610,7 +1629,18 @@ class Email {
 			return false;
 		}
 
-		return current_user_can( 'delete_post', $this->id );
+		return current_user_can( 'delete_post', $this->id ) && current_user_can_manage_noptin_campaign_type( get_post_meta( $this->id, 'campaign_type', true ) ?: 'newsletter' );
+	}
+
+	/**
+	 * Checks if the current user can publish this email.
+	 *
+	 * @return bool
+	 */
+	public function current_user_can_publish() {
+		$post_type = get_post_type_object( 'noptin-campaign' );
+
+		return $this->exists() && $this->current_user_can_edit() && $post_type && current_user_can( $post_type->cap->publish_posts );
 	}
 
 	/**

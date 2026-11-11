@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+  exit;
 }
 
 $img = get_template_directory_uri() . '/assets/images/';
@@ -19,19 +19,19 @@ $img = get_template_directory_uri() . '/assets/images/';
 $pid          = (int) get_option( 'page_on_front' );
 $ind_heading  = function_exists( 'get_field' ) ? get_field( 'ind_heading', $pid ) : '';
 if ( ! $ind_heading ) {
-	$ind_heading = "Industries\nWe Serve";
+  $ind_heading = "Industries\nWe Serve";
 }
 $ind_desc = function_exists( 'get_field' ) ? get_field( 'ind_desc', $pid ) : '';
 if ( ! $ind_desc ) {
-	$ind_desc = 'From financial services to retail and telecom, we track the sectors where staying ahead of the competition matters most.';
+  $ind_desc = 'From financial services to retail and telecom, we track the sectors where staying ahead of the competition matters most.';
 }
 $ind_btn_label = function_exists( 'get_field' ) ? get_field( 'ind_btn_label', $pid ) : '';
 if ( ! $ind_btn_label ) {
-	$ind_btn_label = 'Explore industries';
+  $ind_btn_label = 'Explore industries';
 }
 $ind_btn_url = function_exists( 'get_field' ) ? get_field( 'ind_btn_url', $pid ) : '';
 if ( ! $ind_btn_url ) {
-	$ind_btn_url = '#';
+  $ind_btn_url = '#';
 }
 
 // Same convention as the hero "See it in action" button: a "#learn" or Calendly URL
@@ -45,20 +45,20 @@ $ind_icons = array( 'banking.svg', 'house.svg', 'credit-card.svg', 'retail.svg',
 $ind_rows  = function_exists( 'get_field' ) ? get_field( 'ind_items', $pid ) : array();
 $industries = array();
 if ( ! empty( $ind_rows ) && is_array( $ind_rows ) ) {
-	$k = 0;
-	foreach ( $ind_rows as $r ) {
-		$icon = ! empty( $r['icon'] ) ? $r['icon'] : ( isset( $ind_icons[ $k ] ) ? $img . $ind_icons[ $k ] : '' );
-		$industries[] = array(
-			'icon'  => $icon,
-			'label' => isset( $r['label'] ) ? $r['label'] : '',
-		);
-		$k++;
-	}
+  $k = 0;
+  foreach ( $ind_rows as $r ) {
+    $icon = ! empty( $r['icon'] ) ? $r['icon'] : ( isset( $ind_icons[ $k ] ) ? $img . $ind_icons[ $k ] : '' );
+    $industries[] = array(
+      'icon'  => $icon,
+      'label' => isset( $r['label'] ) ? $r['label'] : '',
+    );
+    $k++;
+  }
 } else {
-	$labels = array( 'Banking', 'Mortgage & Loans', 'Credit Cards', 'Retail', 'Insurance', 'Telecoms', 'Investment & Wealth', 'And more...' );
-	foreach ( $labels as $k => $label ) {
-		$industries[] = array( 'icon' => $img . $ind_icons[ $k ], 'label' => $label );
-	}
+  $labels = array( 'Banking', 'Mortgage & Loans', 'Credit Cards', 'Retail', 'Insurance', 'Telecoms', 'Investment & Wealth', 'And more...' );
+  foreach ( $labels as $k => $label ) {
+    $industries[] = array( 'icon' => $img . $ind_icons[ $k ], 'label' => $label );
+  }
 }
 ?>
 <!-- ============ INDUSTRIES ============ -->

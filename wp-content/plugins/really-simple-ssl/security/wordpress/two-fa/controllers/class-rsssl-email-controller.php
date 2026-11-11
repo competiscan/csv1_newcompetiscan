@@ -10,6 +10,7 @@ use RSSSL\Pro\Security\WordPress\Limitlogin\Rsssl_IP_Fetcher;
 use RSSSL\Security\WordPress\Two_Fa\Providers\Rsssl_Two_Factor_Email;
 use RSSSL\Security\WordPress\Two_Fa\Models\Rsssl_Request_Parameters;
 use RSSSL\Security\WordPress\Two_Fa\Rsssl_Two_Fa_Authentication;
+use RSSSL\Security\WordPress\Two_Fa\Rsssl_Two_Factor;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -169,6 +170,16 @@ final class Rsssl_Email_Controller extends Rsssl_Abstract_Controller
             return new WP_REST_Response(['message' => $e->getMessage()], 403);
         }
 
+		// This endpoint may only complete a new email setup.
+		if ( Rsssl_Two_Factor_Email::is_configured( $user ) ) {
+			return new WP_REST_Response(
+				array(
+					'error' => __( 'Two-Factor Authentication must be completed before it can be changed.', 'really-simple-ssl' ),
+				),
+				403
+			);
+		}
+
 		// Email may finish only its own challenge; it may not replace another active method.
 		if ( $this->has_configured_provider_other_than( $user, 'email' ) ) {
 			return new WP_REST_Response(
@@ -218,6 +229,15 @@ final class Rsssl_Email_Controller extends Rsssl_Abstract_Controller
         if ('email' !== $provider) {
             return new WP_REST_Response(['message' => __('Invalid provider', 'really-simple-ssl')], 400);
         }
+
+		// Do not send an email code when the user has a stronger method.
+		$primary_provider = Rsssl_Two_Factor::get_primary_provider_for_user( $user );
+		if ( '' !== $primary_provider && Rsssl_Two_Factor_Email::class !== $primary_provider ) {
+			return new WP_REST_Response(
+				[ 'message' => __( 'Email authentication is not active for this user', 'really-simple-ssl' ) ],
+				403
+			);
+		}
 
         // Determine email 2FA status for this user.
 	    $email_status = get_user_meta($parameters->user_id, 'rsssl_two_fa_status_email', true ) ?? 'open';

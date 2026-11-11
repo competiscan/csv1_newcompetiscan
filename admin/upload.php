@@ -53,7 +53,8 @@ if(isset($_FILES['upl']) && $_FILES['upl']['error'] == 0){
                 );
         
             $size       = $_FILES['upl']['size'];
-            $userID     = $_SESSION['_auth_COMPETI']['data']['userID'];
+            //$userID     = $_SESSION['_auth_COMPETI']['data']['userID'];
+            $userID     = $_SESSION['auth_data']['userID'];
             $date       = date('Y-m-d h:i:s');
             $sql       = "INSERT INTO cscan_file_upload (fileName ,userID,fileSize,created_date) VALUES ('".$filename."','".$userID."','".$size."','".$date."')";
             if($DRW->query($sql,$DRW_main)){            

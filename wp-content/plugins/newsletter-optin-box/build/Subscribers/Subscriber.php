@@ -10,7 +10,6 @@ defined( 'ABSPATH' ) || exit;
  * @version 1.0.0
  */
 class Subscriber extends \Hizzle\Store\Record {
-
 	/**
 	 * Returns the subscriber's full name.
 	 *
@@ -560,8 +559,13 @@ class Subscriber extends \Hizzle\Store\Record {
 	 */
 	public function get_manage_preferences_url() {
 		$url = get_noptin_option( 'manage_preferences_url' );
+		parse_str( (string) wp_parse_url( $url ? $url : '', PHP_URL_QUERY ), $query );
+		$data        = isset( $query['nv'] ) && is_string( $query['nv'] ) ? json_decode( noptin_decrypt( $query['nv'] ), true ) : null;
+		$action_args = array( 'noptin_ns', 'nv', 'nte' );
+		$is_default  = remove_query_arg( $action_args, $url ? $url : '' ) === remove_query_arg( $action_args, get_noptin_action_url( 'manage_preferences' ) )
+			&& ( ( 'manage_preferences' === ( $query['noptin_ns'] ?? '' ) && empty( $query['nv'] ) ) || array( 'noptin_ns' => 'manage_preferences' ) === $data );
 
-		if ( empty( $url ) || get_noptin_action_url( 'manage_preferences' ) === $url ) {
+		if ( empty( $url ) || $is_default ) {
 			$url = get_noptin_action_url(
 				'manage_preferences',
 				noptin_encrypt(
@@ -657,6 +661,11 @@ class Subscriber extends \Hizzle\Store\Record {
 			);
 		}
 
+		// Block new subscribers and email changes that use a denied domain.
+		if ( ( ! $this->get_id() || array_key_exists( 'email', $this->changes ) ) && noptin_is_email_domain_blocked( $this->get_email() ) ) {
+			return new \WP_Error( 'blocked_email_domain', 'This email address is not allowed.' );
+		}
+
 		// If we're creating, make sure the email doesn't already exist.
 		if ( ! $this->get_id() ) {
 			$subscriber = get_noptin_subscriber_id_by_email( $this->get_email() );
@@ -675,7 +684,7 @@ class Subscriber extends \Hizzle\Store\Record {
 
 		// Prevent blocked subscribers from being saved.
 		$current_status = $this->data['status'] ?? '';
-		if ( 'blocked' === $current_status && array_key_exists( 'status', $this->changes ) && ! current_user_can_manage_noptin() ) {
+		if ( 'blocked' === $current_status && array_key_exists( 'status', $this->changes ) && ! current_user_can( get_noptin_collection_capability( 'subscribers' ) ) ) {
 			unset( $this->changes['status'] );
 		}
 

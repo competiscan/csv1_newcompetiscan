@@ -155,7 +155,9 @@ class rsssl_firewall_manager {
 			return;
 		}
 
-		$this->update_firewall( $this->rules );
+		if ( ! $this->update_firewall( $this->rules ) ) {
+			return;
+		}
 
 		$this->include_prepend_file_in_wp_config();
 		$should_queue_root_htaccess_sync = $maybe_queue_root_htaccess_update
@@ -278,12 +280,12 @@ class rsssl_firewall_manager {
 	 *
 	 * @param string $rules //rules to add to the firewall.
 	 *
-	 * @return void
+	 * @return bool Whether the firewall file is readable after the update.
 	 */
-	public function update_firewall( string $rules ): void
+	public function update_firewall( string $rules ): bool
 	{
 		if ( ! rsssl_admin_logged_in() ) {
-			return;
+			return false;
 		}
 
 		$contents  = '<?php' . "\n";
@@ -315,6 +317,8 @@ class rsssl_firewall_manager {
 		$contents .= "//RULES START\n" . $rules;
 
 		$this->put_contents( $this->file, $contents );
+
+		return $this->is_readable( $this->file );
 	}
 
 	/**
@@ -775,7 +779,7 @@ PHP;
 			'output'            => array(
 				'wpconfig-notwritable'         => array(
 					'title'       => __( 'Firewall', 'really-simple-ssl' ),
-					'msg'         => __( 'A firewall rule was enabled, but the wp-config.php is not writable.', 'really-simple-ssl' ) . ' ' . __( 'Please set the wp-config.php to writable until the rule has been written.', 'really-simple-ssl' ),
+					'msg'         => __( 'A firewall rule was enabled, but the wp-config.php is not writable.', 'really-simple-ssl' ) . ' ' . __( 'Please set the wp-config.php to writable until the rule has been written', 'really-simple-ssl' ),
 					'icon'        => 'open',
 					'dismissible' => true,
 				),
@@ -797,7 +801,7 @@ PHP;
 			'output'            => array(
 				'true' => array(
 					'title'       => __( 'Firewall', 'really-simple-ssl' ),
-					'msg'         => __( 'A firewall rule was enabled, but the firewall does not seem to get loaded correctly.', 'really-simple-ssl' ) . ' ' . __( 'Please check if the advanced-headers.php file is included in the wp-config.php, and exists in the wp-content folder.', 'really-simple-ssl' ),
+					'msg'         => __( 'A firewall rule was enabled, but the firewall does not seem to get loaded correctly.', 'really-simple-ssl' ) . ' ' . __( 'Please check if the advanced-headers.php file is included in the wp-config.php, and exists in the wp-content folder', 'really-simple-ssl' ),
 					'icon'        => 'open',
 					'dismissible' => true,
 				),

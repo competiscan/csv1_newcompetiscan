@@ -2387,7 +2387,7 @@
 								} else if (o['enum']){
 									elm = jQuery('<select></select>').append(jQuery('<option value=""></option>').text('Select...'));
 									jQuery.each(o['enum'], function(i, v) {
-										elm.append(jQuery('<option value="'+v+'"></option>').text(v));
+										elm.append(jQuery('<option></option>').attr('value', v).text(v));
 									});
 									f.append(elm);
 								} else {

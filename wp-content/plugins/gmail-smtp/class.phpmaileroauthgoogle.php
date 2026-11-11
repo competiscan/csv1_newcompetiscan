@@ -42,10 +42,11 @@ class GmailXOAuth2 {
         /* Its a must to request for 'offile access type' */
         $google_client->setAccessType ( 'offline' );
         /*
-        This forces the approval prompt for other sites when one site has already been given permission under the same project.
-        Without this the approval prompt does not appear and no refresh token is returned.
+        prompt=consent forces re-consent on each grant so Google always returns a refresh_token.
+        The legacy setApprovalPrompt('force') is ignored by current Google OAuth, which then omits
+        the refresh_token on re-grant and breaks XOAUTH2 with an empty bearer.
         */
-        $google_client->setApprovalPrompt ( 'force' );
+        $google_client->setPrompt ( 'consent' );
         return $google_client;
 
     }
@@ -172,7 +173,7 @@ class GmailXOAuth2 {
          */
     private function request_offline_token() {
 
-        $token_uri = "https://accounts.google.com/o/oauth2/token";
+        $token_uri = "https://oauth2.googleapis.com/token";
         $parameters = array(
                 "grant_type" => 'refresh_token',
                 "client_id" => $this->oauthClientId,
@@ -189,7 +190,9 @@ class GmailXOAuth2 {
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
         $response = curl_exec($curl);
-        curl_close($curl);
+        if (defined('PHP_VERSION_ID') && PHP_VERSION_ID < 80500) {
+            curl_close($curl);
+        }
 
         $response = json_decode($response, true);
 
