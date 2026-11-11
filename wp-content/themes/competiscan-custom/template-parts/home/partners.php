@@ -59,6 +59,11 @@ foreach ( $logo_rows as $row ) {
 if ( empty( $logos ) ) {
     return;
 }
+
+// All logos removed in WP Admin → hide the whole section.
+if ( empty( $logos ) ) {
+	return;
+}
 ?>
 
 <section class="partners">

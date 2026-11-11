@@ -45,8 +45,8 @@ if($_REQUEST['action']=='load_data'){
 
 /*#######################EXPORT TO FILE#####################*/
 if($_REQUEST['action']=='express_download'){
-    //$APIURLRPV=RPVAPIURL."es-rpv-download4";
-    $APIURLRPV="https://vat-api2.competiscan.com/es-rpv-download4";
+    $APIURLRPV=RPVAPIURL."es-rpv-download4";
+    //$APIURLRPV="https://vat-api2.competiscan.com/es-rpv-download4";
     //es-rpv-download
     //$API_DOWNLOADURL = "https://api.competiscan.com/elasticsearch-service/v1/search/download";
      $posted_jsondata=$_REQUEST['post_data'];

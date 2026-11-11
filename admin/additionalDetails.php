@@ -139,6 +139,8 @@ $k++;
 
 $addlArray[$k] = new additionalDetails(87,'Banking','cscan_banking');
 $addlArray[$k]->setData('General Banking Details');
+$addlArray[$k]->setData('Account Type','account_type',4,'',true);
+$addlArray[$k]->setData('Offer Construct','offer_construct',4,'',true);
 $addlArray[$k]->setData('Minimum Deposit ($)','MinimumDeposit',4,'',true);
 $addlArray[$k]->setData('Free Checking','FreeChecking',3,'',false);
 //$addlArray[$k]->setData('Savings Interest Rate (%)','SavingsInterestRate',2,'',false);

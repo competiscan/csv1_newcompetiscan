@@ -6,9 +6,12 @@
  * A fully static 1:1 conversion of competiscan-html/insights.html.
  *
  * Per the page owner's requirement, nothing on this page is dynamic: the Featured
- * Articles, pagination, Webinars, Conferences, Newsletter and FAQ are all hardcoded
+ * Articles, pagination, Conferences, Newsletter and FAQ are all hardcoded
  * to match the source exactly. No WP_Query, no ACF, no editable fields. Assets are
  * the theme's existing CSS/JS/images. Only this template file drives the page.
+ *
+ * Webinars are dynamic: every published post of the "Webinar" post type (WP Admin →
+ * Webinars, see inc/webinars.php) is rendered by template-parts/insights/webinars.php.
  *
  * @package Competiscan_Custom
  */
@@ -149,48 +152,7 @@ $competiscan_total    = (int) $competiscan_insights->found_posts;
         <div class="container">
           
           <h2 class="section-heading">Webinars</h2>
-          <div class="webinars-grid">
-            <div class="webinar-card">
-              <span class="tag">Webinars</span>
-              <div class="webinar-date">
-                <div class="date-box"><div class="mon">MAR</div><div class="day">18</div></div>
-                  <div class="webinar-body">
-
-                  <h4>Direct Mail Reimagined: How USPS incentives are fueling a new wave of creative innovation</h4>
-                  <a href="#" class="link-arrow">Register
-                    <?php echo competiscan_arrow_svg(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
-                  </a>
-                </div>
-              </div>
-
-            </div>
-            <div class="webinar-card">
-              <span class="tag">Webinars</span>
-              <div class="webinar-date">
-                <div class="date-box"><div class="mon">APR</div><div class="day">8</div></div>
-                <div class="webinar-body">
-
-                <h4>Launching New ETFs</h4>
-                <a href="#" class="link-arrow">Register
-                  <?php echo competiscan_arrow_svg(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
-                </a>
-              </div>
-              </div>
-
-            </div>
-            <div class="webinar-card">
-              <span class="tag">Webinars</span>
-              <div class="webinar-date">
-                <div class="date-box"><div class="mon">JAN</div><div class="day">23</div></div>
-                <div class="webinar-body">
-
-                <h4>Competiscan Capabilities and Market Trends in Medicare Advantage.</h4>
-                <span class="closed">This webinar has closed.</span>
-              </div>
-              </div>
-
-            </div>
-          </div>
+          <?php get_template_part( 'template-parts/insights/webinars' ); // Webinars: WP Admin → Webinars (inc/webinars.php). ?>
           <hr>
         </div>
       </div>

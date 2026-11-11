@@ -1500,6 +1500,16 @@ a.link-arrow {
   content: none;
 }
 .footer-top p a.footer-tel:hover{color: var(--color-teal-400);}
+/* "Book a Meeting" (Calendly) — always bold + underlined; hover keeps the footer link colour change. */
+.footer-top p a.footer-meeting {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-top p a.footer-meeting::after {
+  content: none; /* no second (animated) underline on hover */
+}
+.footer-top p a.footer-meeting:hover{ color: rgba(232, 119, 82, 1); text-decoration: none;}
 .footer-logo {
   font-family: var(--font-heading);
   font-weight: 700;
