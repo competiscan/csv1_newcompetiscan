@@ -111,8 +111,8 @@ define("USER_LOGIN_API_URL_PROD", "https://api1.competiscan.com/client-profiles/
 define("USER_PERMISSION_API_URL_PROD", "https://api2.competiscan.com/users/v1/");
 //define("USER_PERMISSION_API_URL_PROD", "https://api-pre-prod.competiscan.com/users/v1/");
 define("SUGGESTION_API_URL_UAT", "https://api2.competiscan.com/master/v1/");
-//define("RETRIVAL_API_URL_UAT", "https://api2.competiscan.com/retrieval-service/v1/");
-define("RETRIVAL_API_URL_UAT", "https://api-pre-prod.competiscan.com/retrieval-service/v1/");
+define("RETRIVAL_API_URL_UAT", "https://api2.competiscan.com/retrieval-service/v1/");
+//define("RETRIVAL_API_URL_UAT", "https://api-pre-prod.competiscan.com/retrieval-service/v1/");
 define("ALERT_API_URL_UAT", "https://api2.competiscan.com/master/v1/");
 //define("ALERT_API_URL_UAT", "https://api-pre-prod.competiscan.com/master/v1/");
 define("DIGITAL_DASHBOARD_UAT", "https://api2.competiscan.com/digitaldashboard/v1/");
