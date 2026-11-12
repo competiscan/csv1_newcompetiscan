@@ -67,13 +67,13 @@ $email = $_SESSION['sess_username'];
     <div class="form-group">
       <label for="retrieve-name" class="col-md-2 control-label"><span class="star">*</span> Name</label>
         <div class="col-md-10">
-            <input type="text"  name="name" class="form-control" maxlength="200" value="<?php if(isset($_POST['name'])){ echo $_POST['name']; } else{echo htmlspecialchars($name, ENT_QUOTES);} ?>">
+            <input type="text"  name="name" class="form-control" readonly = "readonly" maxlength="200" value="<?php if(isset($_POST['name'])){ echo $_POST['name']; } else{echo htmlspecialchars($name, ENT_QUOTES);} ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="retrieve-email" class="col-md-2 control-label"><span class="star">*</span> Email address</label>
         <div class="col-md-10">
-            <input type="text"  name="email" class="form-control" maxlength="200" value="<?php if(isset($_POST['email'])){ echo $_POST['email']; } else{echo htmlspecialchars($email, ENT_QUOTES);} ?>">
+            <input type="text"  name="email" class="form-control" readonly = "readonly" maxlength="200" value="<?php if(isset($_POST['email'])){ echo $_POST['email']; } else{echo htmlspecialchars($email, ENT_QUOTES);} ?>">
         </div>
     </div>
     <div class="form-group">
