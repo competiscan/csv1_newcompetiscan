@@ -17,6 +17,7 @@ $phone='';
 $company='';
 $name='';
 $error="";
+//$_SESSION['sess_access_token']='eyJraWQiOiJKUUF1WHppNXFEZ2NyUGtkQmZhQjJ4SndjdVBjU1VpZ2JTVERVWENQb01vPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJiODYxYjMyMC02MDkxLTcwYWUtY2VkMS0wNWRlZjEzOTMzNzQiLCJhbXIiOlsicHdkIl0sImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtd2VzdC0yLmFtYXpvbmF3cy5jb20vdXMtd2VzdC0yXzdpZ1ZkdExvSSIsImNsaWVudF9pZCI6IjIydjBmZ2VjbWgwZDBsc2FjMGJndWpnMXNvIiwib3JpZ2luX2p0aSI6IjgxNTY5OThlLTYzMDctNDEwMi1hYmM5LWY0ZWZmM2EwZDIzMCIsImFjciI6InVybjpjb2duaXRvOmxvYToxIiwiZXZlbnRfaWQiOiJkODNkNzdlMi01N2ZhLTQwNjEtODI5My0wM2Q3MTAxZTVhZDIiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIiwiYXV0aF90aW1lIjoxNzk0NDg4MDAwLCJleHAiOjE3OTQ0OTE2MDAsImlhdCI6MTc5NDQ4ODAwMCwianRpIjoiMzkzOWRjMDAtZDU1Mi00OWIyLThlMTAtZDIyZDIzZTY4NGE5IiwidXNlcm5hbWUiOiJhc2hvay5zaW5naEBubWd0ZWNobm9sb2dpZXMuY29tIn0.JwYRDyRnQA6WnVpFKLV3tTiswlKXMXvQ1ikpZhKC-n6oPc0qEBvzKtigLF4Bx8wuzZ0oMeGe4fEQGoPy8AkaGgc0JWBF_T5o_gXGBgoTuyHyh9dhD8fl__1p94SPtNkBxc0iVebF-9zZlLJ0pwbfYG-v7lnmI0MtOQCxxJPP1LSovw1myi0cqNEB92YcFguzCdMHD2u5r2LkXCKU6rh58ltZsfrLmoX_bVruyh9zUaA_w1wI29n1q-eaMwF3-hWkVVwIiMjyhwqLvzY2Vd50HRiau2dwJCo0ETyjPlSTpTgj-zPYhFQGqOo9WXlGBdQgMp8pp2WSijZYhXpHv5qRog';
 function cleanStr($string) {
     $string = str_replace(' ', '-', $string);
     $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string);
@@ -67,13 +68,13 @@ $email = $_SESSION['sess_username'];
     <div class="form-group">
       <label for="retrieve-name" class="col-md-2 control-label"><span class="star">*</span> Name</label>
         <div class="col-md-10">
-            <input type="text"  name="name" class="form-control" readonly = "readonly" maxlength="200" value="<?php if(isset($_POST['name'])){ echo $_POST['name']; } else{echo htmlspecialchars($name, ENT_QUOTES);} ?>">
+            <input type="text"  name="name" class="form-control"  maxlength="200" value="<?php if(isset($_POST['name'])){ echo $_POST['name']; } else{echo htmlspecialchars($name, ENT_QUOTES);} ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="retrieve-email" class="col-md-2 control-label"><span class="star">*</span> Email address</label>
         <div class="col-md-10">
-            <input type="text"  name="email" class="form-control" readonly = "readonly" maxlength="200" value="<?php if(isset($_POST['email'])){ echo $_POST['email']; } else{echo htmlspecialchars($email, ENT_QUOTES);} ?>">
+            <input type="text"  name="email" class="form-control"  maxlength="200" value="<?php if(isset($_POST['email'])){ echo $_POST['email']; } else{echo htmlspecialchars($email, ENT_QUOTES);} ?>">
         </div>
     </div>
     <div class="form-group">
@@ -284,7 +285,8 @@ function sendData() {
     method: "POST",
     body: formData,
     headers: {
-      "Accept": "application/json"
+      "Accept": "application/json",
+      "Authorization": "Bearer <?php echo htmlspecialchars($_SESSION['sess_access_token'], ENT_QUOTES); ?>"
     }
   })
  .then(res => res.json())
