@@ -27,14 +27,14 @@ $competiscan_ipage    = isset( $_GET['ipage'] ) ? max( 1, absint( wp_unslash( $_
 $competiscan_page_url = get_permalink( get_queried_object_id() );
 
 $competiscan_query_args = array(
-	'post_type'           => 'post',
-	'post_status'         => 'publish',
-	'posts_per_page'      => 9,
-	'paged'               => $competiscan_ipage,
-	'ignore_sticky_posts' => true,
+  'post_type'           => 'post',
+  'post_status'         => 'publish',
+  'posts_per_page'      => 9,
+  'paged'               => $competiscan_ipage,
+  'ignore_sticky_posts' => true,
 );
 if ( '' !== $competiscan_search ) {
-	$competiscan_query_args['s'] = $competiscan_search;
+  $competiscan_query_args['s'] = $competiscan_search;
 }
 $competiscan_insights = new WP_Query( $competiscan_query_args );
 $competiscan_total    = (int) $competiscan_insights->found_posts;

@@ -205,24 +205,6 @@ function competiscan_register_footer_company_fields() {
 					'name'  => 'footer_email',
 					'type'  => 'email',
 				),
-				array(
-					'key'          => 'field_footer_meeting_label',
-					'label'        => 'Book a Meeting – Link Text',
-					'name'         => 'footer_meeting_label',
-					'type'         => 'text',
-					'placeholder'  => 'Book a Meeting',
-					'wrapper'      => array( 'width' => '40' ),
-					'instructions' => 'Shown under the email address. Leave empty to hide the line.',
-				),
-				array(
-					'key'          => 'field_footer_meeting_url',
-					'label'        => 'Book a Meeting – Link URL',
-					'name'         => 'footer_meeting_url',
-					'type'         => 'text',
-					'placeholder'  => 'https://calendly.com/competiscan/competiscan-demo',
-					'wrapper'      => array( 'width' => '60' ),
-					'instructions' => 'A Calendly URL (or #learn) opens the Calendly popup on the same page, exactly like the "See it in action" button. Any other URL is a normal link.',
-				),
 			),
 			'location' => array(
 				array(
@@ -277,34 +259,6 @@ function competiscan_seed_footer_company() {
 	update_option( 'competiscan_footer_company_seeded', '1' );
 }
 add_action( 'wp_loaded', 'competiscan_seed_footer_company', 46 );
-
-/**
- * One-time seed for the footer "Book a Meeting" link (added after the footer company
- * fields were first seeded). Only fills the fields if they have never been saved, so
- * an admin who clears them later keeps the line hidden.
- */
-function competiscan_seed_footer_meeting() {
-	if ( '1' === get_option( 'competiscan_footer_meeting_seeded' ) ) {
-		return;
-	}
-	if ( ! function_exists( 'update_field' ) ) {
-		return;
-	}
-	if ( false === add_option( 'competiscan_footer_meeting_seeded', 'running', '', 'yes' ) ) {
-		return;
-	}
-
-	if ( false === get_option( 'options_footer_meeting_label', false ) ) {
-		update_field( 'field_footer_meeting_label', 'Book a Meeting', 'option' );
-	}
-	if ( false === get_option( 'options_footer_meeting_url', false ) ) {
-		// Same Calendly booking page the "See it in action" button opens (assets/js/contact.js).
-		update_field( 'field_footer_meeting_url', 'https://calendly.com/competiscan/competiscan-demo', 'option' );
-	}
-
-	update_option( 'competiscan_footer_meeting_seeded', '1', true );
-}
-add_action( 'wp_loaded', 'competiscan_seed_footer_meeting', 47 );
 
 /**
  * Import the bundled theme logo into the media library once and return its

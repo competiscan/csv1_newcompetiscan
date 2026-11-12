@@ -292,7 +292,7 @@ function competiscan_register_home_fields() {
 	acf_add_local_field_group(
 		array(
 			'key'        => 'group_competiscan_home_partners',
-			'title'      => 'Home — Our Trusted Partners',
+			'title'      => 'Home — Partners',
 			'menu_order' => 2,
 			'location'   => $front,
 			'fields'     => array(
@@ -304,25 +304,19 @@ function competiscan_register_home_fields() {
 				),
 				array(
 					'key'          => 'field_home_partners_logos',
-					'label'        => 'Partner Logos',
+					'label'        => 'Logos',
 					'name'         => 'partners_logos',
 					'type'         => 'repeater',
-					'instructions' => 'Unlimited logos. Drag a row by its number to reorder, use the "−" icon to delete one, then Update the page. Logos scroll on the Home page in this order. Removing every logo hides the section.',
 					'layout'       => 'table',
-					'min'          => 0,
-					'max'          => 0,
-					'button_label' => 'Add Partner Logo',
+					'button_label' => 'Add logo',
 					'sub_fields'   => array(
 						array(
 							'key'           => 'field_home_partner_logo',
-							'label'         => 'Partner Logo',
+							'label'         => 'Logo',
 							'name'          => 'logo',
 							'type'          => 'image',
-							'required'      => 1,
-							'instructions'  => 'Transparent PNG works best (shown 34px tall, max 150px wide). Alt text is taken from the Media Library.',
-							'return_format' => 'array',
-							'preview_size'  => 'medium',
-							'library'       => 'all',
+							'return_format' => 'url',
+							'preview_size'  => 'thumbnail',
 						),
 					),
 				),
@@ -857,46 +851,6 @@ function competiscan_seed_home_match() {
 	update_option( 'competiscan_home_match_seeded', COMPETISCAN_HOME_MATCH_SEED );
 }
 add_action( 'wp_loaded', 'competiscan_seed_home_match', 51 );
-
-/**
- * One-time: put the "Our Trusted Partners" logos into the Partner Logos repeater so
- * they can be added, removed and reordered from the Home page editor. Until now the
- * repeater was empty and the template printed the bundled theme logos instead.
- *
- * Uses the same 13 files (reuses the Media Library copies when they exist, otherwise
- * imports them from assets/images/companylogos/). Fills the repeater only if it is
- * empty and runs once per site, so afterwards an empty repeater means the admin
- * removed every logo (the section is then hidden).
- */
-function competiscan_migrate_home_partners() {
-	if ( '1' === get_option( 'competiscan_home_partners_migrated' ) ) {
-		return;
-	}
-	if ( ! function_exists( 'update_field' ) ) {
-		return;
-	}
-	// Claim first so two simultaneous requests can't both import.
-	if ( false === add_option( 'competiscan_home_partners_migrated', 'running', '', 'yes' ) ) {
-		return;
-	}
-
-	$pid = (int) get_option( 'page_on_front' );
-	if ( $pid && empty( get_field( 'partners_logos', $pid, false ) ) ) {
-		$rows = array();
-		foreach ( competiscan_home_partner_logos() as $fn ) {
-			$att = competiscan_import_theme_image( 'companylogos/' . $fn, 'Partner logo' );
-			if ( $att ) {
-				$rows[] = array( 'logo' => $att );
-			}
-		}
-		if ( ! empty( $rows ) ) {
-			update_field( 'field_home_partners_logos', $rows, $pid );
-		}
-	}
-
-	update_option( 'competiscan_home_partners_migrated', '1', true );
-}
-add_action( 'wp_loaded', 'competiscan_migrate_home_partners', 52 );
 
 /**
  * Import a bundled theme image (assets/images/<file>) into the media library once,
