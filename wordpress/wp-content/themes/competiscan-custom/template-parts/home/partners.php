@@ -1,53 +1,85 @@
 <?php
-/**
- * Partner logo marquee.
- *
- * main.js duplicates .marquee-row's innerHTML on load to make the loop seamless,
- * so only the single set is printed here — same as the HTML source.
- *
- * @package Competiscan_Custom
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
-$img = get_template_directory_uri() . '/assets/images/';
-
-// Editable from admin (ACF "Home — Partners"); hardcoded logos are the fallback.
-$pid     = (int) get_option( 'page_on_front' );
-$eyebrow = function_exists( 'get_field' ) ? get_field( 'partners_eyebrow', $pid ) : '';
-if ( ! $eyebrow ) {
-	$eyebrow = 'Our Trusted Partners';
+// ACF must be active.
+if ( ! function_exists( 'get_field' ) ) {
+    return;
 }
 
-$logo_rows = function_exists( 'get_field' ) ? get_field( 'partners_logos', $pid ) : array();
-$logos     = array();
-if ( ! empty( $logo_rows ) && is_array( $logo_rows ) ) {
-	foreach ( $logo_rows as $r ) {
-		if ( ! empty( $r['logo'] ) ) {
-			$logos[] = $r['logo'];
-		}
-	}
+// Get actual homepage ID.
+$pid = (int) get_option( 'page_on_front' );
+
+if ( ! $pid ) {
+    return;
 }
+
+// Get admin-added logos.
+$logo_rows = get_field( 'partners_logos', $pid );
+
+// No admin logos = no section.
+if ( empty( $logo_rows ) || ! is_array( $logo_rows ) ) {
+    return;
+}
+
+$logos = array();
+
+foreach ( $logo_rows as $row ) {
+
+    $logo = $row['logo'] ?? '';
+
+    if ( is_array( $logo ) && ! empty( $logo['url'] ) ) {
+        $logos[] = array(
+            'url' => $logo['url'],
+            'alt' => $logo['alt'] ?? 'Partner logo',
+        );
+    } elseif ( is_numeric( $logo ) ) {
+
+        $url = wp_get_attachment_image_url( (int) $logo, 'full' );
+
+        if ( $url ) {
+            $logos[] = array(
+                'url' => $url,
+                'alt' => 'Partner logo',
+            );
+        }
+
+    } elseif ( is_string( $logo ) && ! empty( $logo ) ) {
+
+        $logos[] = array(
+            'url' => $logo,
+            'alt' => 'Partner logo',
+        );
+    }
+}
+
+// Hide section if no valid images.
 if ( empty( $logos ) ) {
-	foreach ( competiscan_home_partner_logos() as $fn ) {
-		$logos[] = $img . 'companylogos/' . $fn;
-	}
+    return;
 }
 ?>
-<!-- ============ PARTNERS ============ -->
+
 <section class="partners">
-  <div class="container">
-    <span class="eyebrow-pill"><?php echo esc_html( $eyebrow ); ?></span>
-    </div>
-    <div class="partners-track container">
-      <div class="marquee-row">
-        <?php foreach ( $logos as $logo ) : ?>
-        <span class="logo-chip"><img src="<?php echo esc_url( $logo ); ?>" alt="logo"></span>
-        <?php endforeach; ?>
-        <!-- duplicate set for seamless infinite loop -->
-      </div>
+    <div class="container">
+        <span class="eyebrow-pill">
+            <?php echo esc_html( get_field( 'partners_eyebrow', $pid ) ?: 'Our Trusted Partners' ); ?>
+        </span>
     </div>
 
+    <div class="partners-track container">
+        <div class="marquee-row">
+
+            <?php foreach ( $logos as $logo ) : ?>
+                <span class="logo-chip">
+                    <img
+                        src="<?php echo esc_url( $logo['url'] ); ?>"
+                        alt="<?php echo esc_attr( $logo['alt'] ); ?>"
+                    >
+                </span>
+            <?php endforeach; ?>
+
+        </div>
+    </div>
 </section>

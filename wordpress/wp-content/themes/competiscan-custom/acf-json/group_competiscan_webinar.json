@@ -1,0 +1,288 @@
+{
+    "key": "group_competiscan_webinar",
+    "title": "Webinar Details",
+    "fields": [
+        {
+            "key": "field_webinar_date",
+            "label": "Webinar Date",
+            "name": "webinar_date",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "Shown in the date box on the card (e.g. MAR 18).",
+            "required": 1,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "34",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "F j, Y",
+            "return_format": "Ymd",
+            "first_day": 0,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_webinar_time",
+            "label": "Webinar Time",
+            "name": "webinar_time",
+            "aria-label": "",
+            "type": "time_picker",
+            "instructions": "Optional. Shown above the title when set.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "g:i a",
+            "return_format": "H:i:s"
+        },
+        {
+            "key": "field_webinar_timezone",
+            "label": "Time Zone Label",
+            "name": "webinar_timezone",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Optional, e.g. \"CT\" or \"ET\". Shown after the time.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "CT",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_webinar_description",
+            "label": "Short Description",
+            "name": "webinar_description",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Optional. Shown under the title when set (1-2 sentences).",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": "",
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_webinar_thumbnail",
+            "label": "Featured Image \/ Thumbnail",
+            "name": "_thumbnail_id",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Optional. Shown at the top of the card when set (16:9 crop). This is also the post's Featured Image.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "id",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_webinar_button_label",
+            "label": "Button Text",
+            "name": "webinar_button_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Leave empty to hide the button.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "34",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Register",
+            "placeholder": "Register",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_webinar_button_url",
+            "label": "Button URL",
+            "name": "webinar_button_url",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Registration link: https:\/\/..., a site path (\/contact-us\/) or an anchor (#section). Leave empty to hide the button.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "46",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "https:\/\/",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_webinar_new_tab",
+            "label": "Open in new tab",
+            "name": "webinar_new_tab",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Ignored for #anchor links.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_webinar_status",
+            "label": "Registration Status",
+            "name": "webinar_status",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "auto": "Auto - open until the webinar date\/time has passed",
+                "open": "Open - always show the button",
+                "closed": "Closed - show the closed message"
+            },
+            "default_value": "auto",
+            "return_format": "value",
+            "ui": 0,
+            "allow_null": 0,
+            "multiple": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_webinar_closed_text",
+            "label": "Closed Message",
+            "name": "webinar_closed_text",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Shown instead of the button once the webinar is closed. Leave empty to show nothing.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_webinar_status",
+                        "operator": "!=",
+                        "value": "open"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "This webinar has closed.",
+            "placeholder": "This webinar has closed.",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_webinar_tag",
+            "label": "Tag Label",
+            "name": "webinar_tag",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Small label at the top of the card. Leave empty to hide it.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Webinars",
+            "placeholder": "Webinars",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_webinar_order",
+            "label": "Display Order",
+            "name": "webinar_order",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Optional. 0 = automatic (upcoming soonest first, then closed most recent first). Lower non-zero numbers appear first within their group.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "min": "",
+            "max": "",
+            "step": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "webinar"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Fields for each webinar card in the Webinars section of the Insights page (WP Admin > Webinars).",
+    "show_in_rest": 1,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1793605238
+}

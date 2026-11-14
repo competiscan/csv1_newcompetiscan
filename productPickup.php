@@ -284,7 +284,7 @@ function sendData() {
   fetch("<?php echo RETRIVAL_API_URL_UAT;?>clientRetrieval", {
     method: "POST",
     body: formData,
-    headers: {
+     headers: {
       "Accept": "application/json",
       "Authorization": "Bearer <?php echo htmlspecialchars($_SESSION['sess_access_token'], ENT_QUOTES); ?>"
     }
