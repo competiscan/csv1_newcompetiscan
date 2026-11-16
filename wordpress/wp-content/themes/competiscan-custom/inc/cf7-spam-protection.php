@@ -779,6 +779,7 @@ function competiscan_recaptcha_v2_css() {
 		@media (max-width: 359px) {
 			.wpcf7-form .cs-recaptcha-row .cs-g-recaptcha { transform: scale(0.88); transform-origin: 0 0; }
 		}
+		
 	</style>
 	<?php
 }

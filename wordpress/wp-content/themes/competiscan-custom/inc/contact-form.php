@@ -144,6 +144,7 @@ function competiscan_configure_whitepaper_form() {
 	if ( ! $form ) {
 		return;
 	}
+	
 
 	$body =
 		'<label class="wp-l" for="wp-firstname">Full name</label>' . "\n" .
