@@ -228,6 +228,7 @@ require_once get_template_directory() . '/inc/about-fields.php';
 require_once get_template_directory() . '/inc/about-bootstrap.php';
 require_once get_template_directory() . '/inc/mid-fields.php';
 require_once get_template_directory() . '/inc/contact-form.php';
+require_once get_template_directory() . '/inc/cf7-spam-protection.php';
 require_once get_template_directory() . '/inc/toolkit-layouts.php';
 require_once get_template_directory() . '/inc/career-cpt.php';
 require_once get_template_directory() . '/inc/careers-layouts.php';

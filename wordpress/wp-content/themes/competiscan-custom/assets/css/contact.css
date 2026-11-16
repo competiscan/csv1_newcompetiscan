@@ -31,7 +31,7 @@
   font-family: inherit; font-size: 16px; color: rgb(0,30,51);
   transition: border-color 0.14s ease, box-shadow 0.14s ease;
 }
-.cs-ctm textarea.wpcf7-form-control { min-height: 120px; resize: vertical; }
+.cs-ctm textarea.wpcf7-form-control { height: 120px; min-height: 96px; resize: vertical; }
 .cs-ctm .wpcf7-form-control:not([type="submit"]):focus {
   border-color: rgb(0,171,171); box-shadow: 0 0 0 3px rgba(0,171,171,0.15); outline: none;
 }
