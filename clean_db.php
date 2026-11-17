@@ -13,10 +13,15 @@ if (php_sapi_name() != "cli") {
     die();
 }
 
-$host = '192.168.31.187';
+// $host = '192.168.31.187';
+// $name = 'competi_competidb';
+// $user = 'competiscan_db';
+// $pass = '695r3D29T';
+
+$host = 'localhost';
 $name = 'competi_competidb';
-$user = 'competiscan_db';
-$pass = '695r3D29T';
+$user = 'root';
+$pass = '';
 
 function logLine($fh, $message) {
     fwrite($fh, date('Y-m-d H:i:s').$message."\n\n");

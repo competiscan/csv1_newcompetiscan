@@ -16,7 +16,7 @@ require_once('functions.php');
  * Composer
  * Added 2016-02-09 by Tyler
  */
-require_once('vendor/autoload.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 session_set_cookie_params('86400');
 // session_set_cookie_params(['lifetime' => 86400, 
 // 'path' => '/',

@@ -88,6 +88,7 @@ $offset1='0';
 $sql_country = "SELECT DISTINCT country_id FROM cscan_country_users_allow where userID='".$_SESSION['sess_userID']."'";
 $rs_country  = $DRW->query( $sql_country,$DRW_read );
 $row_country = $DRW->fetch_array($rs_country);
+$country_permission = $row_country[0] ?? 'CA';
 if(isset($_REQUEST['audience_id'])) {
         $audience_id =$_SESSION['sess_audience_id']= $_REQUEST['audience_id'];
         
@@ -408,11 +409,11 @@ $adjacents = "2";
             <div class="form-group">
                 <!--add country permission-->
                 <?php //if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){ ?>
-                <?php if($row_country[0]=='BOTH'){ ?>
+                <?php if($country_permission=='BOTH'){ ?>
                 <input type="radio" <?php if(!empty($_SESSION['sess_country_id']) && $_SESSION['sess_country_id']=='1'){ echo "checked";} ?> name="country" value="1">US
                 <input type="radio" <?php if(!empty($_SESSION['sess_country_id']) && $_SESSION['sess_country_id']=='3'){ echo "checked";} ?> name="country" value="3">CANADA
                 <input type="radio" <?php if($_SESSION['sess_country_id']=='0'){ echo "checked";} ?> name="country" value="0">All
-                <?php }elseif($row_country[0]=='US'){  ?>
+                <?php }elseif($country_permission=='US'){  ?>
                 <input type="radio" checked name="country" value="1">US Only
                 <?php }else{ ?>
                 <input type="radio" checked name="country" value="3">CANADA Only
@@ -446,9 +447,9 @@ $adjacents = "2";
 <?php
 $savedArray = array();
 $perm_country='';
-if($row_country[0]=='US'){
+if($country_permission=='US'){
     $perm_country=1;
-}elseif($row_country[0]=='CA'){
+}elseif($country_permission=='CA'){
   $perm_country=3;  
 }
 $sql = "SELECT sectorID,categoryID,subCategoryID,subSubCategoryID FROM cscan_trend_report_search WHERE userID='{$_SESSION['sess_userID']}' AND emailAlert=1 AND country='".$perm_country."' AND alert_type=1";
@@ -481,7 +482,7 @@ while($row1 = $DRW->fetch_row($savedQuery1)) {
 //print_r(array_unique($filterSavedArray));
 echo displayCategory(0);
 function displayCategory($ID,$level=0) {
-	global $DRW,$DRW_read,$DRW_main,$DRW_crm;
+	global $DRW,$DRW_read,$DRW_main,$DRW_crm,$country_permission;
 	$savedArray = $GLOBALS['savedArray'];
         $filterSavedArray = $GLOBALS['filterSavedArray'];
 	$print = '';
@@ -509,21 +510,16 @@ function displayCategory($ID,$level=0) {
                 
                 } */
                 //add country permission
-               // if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
-                    $sql_country = "SELECT DISTINCT country_id FROM cscan_country_users_allow where userID='".$_SESSION['sess_userID']."'";
-                    $rs_country  = $DRW->query( $sql_country,$DRW_read );
-                    $row_country = $DRW->fetch_array($rs_country);
-                    if($row_country[0]=='US'){
+                    if($country_permission=='US'){
                        $country_id='1';
                        $andCountryCond = " and (ctr.country_id = $country_id OR ctr.country_id =0)";
                        
-                    }elseif($row_country[0]=='CA'){
+                    }elseif($country_permission=='CA'){
                         $country_id='3';
                         $andCountryCond = " and  (ctr.country_id = $country_id OR ctr.country_id =0)";
                         
                     }
                    
-                // }
                 $selectSqlcolumn='';
                 //if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
                    $selectSqlcolumn ='ctr.rndtrend_id,';
@@ -878,11 +874,11 @@ function displayCategory($ID,$level=0) {
         }else{
             //add country permission
             //if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
-                if($row_country[0]=='US'){
+                if($country_permission=='US'){
                    $country_id='1';
                    $and = " and (ctr.country_id = $country_id OR ctr.country_id =0)";
                    $countryName ="UNITED STATES";
-                }elseif($row_country[0]=='CA'){
+                }elseif($country_permission=='CA'){
                     $country_id='3';
                     $and = " and (ctr.country_id = $country_id OR ctr.country_id =0)";
                     $countryName ="CANADA";

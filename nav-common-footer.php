@@ -1,19 +1,19 @@
 
-					<li class="menu-item"><a href="/about-us/">About Us</a></li>
+					<li class="menu-item"><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/about-us/">About Us</a></li>
 					<?php //$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 					//if(strstr($actual_link,'demo.competiscan.com')){ ?>
 					<!--<li class="menu-item"><a href="/services/">Services</a></li>-->
 					<?php // }?>
-					<li class="menu-item"><a href="/careers/">Careers</a></li>
-					<li class="menu-item"><a href="/insights/">Insights</a></li>
-					<li class="menu-item"><a href="/#contact">Contact Us</a></li>
+					<li class="menu-item"><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/careers/">Careers</a></li>
+					<li class="menu-item"><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/insights/">Insights</a></li>
+					<li class="menu-item"><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/#contact">Contact Us</a></li>
 					<?php
 					if(empty($_SESSION['sess_username'])) { // not logged in
 					?>
-						<li class="menu-item"><a href="/login.php">Login</a></li>
+						<li class="menu-item"><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/login.php">Login</a></li>
 					<?php }
 					else { 	// logged in ?>
-						<li class="menu-item"><a href="/logout.php">Logout</a></li>	
+						<li class="menu-item"><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/logout.php">Logout</a></li>
 					<?php } ?>
  
                                          

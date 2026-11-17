@@ -2,8 +2,7 @@
     "require": {
         "phpmailer/phpmailer": "^5.2",
         "mikehaertl/phpwkhtmltopdf": "^2.2",
-        "h4cc/wkhtmltopdf-i386": "0.12.3",
-        "pear-pear.php.net/Auth": "*"
+        "h4cc/wkhtmltopdf-i386": "0.12.3"
     },
     "require-dev": {
         "codeception/codeception": "1.8",

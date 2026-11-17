@@ -1,5 +1,5 @@
 <?php
-die("ok till here in functions.php");
+//die("ok till here in functions.php");
 require_once __DIR__ . '/../vendor/autoload.php';
 function updateStateLookup($productID, $delete = false) {
     global $DRW, $DRW_read, $DRW_main, $DRW_crm;

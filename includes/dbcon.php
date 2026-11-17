@@ -1,12 +1,10 @@
 <?php
 
 if(!isset($DRW_connections)){
-	print("competi_def.php file not found, which is called in dbcon.php");
-	print"<pre>";print"</pre>";
-	require("competi_def.php");
+	require_once __DIR__ . '/competi_def.php';
 }
 if(!class_exists('databaseReadWrite')){
-	require("databaseReadWrite.php");
+	require_once __DIR__ . '/databaseReadWrite.php';
 }
 $DRW = new databaseReadWrite($DRW_connections,$DRW_main,$DRW_die);
 $dbh = $DRW->current_dbh;

@@ -1,10 +1,9 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "9abc1af8ca353214baabbf84a9ae71bb",
     "content-hash": "bdfd4caabcee0fe456116e133a1caf67",
     "packages": [
         {
@@ -45,7 +44,7 @@
                 "thumbnail",
                 "wkhtmltopdf"
             ],
-            "time": "2016-02-02 19:38:57"
+            "time": "2016-02-02T19:38:57+00:00"
         },
         {
             "name": "mikehaertl/php-shellcommand",
@@ -81,7 +80,7 @@
             "keywords": [
                 "shell"
             ],
-            "time": "2016-07-16 09:42:31"
+            "time": "2016-07-16T09:42:31+00:00"
         },
         {
             "name": "mikehaertl/php-tmpfile",
@@ -117,7 +116,7 @@
             "keywords": [
                 "files"
             ],
-            "time": "2016-07-07 05:59:42"
+            "time": "2016-07-07T05:59:42+00:00"
         },
         {
             "name": "mikehaertl/phpwkhtmltopdf",
@@ -166,7 +165,7 @@
                 "wkhtmltoimage",
                 "wkhtmltopdf"
             ],
-            "time": "2016-06-02 08:06:45"
+            "time": "2016-06-02T08:06:45+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
@@ -226,7 +225,7 @@
                 }
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
-            "time": "2016-06-06 09:09:37"
+            "time": "2016-06-06T09:09:37+00:00"
         }
     ],
     "packages-dev": [
@@ -283,7 +282,7 @@
                 "testing",
                 "web"
             ],
-            "time": "2013-04-13 23:39:27"
+            "time": "2013-04-13T23:39:27+00:00"
         },
         {
             "name": "behat/mink-browserkit-driver",
@@ -338,7 +337,7 @@
                 "browser",
                 "testing"
             ],
-            "time": "2013-04-13 23:46:30"
+            "time": "2013-04-13T23:46:30+00:00"
         },
         {
             "name": "behat/mink-goutte-driver",
@@ -389,7 +388,7 @@
                 "headless",
                 "testing"
             ],
-            "time": "2013-07-03 18:43:54"
+            "time": "2013-07-03T18:43:54+00:00"
         },
         {
             "name": "behat/mink-selenium2-driver",
@@ -447,7 +446,7 @@
                 "testing",
                 "webdriver"
             ],
-            "time": "2013-06-02 19:09:45"
+            "time": "2013-06-02T19:09:45+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -514,7 +513,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2013-11-15 02:57:56"
+            "time": "2013-11-15T02:57:56+00:00"
         },
         {
             "name": "fabpot/goutte",
@@ -570,19 +569,19 @@
             "keywords": [
                 "scraper"
             ],
-            "time": "2014-10-09 15:52:51"
+            "time": "2014-10-09T15:52:51+00:00"
         },
         {
             "name": "facebook/webdriver",
             "version": "v0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/facebook/php-webdriver.git",
+                "url": "https://github.com/php-webdriver/php-webdriver-archive.git",
                 "reference": "bcefbd697846c807d191e79309e42b4eac2ea5a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/bcefbd697846c807d191e79309e42b4eac2ea5a9",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver-archive/zipball/bcefbd697846c807d191e79309e42b4eac2ea5a9",
                 "reference": "bcefbd697846c807d191e79309e42b4eac2ea5a9",
                 "shasum": ""
             },
@@ -601,7 +600,7 @@
             ],
             "description": "A php client for WebDriver",
             "homepage": "https://github.com/facebook/php-webdriver",
-            "time": "2013-09-10 16:04:57"
+            "time": "2013-09-10T16:04:57+00:00"
         },
         {
             "name": "guzzle/common",
@@ -646,7 +645,7 @@
                 "exception"
             ],
             "abandoned": "guzzle/guzzle",
-            "time": "2014-08-11 04:32:36"
+            "time": "2014-08-11T04:32:36+00:00"
         },
         {
             "name": "guzzle/http",
@@ -704,7 +703,7 @@
                 "http client"
             ],
             "abandoned": "guzzle/guzzle",
-            "time": "2014-08-11 04:32:36"
+            "time": "2014-08-11T04:32:36+00:00"
         },
         {
             "name": "guzzle/parser",
@@ -749,7 +748,7 @@
                 "url"
             ],
             "abandoned": "guzzle/guzzle",
-            "time": "2014-02-05 18:29:46"
+            "time": "2014-02-05T18:29:46+00:00"
         },
         {
             "name": "guzzle/stream",
@@ -803,7 +802,7 @@
                 "stream"
             ],
             "abandoned": "guzzle/guzzle",
-            "time": "2014-05-01 21:36:02"
+            "time": "2014-05-01T21:36:02+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -848,7 +847,7 @@
             "keywords": [
                 "test"
             ],
-            "time": "2015-05-11 14:41:42"
+            "time": "2015-05-11T14:41:42+00:00"
         },
         {
             "name": "instaclick/php-webdriver",
@@ -906,19 +905,19 @@
                 "webdriver",
                 "webtest"
             ],
-            "time": "2013-10-04 15:03:51"
+            "time": "2013-10-04T15:03:51+00:00"
         },
         {
             "name": "mockery/mockery",
             "version": "0.9.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/padraic/mockery.git",
+                "url": "https://github.com/mockery/mockery.git",
                 "reference": "4db079511a283e5aba1b3c2fb19037c645e70fc2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/padraic/mockery/zipball/4db079511a283e5aba1b3c2fb19037c645e70fc2",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/4db079511a283e5aba1b3c2fb19037c645e70fc2",
                 "reference": "4db079511a283e5aba1b3c2fb19037c645e70fc2",
                 "shasum": ""
             },
@@ -971,7 +970,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2016-05-22 21:52:33"
+            "time": "2016-05-22T21:52:33+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -1049,7 +1048,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2016-07-29 03:23:52"
+            "time": "2016-07-29T03:23:52+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1110,7 +1109,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-09-02 10:13:14"
+            "time": "2014-09-02T10:13:14+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -1157,7 +1156,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2015-06-21 13:08:43"
+            "time": "2015-06-21T13:08:43+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -1198,7 +1197,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2015-06-21 13:50:34"
+            "time": "2015-06-21T13:50:34+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -1242,7 +1241,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2016-05-12 18:03:57"
+            "time": "2016-05-12T18:03:57+00:00"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -1292,7 +1291,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2014-03-03 05:10:30"
+            "time": "2014-03-03T05:10:30+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -1365,7 +1364,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-10-17 09:04:17"
+            "time": "2014-10-17T09:04:17+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1414,7 +1413,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2013-01-13 10:24:48"
+            "time": "2013-01-13T10:24:48+00:00"
         },
         {
             "name": "psr/log",
@@ -1461,7 +1460,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-09-19 16:02:08"
+            "time": "2016-09-19T16:02:08+00:00"
         },
         {
             "name": "symfony/browser-kit",
@@ -1517,7 +1516,7 @@
             ],
             "description": "Symfony BrowserKit Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-09 16:02:48"
+            "time": "2015-07-09T16:02:48+00:00"
         },
         {
             "name": "symfony/console",
@@ -1575,7 +1574,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-26 09:08:40"
+            "time": "2015-07-26T09:08:40+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -1629,7 +1628,7 @@
             ],
             "description": "Symfony CssSelector Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-15 13:32:45"
+            "time": "2015-05-15T13:32:45+00:00"
         },
         {
             "name": "symfony/dom-crawler",
@@ -1683,7 +1682,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-09 16:02:48"
+            "time": "2015-07-09T16:02:48+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -1742,7 +1741,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-02 15:18:45"
+            "time": "2015-05-02T15:18:45+00:00"
         },
         {
             "name": "symfony/finder",
@@ -1792,7 +1791,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-09 16:02:48"
+            "time": "2015-07-09T16:02:48+00:00"
         },
         {
             "name": "symfony/process",
@@ -1842,7 +1841,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2015-06-30 16:10:16"
+            "time": "2015-06-30T16:10:16+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -1892,7 +1891,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-26 08:59:42"
+            "time": "2015-07-26T08:59:42+00:00"
         }
     ],
     "aliases": [],
@@ -1901,5 +1900,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }

@@ -53,21 +53,23 @@ i {
 </style>
 
 <?php
-$uri = $_SERVER['REQUEST_URI'];
-$count = strpos($uri, '?');
-if ($count) $uri = substr($uri, 0, $count);
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+$base_path = parse_url($site_base_url, PHP_URL_PATH) ?: '';
+if ($base_path !== '' && ($uri === $base_path || strpos($uri, $base_path . '/') === 0)) {
+    $uri = substr($uri, strlen($base_path)) ?: '/';
+}
 
 $cMI = 'class="current-menu-item"';
 
 if (empty($_SESSION['sess_username'])) {
     // Not logged in
     ?>
-    <li <?= $uri == '/about-us/' ? $cMI : '' ?>><a href="/about-us/">About Us</a></li>
-    <li <?= $uri == '/careers/' ? $cMI : '' ?>><a href="/careers/">Careers</a></li>
-    <li <?= $uri == '/insights/' ? $cMI : '' ?>><a href="/insights/">Insights</a></li>
-    <li <?= $uri == '/#contact' ? $cMI : '' ?>><a href="/#contact">Contact Us</a></li>
+    <li <?= $uri == '/about-us/' ? $cMI : '' ?>><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/about-us/">About Us</a></li>
+    <li <?= $uri == '/careers/' ? $cMI : '' ?>><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/careers/">Careers</a></li>
+    <li <?= $uri == '/insights/' ? $cMI : '' ?>><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/insights/">Insights</a></li>
+    <li <?= $uri == '/' ? $cMI : '' ?>><a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/#contact">Contact Us</a></li>
     <li class="login-link <?= $uri == '/login.php' ? 'current-menu-item' : '' ?>">
-        <a href="/login.php">Login</a>
+        <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/login.php">Login</a>
     </li>
     <?php
 } else {
@@ -101,19 +103,19 @@ if (empty($_SESSION['sess_username'])) {
 
     if ($show_power_search_page) { ?>
         <li <?= $uri == '/fullsearch.php?searchview=2' ? $cMI : '' ?>>
-            <a href="/fullsearch.php?searchview=2">Power Search</a>
+            <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/fullsearch.php?searchview=2">Power Search</a>
         </li>
     <?php }
 
     if ($show_trend_reports_page) { ?>
         <li <?= $uri == '/trend_reports.php' ? $cMI : '' ?>>
-            <a href="/trend_reports.php">Trend Reports</a>
+            <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/trend_reports.php">Trend Reports</a>
         </li>
     <?php }
 
     if ($show_retrieval_services_page) { ?>
         <li <?= $uri == '/productPickup.php' ? $cMI : '' ?>>
-            <a href="/productPickup.php">Retrieval Services</a>
+            <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/productPickup.php">Retrieval Services</a>
         </li>
     <?php }
 
@@ -123,13 +125,13 @@ if (empty($_SESSION['sess_username'])) {
             <button class="dropbtn">DASHBOARD<i class="arrow down"></i></button>
             <div class="dropdown-content">
                 <?php if (!empty($_SESSION['sess_dashboard'])) { ?>
-                    <a href="/dashboard.php">Retail Energy Pricing Dashboard</a>
+                    <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/dashboard.php">Retail Energy Pricing Dashboard</a>
                 <?php } ?>
                 <?php if ($show_digital_dashboard_page) { ?>
-                    <a href="/digital-dashboard.php">Digital Dashboard</a>
+                    <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/digital-dashboard.php">Digital Dashboard</a>
                 <?php } ?>
                 <?php if ($show_rpv_dashboard_page) { ?>
-                    <a href="/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
+                    <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
                 <?php } ?>
             </div>
         </div>
@@ -140,8 +142,8 @@ if (empty($_SESSION['sess_username'])) {
     <div class="dropdown">
         <button class="dropbtn">PROFILE<i class="arrow down"></i></button>
         <div class="dropdown-content">
-            <a href="/change_password.php">Change Password</a>
-            <a href="/logout.php">Logout</a>
+            <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/change_password.php">Change Password</a>
+            <a href="<?= htmlspecialchars($site_base_url, ENT_QUOTES, 'UTF-8') ?>/logout.php">Logout</a>
         </div>
     </div>
 <?php } ?>
