@@ -47,6 +47,14 @@ if ( '' !== $competiscan_meeting_label && '' !== $competiscan_meeting_url ) {
   $competiscan_meeting_cal = ( '#learn' === $competiscan_meeting_url || false !== strpos( $competiscan_meeting_url, 'calendly.com' ) );
   $competiscan_contact[]   = '<a class="footer-meeting" href="' . esc_url( $competiscan_meeting_url ) . '"' . ( $competiscan_meeting_cal ? ' data-cs-calendly' : '' ) . '>' . esc_html( $competiscan_meeting_label ) . '</a>';
 }
+
+// Floating "Schedule a Demo" button (bottom-right, every page). Reuses the exact
+// "Book a Meeting" link above (Site Options -> footer_meeting_url) and the same
+// data-cs-calendly hook, so assets/js/contact.js opens the identical Calendly
+// popup. If that option is empty it falls back to the demo link contact.js
+// already opens — no new Calendly URL is introduced.
+$competiscan_demo_url = '' !== $competiscan_meeting_url ? $competiscan_meeting_url : 'https://calendly.com/competiscan/competiscan-demo';
+$competiscan_demo_cal = ( '#learn' === $competiscan_demo_url || false !== strpos( $competiscan_demo_url, 'calendly.com' ) );
 ?>
 <!-- ============ FOOTER ============ -->
 <footer class="site-footer">
@@ -113,6 +121,11 @@ if ( '' !== $competiscan_meeting_label && '' !== $competiscan_meeting_url ) {
     </div>
   </div>
 </footer>
+<!-- Floating "Schedule a Demo" CTA — styles: assets/css/contact.css, behaviour: assets/js/contact.js -->
+<a class="cs-demo-fab" href="<?php echo esc_url( $competiscan_demo_url ); ?>"<?php echo $competiscan_demo_cal ? ' data-cs-calendly' : ''; ?>>
+  <svg class="cs-demo-fab__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><rect x="3" y="4.5" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  <span class="cs-demo-fab__label"><?php esc_html_e( 'Schedule a Demo', 'competiscan-custom' ); ?></span>
+</a>
 </main>
 <?php wp_footer(); ?>
 </body>
