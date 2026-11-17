@@ -2680,3 +2680,6 @@ form p br {display: none;}
     color: rgba(232, 119, 82, 1);
     text-decoration: none;
 }
+.cs-demo-fab:hover, .cs-demo-fab:focus-visible {
+  background: #000;
+    box-shadow: 0 0 0 2px #000, 0 10px 28px rgba(0, 30, 51, 0.34)}
