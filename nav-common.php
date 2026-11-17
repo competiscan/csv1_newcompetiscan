@@ -86,6 +86,9 @@ if (empty($_SESSION['sess_username'])) {
     if (empty($page_permission) || !in_array('power_search', $page_permission)) {
         $show_power_search_page = false;
     }
+    // if (empty($page_permission) || !in_array('power_search', $page_permission)) {
+    //     $show_power_search_page = false;
+    // }
 
     if (empty($page_permission) || !in_array('trend_reports', $page_permission)) {
         $show_trend_reports_page = false;
@@ -104,6 +107,11 @@ if (empty($_SESSION['sess_username'])) {
             <a href="/fullsearch.php?searchview=2">Power Search</a>
         </li>
     <?php }
+     /*if ($show_power_search_page) { ?>
+        <li <?= $uri == 'https://cp.pre-prod.competiscan.com/power_search_v2' ? $cMI : '' ?>>
+            <a href="https://cp.pre-prod.competiscan.com/power_search_v2">Gallery</a>
+        </li>
+    <?php }*/
 
     if ($show_trend_reports_page) { ?>
         <li <?= $uri == '/trend_reports.php' ? $cMI : '' ?>>

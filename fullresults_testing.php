@@ -119,7 +119,7 @@ $sectorExactFlag='';
 $sectorOnlyFlag='';
 $selectVals = array();
 $currentpage_url='http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-$API_URL =API_URL;
+$API_URL =API_URL_ELASTIC_FAST;
 
 if(isset($_GET['updated'])) {
     //sleep(5);
@@ -236,9 +236,9 @@ if(isset($_POST['basket_action'])){
     if($basket_action>0){
             if($basket_action==7 || $basket_action==8 || $basket_action==9 || $basket_action==10){//Copy To/Add page/all || Move To page/all
                 if($bid<0){
-                            $chcsv2 = curl_init(API_URL_EMAIL_ALERT); 
+                            $chcsv2 = curl_init(API_URL_EMAIL_ALERT_FASTAPI); 
                             if($basket_action==7){
-                                $chcsv2 = curl_init(API_URL);
+                                $chcsv2 = curl_init(API_URL_ELASTIC_FAST);
                             }
                             $posteddata = $_POST['save_json_query'];
                             echo $posteddata; 
@@ -2223,7 +2223,7 @@ $('.myExcel_download').click(function() {
     var total_record="<?php echo $search_num_of_rows; ?>";
         $.ajax({          
         type: "POST",
-        url: "express_download.php",
+        url: "express_download_uat.php",
         data: {post_data:JSON.stringify(source),action:'express_download'},
         beforeSend: function () {
         $('#overlay').css("display", "block");
@@ -2243,87 +2243,6 @@ $('.myExcel_download').click(function() {
         },
     });
 });
-/*$('.myExcel_download').click(function() {  
-    var source=<?php  echo $posteddata; ?> 
-    var fileName="<?php echo $filename_csv; ?>";
-    var startTime = new Date().getTime();
-    var total_record="<?php echo $search_num_of_rows; ?>";
-    var URL = "https://api1.competiscan.com/elasticsearch/v1/search/download";
-    $.ajax({
-    type: 'POST',
-    data: JSON.stringify(source),
-    url: URL,
-    contentType: "application/json; charset=utf-8",
-    cache: false,
-    xhr:function() {
-        var XHR = new window.XMLHttpRequest();
-        XHR.addEventListener('loadstart', HandleXHR); // Upload has begun
-        XHR.addEventListener('progress', HandleXHR); // Periodically indicates the amount of progress made so far
-        XHR.addEventListener('error', HandleXHR); // Upload failed due to an error
-        XHR.addEventListener('abort', HandleXHR); // Upload operation was aborted
-        XHR.addEventListener('load', HandleXHR); // Upload completed successfully
-        XHR.addEventListener('loadend', HandleXHR); // Upload finished
-        function HandleXHR(event) {
-           //console.log(event);
-            //console.log((cnt/total_record)*100);
-            //if(event.lengthComputable) {
-                var duration = (new Date().getTime() - startTime) / 1000;
-                //console.log(duration);
-                var Bps = ((event.loaded)/ duration);
-                var KBps = Bps / 1024;
-               // console.log(KBps);
-                this.transfer_rate= Math.floor(KBps)+'KB/s';
-                //console.log(this.transfer_rate);
-                var total=parseInt(total_record)*735;
-                //console.log("total",total,typeof(total));
-                var PercentProgress = Math.round((event.loaded * 100) / total) ;
-               // console.log(PercentProgress);
-                //$progress.value = percentage+'%';
-                if (PercentProgress >70) {
-                    PercentProgress=80; 
-                    //console.log(PercentProgress);
-                $('.progressCounter').text(PercentProgress+'%');
-                $('.progressCounter1').text(this.transfer_rate);
-                }if (PercentProgress>=80) {
-                     PercentProgress=90; 
-                $('.progressCounter').text(PercentProgress+'%');
-                $('.progressCounter1').text(this.transfer_rate);
-                }if (PercentProgress>=90) {
-                    PercentProgress=100; 
-                    console.log("Total percent",PercentProgress);
-                $('.progressCounter').text(PercentProgress+'%');
-                $('.progressCounter1').text(this.transfer_rate);
-                }else{
-                    PercentProgress=PercentProgress+'%';
-                    console.log(" compelete",PercentProgress);
-                    $('.progressCounter').text(PercentProgress);
-                    $('.progressCounter1').text(this.transfer_rate);
-                }
-        }
-        return XHR;
-    
-    },
-    beforeSend: function () {
-        $('#overlay').css("display", "block");
-    },
-    complete: function (resp) {
-        //console.log(resp);
-       let blob = new Blob([resp.responseText], { type: "text/csv" });
-        var a = document.createElement('a');
-        var url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = fileName;
-        document.body.append(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        $('#overlay').css("display", "none");
-    },
-    error: function(resp) {
-        console.log(resp);
-      },
-});
-});*/
 function productDescription_digital_testing(ID,pdf_key) {
     //console.log(pdf_key,"###############################")
 	var win = window.open('https://cp.competiscan.com/productdetail?id='+ID,"detail","toolbar=no, menubar=no, location=no, status=yes, scrollbars=yes, resizable=yes, width=700, height=600");
