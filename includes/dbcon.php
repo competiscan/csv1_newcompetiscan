@@ -1,6 +1,8 @@
 <?php
 
 if(!isset($DRW_connections)){
+	print("competi_def.php file not found, which is called in dbcon.php");
+	print"<pre>";print"</pre>";
 	require("competi_def.php");
 }
 if(!class_exists('databaseReadWrite')){

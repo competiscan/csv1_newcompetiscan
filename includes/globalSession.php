@@ -3,11 +3,15 @@ set_time_limit(0);
 if(ob_get_level()<=1) {
 	@ob_start();
 }
-require_once("competi_def.php");
+//require_once("competi_def.php");
 require_once('dbcon.php');
+
 require_once('dbsess.php');
+
 include_once('email_defs.php');
+
 require_once('functions.php');
+
 /**
  * Composer
  * Added 2016-02-09 by Tyler

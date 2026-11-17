@@ -97,6 +97,9 @@ class databaseReadWrite {
 			}
 		}
 	}
+
+	// rajinder
+	
 	function connect(){
 		if(isset(self::$connections) && isset(self::$connections[$this->current_connection])){
 			//$this->current_dbh = self::$connections[$this->current_connection][0] = mysql_connect($this->current_hostname, $this->current_username, $this->current_password);
