@@ -26,7 +26,7 @@ if(!defined('ENV')){
 <!-- Calendly badge widget begin -->
 <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
 <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript"></script>
-<script type="text/javascript">Calendly.initBadgeWidget({url: 'https://calendly.com/competiscan/competiscan-demo', text: 'Schedule a Demo', color: '#00a2ff', branding: false});</script>
+<script type="text/javascript">Calendly.initBadgeWidget({url: 'https://calendly.com/competiscan/competiscan-demo', text: 'Schedule a Demo', color: '#004b81;', branding: false});</script>
 <!-- Calendly badge widget end -->
 <!-- for the VisualVisitor code -->
 <script type="text/javascript"> 
