@@ -83,7 +83,7 @@ position: relative;
    it never covers them. contact.js sets --cs-fab-lift while the footer's bottom
    bar is on screen, so the button rises above it and never hides "Back to top". */
 .cs-demo-fab {
-  --cs-fab-gap: 24px;
+ --cs-fab-gap: 24px;
   --cs-fab-lift: 0px;
   position: fixed;
   right: calc(var(--cs-fab-gap) + env(safe-area-inset-right, 0px));
@@ -102,12 +102,34 @@ position: relative;
   line-height: 1.2;
   white-space: nowrap;
   text-decoration: none;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 8px 24px rgba(0, 30, 51, 0.28);
+  /*box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 8px 24px rgba(0, 30, 51, 0.28);
+ 
   transform: translateY(calc(-1 * var(--cs-fab-lift)));
   transition: background-color 0.15s ease, box-shadow 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;*/
+      border-radius: 25px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .25);
+    color: #fff;
+    cursor: pointer;
+    display: table-cell;
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    height: 45px;
+    padding: 0 30px;
+    text-align: center;
+    vertical-align: middle;
+       background: #004b81;
+       position: fixed;
+  right: calc(var(--cs-fab-gap) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--cs-fab-gap) + env(safe-area-inset-bottom, 0px));
+  z-index: 998;
+  display: inline-flex;
+  align-items: center;
+  --cs-fab-lift: 0px;
+
 }
-.cs-demo-fab:hover,
+/*.cs-demo-fab:hover,
 .cs-demo-fab:focus-visible {
   background: var(--color-teal-600, #00918f);
   color: #fff;
@@ -117,9 +139,9 @@ position: relative;
 .cs-demo-fab:focus-visible { outline: 3px solid var(--color-orange-500, #e87752); outline-offset: 3px; }
 .cs-demo-fab:active { transform: translateY(calc(-1 * var(--cs-fab-lift))) scale(0.97); }
 .cs-demo-fab::before,
-.cs-demo-fab::after { content: none; } /* no inherited animated-underline pseudo elements */
+.cs-demo-fab::after { content: none; } 
 .cs-demo-fab__icon { flex: 0 0 auto; display: block; }
-
+*/
 /* Tablet */
 @media (max-width: 991px) {
   .cs-demo-fab { --cs-fab-gap: 20px; padding: 13px 20px; font-size: 15px; }

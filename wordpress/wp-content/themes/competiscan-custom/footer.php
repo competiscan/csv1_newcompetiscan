@@ -123,7 +123,6 @@ $competiscan_demo_cal = ( '#learn' === $competiscan_demo_url || false !== strpos
 </footer>
 <!-- Floating "Schedule a Demo" CTA — styles: assets/css/contact.css, behaviour: assets/js/contact.js -->
 <a class="cs-demo-fab" href="<?php echo esc_url( $competiscan_demo_url ); ?>"<?php echo $competiscan_demo_cal ? ' data-cs-calendly' : ''; ?>>
-  <svg class="cs-demo-fab__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><rect x="3" y="4.5" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
   <span class="cs-demo-fab__label"><?php esc_html_e( 'Schedule a Demo', 'competiscan-custom' ); ?></span>
 </a>
 </main>
