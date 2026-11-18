@@ -42,7 +42,6 @@ sv.parentNode.insertBefore(va, sv);
 })(); 
 </script> 
 <!-- end for the VisualVisitor code -->
-
 <?php }
  //}
 ?>
