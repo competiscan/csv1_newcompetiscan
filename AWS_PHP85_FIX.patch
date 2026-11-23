@@ -1,0 +1,11 @@
+diff --git a/aws-api/aws-vendor/aws/aws-sdk-php/src/Credentials/CredentialProvider.php b/aws-api/aws-vendor/aws/aws-sdk-php/src/Credentials/CredentialProvider.php
+--- a/aws-api/aws-vendor/aws/aws-sdk-php/src/Credentials/CredentialProvider.php
++++ b/aws-api/aws-vendor/aws/aws-sdk-php/src/Credentials/CredentialProvider.php
+@@ -69,7 +69,7 @@
+         return self::memoize(
+             call_user_func_array(
+                 'self::chain',
+-                array_merge($localCredentialProviders, $remoteCredentialProviders)
++                array_values(array_merge($localCredentialProviders, $remoteCredentialProviders))
+             )
+         );
