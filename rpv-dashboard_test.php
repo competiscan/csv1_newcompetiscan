@@ -523,7 +523,7 @@ if(!empty($postdata_all)){
     $responseSearch = json_decode($get_data, true);
     //print_r($responseSearch);die;
     if(!empty($responseSearch) AND $responseSearch['Status_code']=="200" AND $responseSearch['data']!="No Search returned no results"){
-        $numRows=$responseSearch['total_records'];
+        $numRows=$responseSearch['total_records'] ?? 0;
         //echo json_encode($responseSearch['internal_payload']);
     }
 }
@@ -1189,7 +1189,7 @@ if(!empty($_SESSION['sess_username'])) {
                     //echo "<pre>";
                     //print_r($responseSearch);
                     if(!empty($responseSearch) AND $responseSearch['Status_code']=="200" AND $responseSearch['data']!='No Search returned no results'){
-                    $numRows=$responseSearch['total_records'];
+                    $numRows=$responseSearch['total_records'] ?? 0;
                     $allbrand='';
                     $sumEVE="";
                     $sumRPV="";
