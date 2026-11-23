@@ -29,7 +29,7 @@ if(!defined('ENV')){
 }
    //if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
         if(ENV == 'localhost'){
-            $siteUrl='http://localhost/competiscan.com/';
+            $siteUrl='http://localhost/csv1_newcompetiscan/';
         }elseif(ENV == 'demo.competiscan.com'){
             $siteUrl='http://demo.competiscan.com/';
         }else{

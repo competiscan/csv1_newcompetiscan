@@ -1,0 +1,41 @@
+diff --git a/nav-common.php b/nav-common.php
+--- a/nav-common.php
++++ b/nav-common.php
+@@ -1,4 +1,34 @@
+ <?php
+ require_once __DIR__ . '/includes/app_base.php';
+ ?>
++<script>
++(function () {
++    var appBasePath = <?= json_encode($APP_BASE_PATH) ?>;
++    if (!appBasePath) return;
++
++    function addAppBase(url) {
++        if (!url || url.charAt(0) !== '/') return url;
++        if (url.indexOf(appBasePath + '/') === 0 || url === appBasePath) return url;
++        return appBasePath + url;
++    }
++
++    function applyAppBase() {
++        document.querySelectorAll('a[href^="/"], img[src^="/"]').forEach(function (element) {
++            if (element.tagName === 'A') {
++                var href = element.getAttribute('href');
++                var updated = addAppBase(href);
++                if (updated !== href) element.setAttribute('href', updated);
++            } else {
++                var src = element.getAttribute('src');
++                var updatedSrc = addAppBase(src);
++                if (updatedSrc !== src) element.setAttribute('src', updatedSrc);
++            }
++        });
++    }
++
++    if (document.readyState === 'loading') {
++        document.addEventListener('DOMContentLoaded', applyAppBase);
++    } else {
++        applyAppBase();
++    }
++})();
++</script>
+ <style>
+ i {

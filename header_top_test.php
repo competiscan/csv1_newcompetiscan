@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/app_base.php';
 require_once('includes/globalSession.php');
 require_once 'product_doc_tracker.php';
 track_user();

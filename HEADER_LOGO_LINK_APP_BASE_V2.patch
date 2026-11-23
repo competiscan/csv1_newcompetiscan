@@ -1,0 +1,6 @@
+diff --git a/header_top_test.php b/header_top_test.php
+--- a/header_top_test.php
++++ b/header_top_test.php
+@@ -84,1 +84,1 @@
+-            <a class="navbar-brand page-scroll" id="logo" href="/">
++            <a class="navbar-brand page-scroll" id="logo" href="<?= $APP_BASE_PATH ?>/">

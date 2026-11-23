@@ -1,0 +1,8 @@
+diff --git a/header_top_test.php b/header_top_test.php
+--- a/header_top_test.php
++++ b/header_top_test.php
+@@ -83,2 +83,2 @@
+-            <a class="navbar-brand page-scroll" id="logo" href="/">
+-				<img src="/images/competiscan-logo.png" alt="Competiscan logo">
++            <a class="navbar-brand page-scroll" id="logo" href="<?= $APP_BASE_PATH ?>/">
++				<img src="<?= $APP_BASE_PATH ?>/images/competiscan-logo.png" alt="Competiscan logo">

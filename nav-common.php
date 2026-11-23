@@ -1,5 +1,19 @@
 <?php
 require_once __DIR__ . '/includes/app_base.php';
+
+
+if(!defined('ENV')){
+    define('ENV',getenv('SERVER_NAME'));
+   }
+
+if(ENV == 'localhost'){
+    $siteUrl='http://localhost/csv1_newcompetiscan/';
+}elseif(ENV == 'demo.competiscan.com'){
+    $siteUrl='http://demo.competiscan.com/';
+}else{
+    $siteUrl='https://www.competiscan.com/';
+} 
+
 ?>
 <style>
 i {
@@ -60,6 +74,8 @@ $uri = $_SERVER['REQUEST_URI'];
 $count = strpos($uri, '?');
 if ($count) $uri = substr($uri, 0, $count);
 
+
+
 $cMI = 'class="current-menu-item"';
 
 if (empty($_SESSION['sess_username'])) {
@@ -107,7 +123,7 @@ if (empty($_SESSION['sess_username'])) {
 
     if ($show_power_search_page) { ?>
         <li <?= $uri == '/fullsearch.php?searchview=2' ? $cMI : '' ?>>
-            <a href="/fullsearch.php?searchview=2">Power Search</a>
+            <a href="<?=$siteUrl;?>fullsearch.php?searchview=2">Power Search</a>
         </li>
     <?php }
      if ($show_power_search_page) { ?>
@@ -118,13 +134,13 @@ if (empty($_SESSION['sess_username'])) {
 
     if ($show_trend_reports_page) { ?>
         <li <?= $uri == '/trend_reports.php' ? $cMI : '' ?>>
-            <a href="/trend_reports.php">Trend Reports</a>
+            <a href="<?=$siteUrl;?>trend_reports.php">Trend Reports</a>
         </li>
     <?php }
 
     if ($show_retrieval_services_page) { ?>
         <li <?= $uri == '/productPickup.php' ? $cMI : '' ?>>
-            <a href="/productPickup.php">Retrieval Services</a>
+            <a href="<?=$siteUrl;?>productPickup.php">Retrieval Services</a>
         </li>
     <?php }
 
@@ -134,13 +150,13 @@ if (empty($_SESSION['sess_username'])) {
             <button class="dropbtn">DASHBOARD<i class="arrow down"></i></button>
             <div class="dropdown-content">
                 <?php if (!empty($_SESSION['sess_dashboard'])) { ?>
-                    <a href="/dashboard.php">Retail Energy Pricing Dashboard</a>
+                    <a href="<?=$siteUrl;?>dashboard.php">Retail Energy Pricing Dashboard</a>
                 <?php } ?>
                 <?php if ($show_digital_dashboard_page) { ?>
-                    <a href="/digital-dashboard.php">Digital Dashboard</a>
+                    <a href="<?=$siteUrl;?>digital-dashboard.php">Digital Dashboard</a>
                 <?php } ?>
                 <?php if ($show_rpv_dashboard_page) { ?>
-                    <a href="/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
+                    <a href="<?=$siteUrl;?>rpv-dashboard.php">Relative Promotional Value Dashboard</a>
                 <?php } ?>
             </div>
         </div>
@@ -151,8 +167,8 @@ if (empty($_SESSION['sess_username'])) {
     <div class="dropdown">
         <button class="dropbtn">PROFILE<i class="arrow down"></i></button>
         <div class="dropdown-content">
-            <a href="/change_password.php">Change Password</a>
-            <a href="/logout.php">Logout</a>
+            <a href="<?=$siteUrl;?>change_password.php">Change Password</a>
+            <a href="<?=$siteUrl;?>logout.php">Logout</a>
         </div>
     </div>
 <?php } ?>
