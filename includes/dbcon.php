@@ -57,7 +57,7 @@ if(!defined('ENV')){
 	define('ENV',getenv('SERVER_NAME'));
 }
 
-if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
+if(ENV == 'localhost' || ENV == 'demo.competiscan.com' || ENV == 'demo1.competiscan.com'){
 define("API_URL_ELASTIC_FAST","https://api1-uat.competiscan.com/elasticsearch-service-fastapi-uat/v1/search");
 define("API_URL_EMAIL_ALERT_FASTAPI","https://api1-uat.competiscan.com/elasticsearch-service-fastapi-uat/v1/search/onlypids");
 define("API_DOWNLOADURL_FASTAPI","https://api1-uat.competiscan.com/elasticsearch-service-fastapi-uat/v1/search/download");
