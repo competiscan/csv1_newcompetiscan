@@ -1,0 +1,14 @@
+diff --git a/fullsearch.php b/fullsearch.php
+--- a/fullsearch.php
++++ b/fullsearch.php
+@@ -287,2 +287,8 @@
+-if(isset($_REQUEST['socialmedia_adtype']) && $enhance==1 && in_array(6,$mChannelID)) $socialmedia_adtype = trim($_REQUEST['socialmedia_adtype']);
+-else $socialmedia_adtype = '';
++if(isset($_REQUEST['socialmedia_adtype']) && $enhance==1 && in_array(6,$mChannelID)) {
++	$socialmedia_adtype = (int) trim($_REQUEST['socialmedia_adtype']);
++	if (!in_array($socialmedia_adtype, array(1, 2), true)) {
++		$socialmedia_adtype = 0;
++	}
++} else {
++	$socialmedia_adtype = 0;
++}

@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/includes/app_base.php';
+?>
 <style>
 i {
     border: solid #666666;

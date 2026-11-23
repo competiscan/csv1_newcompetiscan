@@ -284,8 +284,14 @@ if(isset($_REQUEST['external_link']) && $enhance==1 && in_array(6,$mChannelID)) 
 else $external_link = '';
 
 #################### for the social media sponsered #############################
-if(isset($_REQUEST['socialmedia_adtype']) && $enhance==1 && in_array(6,$mChannelID)) $socialmedia_adtype = trim($_REQUEST['socialmedia_adtype']);
-else $socialmedia_adtype = '';
+if(isset($_REQUEST['socialmedia_adtype']) && $enhance==1 && in_array(6,$mChannelID)) {
+	$socialmedia_adtype = (int) trim($_REQUEST['socialmedia_adtype']);
+	if (!in_array($socialmedia_adtype, array(1, 2), true)) {
+		$socialmedia_adtype = 0;
+	}
+} else {
+	$socialmedia_adtype = 0;
+}
 #################### end for the social media sponsered #############################
 if(isset($_REQUEST['ca_related'])) $ca_related = (int)$_REQUEST['ca_related'];
 else $ca_related = 0;

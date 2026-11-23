@@ -1,0 +1,79 @@
+diff --git a/nav-common.php b/nav-common.php
+--- a/nav-common.php
++++ b/nav-common.php
+@@ -1,3 +1,6 @@
++<?php
++require_once __DIR__ . '/includes/app_base.php';
++?>
+ <style>
+ i {
+     border: solid #666666;
+@@ -52,17 +55,17 @@
+ if (empty($_SESSION['sess_username'])) {
+     // Not logged in
+     ?>
+-    <li <?= $uri == '/about-us/' ? $cMI : '' ?>><a href="/about-us/">About Us</a></li>
+-    <li <?= $uri == '/careers/' ? $cMI : '' ?>><a href="/careers/">Careers</a></li>
+-    <li <?= $uri == '/insights/' ? $cMI : '' ?>><a href="/insights/">Insights</a></li>
+-    <li <?= $uri == '/#contact' ? $cMI : '' ?>><a href="/#contact">Contact Us</a></li>
+-    <li class="login-link <?= $uri == '/login.php' ? 'current-menu-item' : '' ?>">
+-        <a href="/login.php">Login</a>
++    <li <?= $uri == $APP_BASE_PATH . '/about-us/' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/about-us/">About Us</a></li>
++    <li <?= $uri == $APP_BASE_PATH . '/careers/' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/careers/">Careers</a></li>
++    <li <?= $uri == $APP_BASE_PATH . '/insights/' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/insights/">Insights</a></li>
++    <li <?= $uri == $APP_BASE_PATH . '/#contact' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/#contact">Contact Us</a></li>
++    <li class="login-link <?= $uri == $APP_BASE_PATH . '/login.php' ? 'current-menu-item' : '' ?>">
++        <a href="<?= $APP_BASE_PATH ?>/login.php">Login</a>
+@@ -102,17 +105,17 @@
+     if ($show_power_search_page) { ?>
+-        <li <?= $uri == '/fullsearch.php?searchview=2' ? $cMI : '' ?>>
+-            <a href="/fullsearch.php?searchview=2">Power Search</a>
++        <li <?= $uri == $APP_BASE_PATH . '/fullsearch.php?searchview=2' ? $cMI : '' ?>>
++            <a href="<?= $APP_BASE_PATH ?>/fullsearch.php?searchview=2">Power Search</a>
+@@ -111,15 +114,15 @@
+     if ($show_trend_reports_page) { ?>
+-        <li <?= $uri == '/trend_reports.php' ? $cMI : '' ?>>
+-            <a href="/trend_reports.php">Trend Reports</a>
++        <li <?= $uri == $APP_BASE_PATH . '/trend_reports.php' ? $cMI : '' ?>>
++            <a href="<?= $APP_BASE_PATH ?>/trend_reports.php">Trend Reports</a>
+@@ -118,15 +121,15 @@
+     if ($show_retrieval_services_page) { ?>
+-        <li <?= $uri == '/productPickup.php' ? $cMI : '' ?>>
+-            <a href="/productPickup.php">Retrieval Services</a>
++        <li <?= $uri == $APP_BASE_PATH . '/productPickup.php' ? $cMI : '' ?>>
++            <a href="<?= $APP_BASE_PATH ?>/productPickup.php">Retrieval Services</a>
+@@ -132,9 +135,9 @@
+                 <?php if (!empty($_SESSION['sess_dashboard'])) { ?>
+-                    <a href="/dashboard.php">Retail Energy Pricing Dashboard</a>
++                    <a href="<?= $APP_BASE_PATH ?>/dashboard.php">Retail Energy Pricing Dashboard</a>
+                 <?php } ?>
+                 <?php if ($show_digital_dashboard_page) { ?>
+-                    <a href="/digital-dashboard.php">Digital Dashboard</a>
++                    <a href="<?= $APP_BASE_PATH ?>/digital-dashboard.php">Digital Dashboard</a>
+                 <?php } ?>
+                 <?php if ($show_rpv_dashboard_page) { ?>
+-                    <a href="/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
++                    <a href="<?= $APP_BASE_PATH ?>/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
+@@ -147,8 +150,8 @@
+         <button class="dropbtn">PROFILE<i class="arrow down"></i></button>
+         <div class="dropdown-content">
+-            <a href="/change_password.php">Change Password</a>
+-            <a href="/logout.php">Logout</a>
++            <a href="<?= $APP_BASE_PATH ?>/change_password.php">Change Password</a>
++            <a href="<?= $APP_BASE_PATH ?>/logout.php">Logout</a>
+         </div>
+ diff --git a/header_top_test.php b/header_top_test.php
+--- a/header_top_test.php
++++ b/header_top_test.php
+@@ -1,4 +1,6 @@
+ <?php
++require_once __DIR__ . '/includes/app_base.php';
+ require_once('includes/globalSession.php');
+@@ -80,7 +82,7 @@
+-            <a class="navbar-brand page-scroll" id="logo" href="/">
+-				<img src="/images/competiscan-logo.png" alt="Competiscan logo">
++            <a class="navbar-brand page-scroll" id="logo" href="<?= $APP_BASE_PATH ?>/">
++				<img src="<?= $APP_BASE_PATH ?>/images/competiscan-logo.png" alt="Competiscan logo">
+@@ -91,7 +93,7 @@
+-			<span><a href="/">Competiscan</a></span>
++			<span><a href="<?= $APP_BASE_PATH ?>/">Competiscan</a></span>

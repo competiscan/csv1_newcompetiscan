@@ -1,0 +1,9 @@
+diff --git a/nav-common.php b/nav-common.php
+--- a/nav-common.php
++++ b/nav-common.php
+@@ -1,2 +1,5 @@
++<?php
++require_once __DIR__ . '/includes/app_base.php';
++?>
+ <style>
+ i {

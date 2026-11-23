@@ -1,0 +1,26 @@
+diff --git a/nav-common.php b/nav-common.php
+--- a/nav-common.php
++++ b/nav-common.php
+@@ -104,1 +104,1 @@
+-            <a href="/fullsearch.php?searchview=2">Power Search</a>
++            <a href="<?php echo $app_base; ?>/fullsearch.php?searchview=2">Power Search</a>
+@@ -118,1 +118,1 @@
+-            <a href="/trend_reports.php">Trend Reports</a>
++            <a href="<?php echo $app_base; ?>/trend_reports.php">Trend Reports</a>
+@@ -124,1 +124,1 @@
+-            <a href="/productPickup.php">Retrieval Services</a>
++            <a href="<?php echo $app_base; ?>/productPickup.php">Retrieval Services</a>
+@@ -134,1 +134,1 @@
+-                    <a href="/dashboard.php">Retail Energy Pricing Dashboard</a>
++                    <a href="<?php echo $app_base; ?>/dashboard.php">Retail Energy Pricing Dashboard</a>
+@@ -137,1 +137,1 @@
+-                    <a href="/digital-dashboard.php">Digital Dashboard</a>
++                    <a href="<?php echo $app_base; ?>/digital-dashboard.php">Digital Dashboard</a>
+@@ -140,1 +140,1 @@
+-                    <a href="/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
++                    <a href="<?php echo $app_base; ?>/rpv-dashboard.php">Relative Promotional Value Dashboard</a>
+@@ -151,2 +151,2 @@
+-            <a href="/change_password.php">Change Password</a>
+-            <a href="/logout.php">Logout</a>
++            <a href="<?php echo $app_base; ?>/change_password.php">Change Password</a>
++            <a href="<?php echo $app_base; ?>/logout.php">Logout</a>

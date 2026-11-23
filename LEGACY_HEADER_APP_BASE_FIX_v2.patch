@@ -1,0 +1,15 @@
+diff --git a/header_top_test.php b/header_top_test.php
+--- a/header_top_test.php
++++ b/header_top_test.php
+@@ -79,8 +79,11 @@
+-            <a class="navbar-brand page-scroll" id="logo" href="/">
+-				<img src="/images/competiscan-logo.png" alt="Competiscan logo">
++            <?php $app_base = rtrim(str_replace('\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/')), '/'); ?>
++            <?php if ($app_base === '.') { $app_base = ''; } ?>
++            <a class="navbar-brand page-scroll" id="logo" href="<?php echo $app_base ?: '/'; ?>">
++				<img src="<?php echo $app_base; ?>/images/competiscan-logo.png" alt="Competiscan logo">
+             </a>
+@@ -97,7 +100,7 @@
+-			<span><a href="/">Competiscan</a></span>
++			<span><a href="<?php echo $app_base ?: '/'; ?>">Competiscan</a></span>
+*** End Patch

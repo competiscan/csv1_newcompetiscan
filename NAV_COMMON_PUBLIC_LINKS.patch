@@ -1,0 +1,16 @@
+diff --git a/nav-common.php b/nav-common.php
+--- a/nav-common.php
++++ b/nav-common.php
+@@ -64,6 +64,6 @@
+-    <li <?= $uri == '/about-us/' ? $cMI : '' ?>><a href="/about-us/">About Us</a></li>
+-    <li <?= $uri == '/careers/' ? $cMI : '' ?>><a href="/careers/">Careers</a></li>
+-    <li <?= $uri == '/insights/' ? $cMI : '' ?>><a href="/insights/">Insights</a></li>
+-    <li <?= $uri == '/#contact' ? $cMI : '' ?>><a href="/#contact">Contact Us</a></li>
+-    <li class="login-link <?= $uri == '/login.php' ? 'current-menu-item' : '' ?>">
+-        <a href="/login.php">Login</a>
++    <li <?= $uri == $APP_BASE_PATH . '/about-us/' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/about-us/">About Us</a></li>
++    <li <?= $uri == $APP_BASE_PATH . '/careers/' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/careers/">Careers</a></li>
++    <li <?= $uri == $APP_BASE_PATH . '/insights/' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/insights/">Insights</a></li>
++    <li <?= $uri == $APP_BASE_PATH . '/#contact' ? $cMI : '' ?>><a href="<?= $APP_BASE_PATH ?>/#contact">Contact Us</a></li>
++    <li class="login-link <?= $uri == $APP_BASE_PATH . '/login.php' ? 'current-menu-item' : '' ?>">
++        <a href="<?= $APP_BASE_PATH ?>/login.php">Login</a>
