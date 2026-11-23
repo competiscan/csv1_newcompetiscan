@@ -71,7 +71,7 @@ class CredentialProvider
         return self::memoize(
             call_user_func_array(
                 'self::chain',
-                array_merge($localCredentialProviders, $remoteCredentialProviders)
+                array_values(array_merge($localCredentialProviders, $remoteCredentialProviders))
             )
         );
     }
