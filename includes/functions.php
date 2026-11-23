@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+$composer_autoload = __DIR__ . '/../vendor/autoload.php';
+if (is_file($composer_autoload)) {
+    require_once $composer_autoload;
+}
 function updateStateLookup($productID, $delete = false) {
     global $DRW, $DRW_read, $DRW_main, $DRW_crm;
     if (!empty($productID)) {

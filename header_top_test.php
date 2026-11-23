@@ -11,7 +11,7 @@ if(isset($_SESSION['sess_userID'])){
   $session_user_id  ='';
   $andQuery_vist = " and loggin_user_id ='".$loggin_user_id."'";
 }else{
-    $loggin_user_id=''; 
+    $loggin_user_id=0;
     $session_user_id  = session_id();
     $andQuery_vist = " AND client_ip_address='".$client_ip_address."'";
 } 

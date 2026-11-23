@@ -1,0 +1,9 @@
+diff --git a/header_top_test.php b/header_top_test.php
+--- a/header_top_test.php
++++ b/header_top_test.php
+@@ -11,4 +11,4 @@
+   $andQuery_vist = " and loggin_user_id ='".$loggin_user_id."'";
+ }else{
+-    $loggin_user_id=''; 
++    $loggin_user_id=0;
+     $session_user_id  = session_id();

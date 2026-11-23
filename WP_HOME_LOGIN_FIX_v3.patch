@@ -1,0 +1,6 @@
+diff --git a/wordpress/wp-config.php b/wordpress/wp-config.php
+--- a/wordpress/wp-config.php
++++ b/wordpress/wp-config.php
+@@ -9,2 +9,2 @@
+ define('WP_HOME',    'http://localhost/csv1_newcompetiscan/wordpress');
+ define('WP_SITEURL', 'http://localhost/csv1_newcompetiscan/wordpress');

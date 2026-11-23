@@ -1,0 +1,11 @@
+diff --git a/header_top_test.php b/header_top_test.php
+--- a/header_top_test.php
++++ b/header_top_test.php
+@@ -11,7 +11,7 @@
+   $andQuery_vist = " and loggin_user_id ='".$loggin_user_id."'";
+ }else{
+-    $loggin_user_id=''; 
++    $loggin_user_id=0;
+     $session_user_id  = session_id();
+     $andQuery_vist = " AND client_ip_address='".$client_ip_address."'";
+ } 
