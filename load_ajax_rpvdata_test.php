@@ -7,7 +7,7 @@ if($_REQUEST['action']=='load_data'){
     $expo_data=explode(',',$productids_array);
     $posted_jsondata=$_REQUEST['post_data'];
     if(!empty($posted_jsondata)){
-        $APIURLRPV=RPVAPIURL."products-rpv"; 
+        $APIURLRPV=RPVAPIURL_UAT."products-rpv"; 
         $getRPV = callAPI('POST', $APIURLRPV, $posted_jsondata);
         $responseSearchRPV = json_decode($getRPV, true);
         /*echo "<pre>";
@@ -78,7 +78,7 @@ if($_REQUEST['action']=='getStateData'){
     $postCountry['countryid']=$country_data;
     $posted_data=json_encode($postCountry);
     //echo $posted_data;
-    $APIStateURL=RPVAPIURL.'state';
+    $APIStateURL=RPVAPIURL_UAT.'state';
     if(!empty($posted_data)){
     //echo $posted_jsondata;
     if($country_data=='0'){
@@ -129,7 +129,7 @@ if($_REQUEST['action']=='getCategoryData'){
     $postSector['sectors']=$arrayValue;
     $posted_data=json_encode($postSector);
     //echo $posted_data;
-    $APISECTORURL=RPVAPIURL.'data/sectors';
+    $APISECTORURL=RPVAPIURL_UAT .'data/sectors';
     if(!empty($posted_data)){
     $getSector_data = callAPI('POST', $APISECTORURL, $posted_data);
     $response_category = json_decode($getSector_data, true);
@@ -176,7 +176,7 @@ elseif($_REQUEST['action']=='getSubCat'){
     $postSector['sectors']=$arrayValue;
     $posted_data=json_encode($postSector);
     //echo $posted_data;
-    $APISECTORURL=RPVAPIURL.'data/sectors';
+    $APISECTORURL=RPVAPIURL_UAT .'data/sectors';
     if(!empty($posted_data)){
     $getSector_data = callAPI('POST', $APISECTORURL, $posted_data);
     $response_category = json_decode($getSector_data, true);
@@ -223,7 +223,7 @@ elseif($_REQUEST['action']=='getSubSubCat'){
     $postSector['sectors']=$arrayValue;
     $posted_data=json_encode($postSector);
     //echo $posted_data;
-    $APISECTORURL=RPVAPIURL.'data/sectors';
+    $APISECTORURL=RPVAPIURL_UAT .'data/sectors';
     if(!empty($posted_data)){
     $getSector_data = callAPI('POST', $APISECTORURL, $posted_data);
     $response_category = json_decode($getSector_data, true);
