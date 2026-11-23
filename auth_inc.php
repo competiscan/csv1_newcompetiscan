@@ -1,6 +1,6 @@
 <?php
-require_once('auth_config.php');
-require_once('Auth.php');
+require_once __DIR__ . '/auth_config.php';
+require_once __DIR__ . '/Auth.php';
 
 $LOGIN_FORM = '';
 $AUTH_USERNAME = '';

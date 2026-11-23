@@ -1,0 +1,11 @@
+diff --git a/auth_inc.php b/auth_inc.php
+--- a/auth_inc.php
++++ b/auth_inc.php
+@@ -1,4 +1,4 @@
+ <?php
+-require_once('auth_config.php');
+-require_once('Auth.php');
++require_once __DIR__ . '/auth_config.php';
++require_once __DIR__ . '/Auth.php';
+ 
+ $LOGIN_FORM = '';

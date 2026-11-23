@@ -88,7 +88,7 @@ class Auth
     private function _loadStorage()
     {
         if ($this->_storageDriver == 'DB') {
-            require_once 'Auth/Container/DB.php';
+            require_once __DIR__ . '/Auth/Container/DB.php';
             return new Auth_Container_DB($this->_options);
         }
         return null;

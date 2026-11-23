@@ -1,4 +1,12 @@
 <?php
+
+// PHP 8.5 compatibility for the legacy PEAR Auth library.
+if (! function_exists( 'get_magic_quotes_gpc' ) ) {
+    function get_magic_quotes_gpc() {
+        return 0;
+    }
+}
+
 error_reporting( 0 );
 $DATABASEDEBUG = false;
 
