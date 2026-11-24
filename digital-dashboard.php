@@ -389,11 +389,11 @@ if ($_SESSION['digital_data_keyword_search'] != '' ) {
 // echo "<pre>";
 // print_r($postdigita_data);
 // echo "</pre>";
-echo $posted_digital_data=json_encode($postdigita_data,JSON_UNESCAPED_SLASHES);
-echo $APIDIGITALURL=DIGITAL_DASHBOARD_UAT.'dashboard_data';
+$posted_digital_data=json_encode($postdigita_data,JSON_UNESCAPED_SLASHES);
+$APIDIGITALURL=DIGITAL_DASHBOARD_UAT.'dashboard_data';
 $get_digital_data = callAPI('POST', $APIDIGITALURL, $posted_digital_data);
 $response_digital_data = json_decode($get_digital_data, true);
-print_r($response_digital_data);
+//print_r($response_digital_data);
 $num_of_rows = (int)($response_digital_data['total_records'] ?? 0);
 $postdigita_data['export']=true;
 $posted_download= json_encode($postdigita_data);
