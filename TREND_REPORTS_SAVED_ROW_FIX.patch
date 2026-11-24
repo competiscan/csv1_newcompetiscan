@@ -1,0 +1,12 @@
+diff --git a/trend_reports.php b/trend_reports.php
+--- a/trend_reports.php
++++ b/trend_reports.php
+@@ -468,4 +468,8 @@
+ while($row1 = $DRW->fetch_row($savedQuery1)) {
+-        if(strstr($row1['0'],',')){
+-          $expl_sector=explode(',',$row1['0']); 
++        if (!$row1 || !isset($row1[0])) {
++		continue;
++	}
++        if(strstr($row1[0],',')){
++          $expl_sector=explode(',',$row1[0]); 

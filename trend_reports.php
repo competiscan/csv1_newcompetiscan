@@ -88,6 +88,9 @@ $offset1='0';
 $sql_country = "SELECT DISTINCT country_id FROM cscan_country_users_allow where userID='".$_SESSION['sess_userID']."'";
 $rs_country  = $DRW->query( $sql_country,$DRW_read );
 $row_country = $DRW->fetch_array($rs_country);
+if (!$row_country || !isset($row_country[0])) {
+	$row_country = array('BOTH');
+}
 if(isset($_REQUEST['audience_id'])) {
         $audience_id =$_SESSION['sess_audience_id']= $_REQUEST['audience_id'];
         
@@ -466,8 +469,11 @@ $filterSavedArray=array();
 $expl_sector=array();
 //$merge_saved_array=array();
 while($row1 = $DRW->fetch_row($savedQuery1)) {
-        if(strstr($row1['0'],',')){
-          $expl_sector=explode(',',$row1['0']); 
+        if (!$row1 || !isset($row1[0])) {
+            continue;
+        }
+        if(strstr($row1[0],',')){
+          $expl_sector=explode(',',$row1[0]); 
           
         }else{
             $expl_sector[]=$row1[0];
@@ -513,6 +519,9 @@ function displayCategory($ID,$level=0) {
                     $sql_country = "SELECT DISTINCT country_id FROM cscan_country_users_allow where userID='".$_SESSION['sess_userID']."'";
                     $rs_country  = $DRW->query( $sql_country,$DRW_read );
                     $row_country = $DRW->fetch_array($rs_country);
+                    if (!$row_country || !isset($row_country[0])) {
+                        $row_country = array('BOTH');
+                    }
                     if($row_country[0]=='US'){
                        $country_id='1';
                        $andCountryCond = " and (ctr.country_id = $country_id OR ctr.country_id =0)";

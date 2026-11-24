@@ -1,0 +1,8 @@
+diff --git a/trend_reports.php b/trend_reports.php
+--- a/trend_reports.php
++++ b/trend_reports.php
+@@ -89,1 +89,4 @@
+ $row_country = $DRW->fetch_array($rs_country);
++if (!$row_country || !isset($row_country[0])) {
++    $row_country = array('BOTH');
++}

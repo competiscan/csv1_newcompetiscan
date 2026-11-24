@@ -1,0 +1,10 @@
+diff --git a/trend_reports.php b/trend_reports.php
+--- a/trend_reports.php
++++ b/trend_reports.php
+@@ -515,3 +515,6 @@
+                     $sql_country = "SELECT DISTINCT country_id FROM cscan_country_users_allow where userID='".$_SESSION['sess_userID']."'";
+                     $rs_country  = $DRW->query( $sql_country,$DRW_read );
+                     $row_country = $DRW->fetch_array($rs_country);
++                    if (!$row_country || !isset($row_country[0])) {
++				$row_country = array('BOTH');
++				}
