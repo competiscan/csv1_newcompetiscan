@@ -54,7 +54,7 @@ function callAPI($method, $url, $data){
     }
     // OPTIONS:
     curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json','User-Agent:'.$_SERVER['HTTP_USER_AGENT'], 'X-Forwarded-For:'.$_SERVER['REMOTE_ADDR']));
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json','User-Agent:'.$_SERVER['HTTP_USER_AGENT'], 'X-Forwarded-For:'.$_SERVER['REMOTE_ADDR'],'Authorization:'.$_SESSION['sess_access_token']));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     // EXECUTE:
@@ -393,8 +393,8 @@ $posted_digital_data=json_encode($postdigita_data,JSON_UNESCAPED_SLASHES);
 $APIDIGITALURL=DIGITAL_DASHBOARD_UAT.'dashboard_data';
 $get_digital_data = callAPI('POST', $APIDIGITALURL, $posted_digital_data);
 $response_digital_data = json_decode($get_digital_data, true);
-
-$num_of_rows = (int)$response_digital_data['total_records'];
+//print_r($response_digital_data);
+$num_of_rows = (int)($response_digital_data['total_records'] ?? 0);
 $postdigita_data['export']=true;
 $posted_download= json_encode($postdigita_data);
 $currenttime=time();

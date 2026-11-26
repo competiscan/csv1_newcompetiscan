@@ -21,6 +21,8 @@ if(isset($_SERVER['SERVER_PORT'])){
         $baseurl_admin='';
     }else if($hosts_admin=='demo1.competiscan.com'){
         $baseurl_admin='https://demo1.competiscan.com/admin/';
+    }else if($hosts_admin=='demo.competiscan.com'){
+        $baseurl_admin='https://demo.competiscan.com/admin/';
     }else{
         $baseurl_admin='https://www.competiscan.com/admin/';
     }

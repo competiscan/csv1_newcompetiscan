@@ -116,31 +116,6 @@ $sectorExactFlag='';
 $sectorOnlyFlag='';
 $selectVals = array();
 //$postdata['target_market_id']='';
-/*if(isset($_REQUEST['myExcel_download']) AND $_REQUEST['myExcel_download']=='Express Download'){
- //echo "<pre>";
-//print_r($_REQUEST);
- $API_DOWNLOADURL =  API_DOWNLOADURL;
- //$API_DOWNLOADURL = "https://api7.competiscan.com/elasticsearch-service/v1/search/download";
- $posted_jsondata=$_REQUEST['post_json']; 
- if(!empty($posted_jsondata)){
-    $ch_download = curl_init($API_DOWNLOADURL); 
-    curl_setopt($ch_download, CURLOPT_POST, 1);
-    curl_setopt($ch_download, CURLOPT_POSTFIELDS, $posted_jsondata);
-    curl_setopt($ch_download, CURLOPT_RETURNTRANSFER, 1); 
-    curl_setopt($ch_download, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-    $result_download = curl_exec($ch_download);
-    $currenttime=time();
-    $filename = 'Competiscan_Export_'.$currenttime.'_'.date('Y-m-d').'.csv';
-    $fp = fopen('php://output', 'w');
-    header('Content-type: application/csv');
-    header('Content-Disposition: attachment; filename=' . $filename);
-    fwrite($fp, $result_download);
-    #fputcsv($fp, $result_download);
-    fclose($fp);die;
-    }else{
-        echo json_last_error_msg();die;
-    } 
-}*/
 $currentpage_url='http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 $API_URL =API_URL;
 //$API_URL = "https://api7.competiscan.com/elasticsearch-service/v1/search/";

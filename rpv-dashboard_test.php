@@ -14,7 +14,8 @@ require_once('includes/rpv-dashboard-function.php');
 if(!defined('ENV')){
     define('ENV',getenv('SERVER_NAME'));
 }
-// page permission
+
+ //echo $_SESSION['sess_access_token'];
 $page_permission = getPagePermission();
 if(!empty($_SESSION['sess_search_page_permission'])){
     $page_permission=$_SESSION['sess_search_page_permission'];
@@ -517,12 +518,12 @@ if(!empty($postdata_all)){
     $postdata=json_encode($postdata_all);
     echo $postdata;
     //$APISEARCHURL="https://dev02.competiscan.com:5428/es-rpv-search";
-    $APISEARCHURL=RPVAPIURL."es-rpv-advance-search";
+    $APISEARCHURL=RPVAPIURL_UAT."es-rpv-advance-search";
     $get_data = callAPI('POST', $APISEARCHURL, $postdata);
     $responseSearch = json_decode($get_data, true);
     //print_r($responseSearch);die;
     if(!empty($responseSearch) AND $responseSearch['Status_code']=="200" AND $responseSearch['data']!="No Search returned no results"){
-        $numRows=$responseSearch['total_records'];
+        $numRows=$responseSearch['total_records'] ?? 0;
         //echo json_encode($responseSearch['internal_payload']);
     }
 }
@@ -731,13 +732,15 @@ if(!empty($_SESSION['sess_username'])) {
                     <div>
                        <select name="sector_list[]" id="sector_list" multiple="multiple" size="3" class="combo_boxrpv" onchange="getCategory();" tabindex="5">
                         <?php 
-                            $APISECTORURL=RPVAPIURL.'data/sectors';
+                            echo $APISECTORURL=  RPVAPIURL_UAT .'data/sectors';
                             $get_data = callAPI('GET', $APISECTORURL, false);
                             $response = json_decode($get_data, true);
+                            //echo "<pre>";print_r($response);die;
                             $rows_sector_data=$response['data'];
+                          
                             $selectany='selected=selected';
-                             $o_count = count($sector_list_array);
-                            $selectany='';
+                            $o_count = is_countable($sector_list_array);
+                            //$selectany='';
                             if ($o_count == 0) {
                                 $selectany='selected=selected';
                             }
@@ -766,8 +769,8 @@ if(!empty($_SESSION['sess_username'])) {
                         <select name="category_list[]" id="category_list_data_htm" onchange="getSubCategory();"  multiple="multiple" size="3" class="combo_boxrpv" tabindex="6">
                         <?php 
                         
-                         $o_count_sec = count($sector_list_array);
-                         $o_count_sec_sess = count($_SESSION['sector_list']);
+                         $o_count_sec = is_countable($sector_list_array);
+                         $o_count_sec_sess = is_countable($_SESSION['sector_list']);
                          $selectany='';
                          if ($o_count_sec == 0 || $o_count_sec_sess==0 || $category_list_array[0]=='') {
                              $selectany='selected=selected';
@@ -781,7 +784,7 @@ if(!empty($_SESSION['sess_username'])) {
                                 $postSector['sectors']=$arrayValue;
                                 $posted_data=json_encode($postSector);
                                 //echo $posted_data;
-                                $APISECTORURL=RPVAPIURL.'data/sectors';
+                                $APISECTORURL=RPVAPIURL_UAT .'data/sectors';
                                 if(!empty($posted_data)){
                                 $getSector_data = callAPI('POST', $APISECTORURL, $posted_data);
                                 $response_category = json_decode($getSector_data, true);
@@ -811,8 +814,8 @@ if(!empty($_SESSION['sess_username'])) {
                     <div>
                         <select name="subcategory_list[]" id="subcategory_list" onchange="getSubSubCategory();" multiple="multiple" size="3" class="combo_boxrpv" tabindex="7">
                         <?php 
-                         $o_count_cat = count($category_list_array);
-                         $o_count_cat_sess = count($_SESSION['category_list']);
+                         $o_count_cat = is_countable($category_list_array);
+                         $o_count_cat_sess = is_countable($_SESSION['category_list']);
                          $selectany='';
                          if ($o_count_cat == 0 || $o_count_cat_sess==0 || $subcategory_list_array[0]=='') {
                              $selectany='selected=selected';
@@ -826,7 +829,7 @@ if(!empty($_SESSION['sess_username'])) {
                                 $postSector['sectors']=$arrayValue;
                                 $posted_data=json_encode($postSector);
                                 //echo $posted_data;
-                                $APISECTORURL=RPVAPIURL.'data/sectors';
+                                $APISECTORURL=RPVAPIURL_UAT .'data/sectors';
                                 if(!empty($posted_data)){
                                 $getSector_data = callAPI('POST', $APISECTORURL, $posted_data);
                                 $response_subcategory = json_decode($getSector_data, true);
@@ -856,8 +859,8 @@ if(!empty($_SESSION['sess_username'])) {
                     <div>
                         <select name="subsubcategory_list[]" id="subsubcategory_list_htm" multiple="multiple" size="3" class="combo_boxrpv" tabindex="8">
                         <?php 
-                         $o_count_subsub = count($subcategory_list_array);
-                         $o_count_sub_sess = count($_SESSION['subcategory_list']);
+                         $o_count_subsub = is_countable($subcategory_list_array);
+                         $o_count_sub_sess = is_countable($_SESSION['subcategory_list']);
                          $selectany='';
                          if ($o_count_subsub == 0 || $o_count_sub_sess==0 || $subsubcategory_list_array[0]=='') {
                              $selectany='selected=selected';
@@ -871,12 +874,12 @@ if(!empty($_SESSION['sess_username'])) {
                                 $postSector['sectors']=$arrayValue;
                                 $posted_data=json_encode($postSector);
                                 //echo $posted_data;
-                                $APISECTORURL=RPVAPIURL.'data/sectors';
+                                $APISECTORURL=RPVAPIURL_UAT .'data/sectors';
                                 if(!empty($posted_data)){
                                 $getSector_data = callAPI('POST', $APISECTORURL, $posted_data);
                                 $response_subsubcategory = json_decode($getSector_data, true);
-                                //echo "<pre>";
-                                //print_r($response_subcategory);
+                                echo "<pre>";
+                                print_r($response_subcategory); die;
                                 if(!empty($response_subsubcategory)){
                                     foreach($response_subsubcategory as $getSubSubCateName) {
                                     /*if(!in_array($getCateName['sectorID'],$_SESSION['category_list'])){
@@ -912,7 +915,7 @@ if(!empty($_SESSION['sess_username'])) {
                     <div>
                         <select name="country_list"  id="country_list" class="combo_boxrpv" tabindex="9" style="margin-bottom:32px;" onChange ="getAllState();">
                             <?php 
-                             $APIAgeURL=RPVAPIURL.'country';
+                             $APIAgeURL=RPVAPIURL_UAT.'country';
                              $getCountry_data = callAPI('GET', $APIAgeURL, false);
                              $response_country = json_decode($getCountry_data, true);
                              $rowcountry_data=$response_country['data'];
@@ -953,7 +956,7 @@ if(!empty($_SESSION['sess_username'])) {
                             $postCountry['countryid']=$country_data;
                             $posted_data=json_encode($postCountry);
                             //echo $posted_data; die;
-                            $APIStateURL=RPVAPIURL.'state';
+                            $APIStateURL=RPVAPIURL_UAT.'state';
                             if($country_data=='0'){
                                 $getState_data = callAPI('GET', $APIStateURL, false); 
                             }else{
@@ -989,7 +992,7 @@ if(!empty($_SESSION['sess_username'])) {
                     <div>
                         <select name="age_list[]"  id="age_list" multiple="multiple" size="3" class="combo_boxrpv city_list" tabindex="11">
                             <?php 
-                             $APIAgeURL=RPVAPIURL.'age';
+                             $APIAgeURL=RPVAPIURL_UAT.'age';
                              $getage_data = callAPI('GET', $APIAgeURL, false);
                              $response_age = json_decode($getage_data, true);
                              $rowsage_data=$response_age['data'];
@@ -1027,7 +1030,7 @@ if(!empty($_SESSION['sess_username'])) {
                 <div>
                     <select name="income_list[]"  id="income_list" multiple="multiple" size="3" class="combo_boxrpv city_list" tabindex="12">
                         <?php 
-                        $APIIncomeURL=RPVAPIURL.'income';
+                        $APIIncomeURL=RPVAPIURL_UAT.'income';
                         $get_income_data = callAPI('GET', $APIIncomeURL, false);
                         $response_income = json_decode($get_income_data, true);
                         $rows_income_data=$response_income['data'];
@@ -1186,7 +1189,7 @@ if(!empty($_SESSION['sess_username'])) {
                     //echo "<pre>";
                     //print_r($responseSearch);
                     if(!empty($responseSearch) AND $responseSearch['Status_code']=="200" AND $responseSearch['data']!='No Search returned no results'){
-                    $numRows=$responseSearch['total_records'];
+                    $numRows=$responseSearch['total_records'] ?? 0;
                     $allbrand='';
                     $sumEVE="";
                     $sumRPV="";
@@ -1490,10 +1493,10 @@ function getCategory() {
     if(str!='0'){
         $.ajax({          
             type: "POST",
-            url: "load_ajax_rpvdata.php",
+            url: "load_ajax_rpvdata_test.php",
             data: {sector_list:str,cat_list:cat_id,action:'getCategoryData'},
             success: function(data){
-                //console.log(data);
+                console.log(data);
                 $("#category_list_data_htm").html(data);
                 getSubCategory();
             }
@@ -1538,7 +1541,7 @@ function getSubCategory() {
             if(cat_id!=""){
                 $.ajax({          
                         type: "POST",
-                        url: "load_ajax_rpvdata.php",
+                        url: "load_ajax_rpvdata_test.php",
                         data: {cat_list:cat_id,subcat_id:subcat_id,action:'getSubCat',},
                         success: function(data){
                          $('#subcategory_list').html(data);
@@ -1584,7 +1587,7 @@ function getSubCategory() {
             if(subcat_id!=""){
                 $.ajax({          
                         type: "POST",
-                        url: "load_ajax_rpvdata.php",
+                        url: "load_ajax_rpvdata_test.php",
                         data: {subcat_id:subcat_id,subsubcat_id:subsubcat_id,action:'getSubSubCat',},
                         success: function(data){
                          $('#subsubcategory_list_htm').html(data);
@@ -1609,7 +1612,7 @@ function getAllState(){
     var str_state=str_state.slice(0,str_state.length -1);
     $.ajax({          
             type: "POST",
-            url: "load_ajax_rpvdata.php",
+            url: "load_ajax_rpvdata_test.php",
             data: {country:country,state_list:str_state,action:'getStateData'},
             success: function(data){
                 //console.log(data);
@@ -1625,7 +1628,7 @@ $('.myExcel_download').click(function() {
     var total_record="<?php echo $numRows; ?>";
         $.ajax({          
         type: "POST",
-        url: "load_ajax_rpvdata.php",
+        url: "load_ajax_rpvdata_test.php",
         data: {post_data:JSON.stringify(source),action:'express_download'},
         beforeSend: function () {
         $('#overlay').css("display", "block");

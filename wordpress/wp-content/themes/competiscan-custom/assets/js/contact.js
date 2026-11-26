@@ -40,6 +40,29 @@
     });
   })();
 
+  // --- Floating "Schedule a Demo" button (footer.php) ------------------------
+  // Clicks are already handled by the [data-cs-calendly] listener above. This
+  // only keeps the fixed button clear of the footer's bottom bar ("Back to top"):
+  // while that bar is on screen, --cs-fab-lift raises the button above it.
+  (function () {
+    var fab = document.querySelector('.cs-demo-fab');
+    var bar = document.querySelector('.site-footer .footer-bottom');
+    if (!fab || !bar) { return; }
+    var queued = false;
+    function update() {
+      queued = false;
+      var overlap = window.innerHeight - bar.getBoundingClientRect().top;
+      fab.style.setProperty('--cs-fab-lift', (overlap > 0 ? Math.ceil(overlap) : 0) + 'px');
+    }
+    function queue() {
+      if (!queued) { queued = true; window.requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    window.addEventListener('load', queue);
+    queue();
+  })();
+
   var overlay = document.querySelector('[data-cs-contact-modal]');
   if (!overlay) return;
 
