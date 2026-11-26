@@ -108,9 +108,11 @@ if (empty($_SESSION['sess_username'])) {
         </li>
     <?php }
      if ($show_power_search_page) { ?>
+     <?php if ($_SESSION['sess_userID']=='7561' || $_SESSION['sess_userID']=='88286'|| $_SESSION['sess_userID']=='15720'||$_SESSION['sess_userID']=='87508' || $_SESSION['sess_userID']=='82941') { ?>
         <li <?= $uri == 'https://cp.pre-prod.competiscan.com/power_search_v2' ? $cMI : '' ?>>
             <a href="https://cp.pre-prod.competiscan.com/power_search_v2">Gallery</a>
         </li>
+    <?php } ?>
     <?php }
 
     if ($show_trend_reports_page) { ?>
