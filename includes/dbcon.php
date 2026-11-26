@@ -98,6 +98,9 @@ define("APIURL_CHART_UAT","https://myexcel.competiscan.com/");
 define("APIURL_CHART_PROD","https://myexcel.competiscan.com/");
 
 }else{
+define("API_URL_ELASTIC_FAST","https://api1.competiscan.com/elasticsearch/v1/search/");
+define("API_URL_EMAIL_ALERT_FASTAPI","https://api1.competiscan.com/elasticsearch/v1/search/onlypids");
+define("API_DOWNLOADURL_FASTAPI","https://api1.competiscan.com/elasticsearch/v1/search/download");
 define("API_URL","https://api1.competiscan.com/elasticsearch/v1/search/");
 define("API_URL_UAT","https://api1-uat.competiscan.com/elasticsearch/v1/search/");
 define("API_DOWNLOADURL","https://api1.competiscan.com/elasticsearch/v1/search/download");
