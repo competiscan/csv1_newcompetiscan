@@ -6,6 +6,17 @@ include 'header_top.php';
 if(!defined('ENV')){
 define('ENV',getenv('SERVER_NAME'));
 }
+
+  
+if(ENV == 'localhost'){
+	$siteUrl='http://localhost/competiscan.com/sso_auth_uat.php';
+}elseif(ENV == 'demo.competiscan.com'){
+	$siteUrl='http://demo.competiscan.com/';
+}elseif(ENV == 'demo1.competiscan.com'){
+	$siteUrl='http://demo1.competiscan.com/sso_auth_uat.php';
+}else{
+	$siteUrl='https://competiscan.com/sso_auth_uat.php';
+}
 /*if (!isset($_SESSION)) {
     echo "Session not started or session data is missing.";
 } else {
@@ -32,7 +43,7 @@ if(isset($_REQUEST['sso_company']) and $_REQUEST['sso_company']!=''){
 		$sso_domain_name=$_SESSION['sso_domain_name']=$data_sso[5];
 		$state_param=$sso_cleint_id;
 		//header("Location: $sso_domain_name/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=https%3A%2F%2Fcompetiscan.com%2Fsso_auth_main.php&state=$state_param");
-		header("Location: $sso_domain_name/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=https://competiscan.com/sso_auth_uat.php&state=$state_param");
+		header("Location: $sso_domain_name/oauth2/authorize?client_id=$sso_cleint_id&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone&redirect_uri=$siteUrl&state=$state_param");
 		exit();
 	}else{
 		$successMessage=1;

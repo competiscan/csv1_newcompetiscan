@@ -14,6 +14,20 @@ echo "<pre>";
 // echo "CLIENT ID:".CLIENT_ID."<br/>";
 // echo "CLIENT SECRET:".CLIENT_SECRET."<br/>";
 // echo "CODE:".$_GET['code']."<br/>";
+if(!defined('ENV')){
+    define('ENV',getenv('SERVER_NAME'));
+   }
+  
+//if(ENV == 'localhost' || ENV == 'demo.competiscan.com'){
+    if(ENV == 'localhost'){
+        $siteUrl='http://localhost/competiscan.com/login_test.php';
+    }elseif(ENV == 'demo.competiscan.com'){
+        $siteUrl='http://demo.competiscan.com/';
+    }elseif(ENV == 'demo1.competiscan.com'){
+        $siteUrl='http://demo1.competiscan.com/login_test.php';
+    }else{
+        $siteUrl='https://www.competiscan.com/login_test.php';
+    } 
 $sso_cleint_id="";
 $sso_cleint_secret="";
 $sso_domain_name="";
@@ -61,7 +75,7 @@ if(isset($_GET['code']) and $_GET['code']!="" && $sso_cleint_id!="" && $sso_doma
    $err = curl_error($curl);
    curl_close($curl);
    if($err) {
-      header("Location:https://competiscan.com/login_test.php"); exit;
+      header("Location: $siteUrl"); exit;
       //echo "cURL Error #01: " . $err; die;
    }else {
       // echo "<pre>";
@@ -103,7 +117,7 @@ if(isset($_GET['code']) and $_GET['code']!="" && $sso_cleint_id!="" && $sso_doma
             unset($_SESSION['sso_cleint_secret']);  
             unset($_SESSION['sso_domain_name']);  
             #header("http://localhost/competiscan.com/login_test.php"); exit;
-            header("Location:https://competiscan.com/login_test.php"); exit;
+            header("Location: $siteUrl"); exit;
          }
       }
       if($response['error']=='invalid_grant'){
